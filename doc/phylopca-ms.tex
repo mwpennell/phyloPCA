@@ -1,0 +1,60 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[osf]{mathpazo}
+\usepackage{ms}
+\usepackage{natbib}
+\usepackage{lineno}
+\usepackage{graphicx}
+\usepackage{caption}
+\modulolinenumbers[5]
+\linenumbers
+
+\pdfminorversion=3
+
+\makeatletter
+\renewcommand{\@biblabel}[1]{\quad#1.}
+\makeatother
+
+\title{Standard principle components should not be used in phylogenetic comparative analyses}
+\author{
+Josef C. Uyeda$^{1,*}$ \& Matthew W. Pennell$^1$
+}
+
+\date{}
+\affiliation{
+ $^{1}$ Department of Biological Sciences \& Institute for Bioinformatics and Evolutionary Studies, University of Idaho, Moscow, ID 83844, U.S.A.\\ 
+ $^{*}$ Email for correspondence: \texttt{uyedaj@uidaho.edu}\\
+}
+
+\runninghead{PCA in comparative analyses}
+\keywords{Phylogenetic comparative methods, principle components, Brownian motion, Ornstein-Uhlenbeck}
+
+
+\begin{document}
+
+\mstitlepage
+\parindent=1.5em
+\addtolength{\parskip}{.3em}
+\vfill
+
+\section{Abstract}
+something
+\vfill
+
+\newpage
+
+\section{Introduction}
+The units of measurements are not neutral or arbitrary; different ways of representing the data can change the meaning of the measurements and alter the interpretations of subsequent statistical analyses (Hand 2004, Hansen and Houle 2008, Houle et al. 2011). Therefore careful attention needs to be paid to how data is measured and how it can be transformed. Furthermore, this should be done with the scientific question in mind in order to ensure that resulting inferences are meaningful (Houle et al. 2011). 
+
+For multivariate data, a common transformation is to convert it from a variance-covariance (vcv) representation into its principle components (PC) or principle coordinates (PCo) axes. This involves computing a set of eigenvectors that are by definition, orthogonal to (i.e., independent of) one another. This is a very convenient representation 
+
+\section{Methods}
+\begin{equation}
+\mathbf{a}=[(\mathbf{1}^\prime \mathbf{C}^{-1} \mathbf{1})^{-1} 
+\mathbf{1}^\prime \mathbf{C}^{-1} \mathbf{X}]^\prime
+\end{equation}
+
+\begin{equation}
+\mathbf{R} = (n-1)^{-1} (\mathbf{X} - \mathbf{1a}^\prime ) \mathbf{C}^{-1} 
+(\mathbf{X} - \mathbf{1a}^\prime )
+\end{equation}
+\end{document}
