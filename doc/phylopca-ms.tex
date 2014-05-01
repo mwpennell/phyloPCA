@@ -22,7 +22,7 @@ Josef C. Uyeda$^{1,*}$ \& Matthew W. Pennell$^1$
 \date{}
 \affiliation{
  $^{1}$ Department of Biological Sciences \& Institute for Bioinformatics and Evolutionary Studies, University of Idaho, Moscow, ID 83844, U.S.A.\\ 
- $^{*}$ Email for correspondence: \texttt{uyedaj@uidaho.edu}\\
+ $^{*}$ Email for correspondence: \texttt{pseudacris@gmail.com}\\
 }
 
 \runninghead{PCA in comparative analyses}
@@ -52,6 +52,8 @@ Computing PC scores prior to analyses is a common procedure in phylogenetic comp
 \citet{Revell2008} developed a procedure (explained in detail below) for converting multivariate data into ``phylogenetically corrected'' PC axes, by assuming that the original data evolved along the phylogeny using a Brownian motion (BM) model of evolution. In his analysis of simulated data, he demonstrated that failing to take phylogeny into can bias the estimation of eigenvalues. Here we expand upon his argument and demonstrate that performing comparative analyses on standard PCs is positively misleading and can lead researchers to inadvertantly make biological inferences from statistical artifacts. Our point has been made in other fields that deal with autocorrelation between observations, such as population genetics \citep{Novembre}, ecology \citep{Podani2002}, climate research \citep{Richman1986} and paleobiology \citep{Bookstein2012}. However, the connection between these previous results and phylogenetic comparative data has not been explicitly made and standard PCs continue to be widely used in the field. Furthermore, \citet{Revell2008} used a BM model to calculate the phylogenetically--corrected PC axes; it is unclear whether this is a valid procedure when alternate models (e.g., Ornstein-Uhlenbeck) are fit to the data. We argue that standard PC axes should never be analyzed in a phylogenetic comparative biology and point to alternatives that have been developed previously and to future directions for fully multivariate comparative methods.
 
 \section{Methods}
+\subsection{Computing PC scores}
+
 \begin{equation}
 \mathbf{a}=[(\mathbf{1}^\prime \mathbf{C}^{-1} \mathbf{1})^{-1} 
 \mathbf{1}^\prime \mathbf{C}^{-1} \mathbf{X}]^\prime
@@ -61,6 +63,23 @@ Computing PC scores prior to analyses is a common procedure in phylogenetic comp
 \mathbf{R} = (n-1)^{-1} (\mathbf{X} - \mathbf{1a}^\prime ) \mathbf{C}^{-1} 
 (\mathbf{X} - \mathbf{1a}^\prime )
 \end{equation}
+
+\subsection{Simulations}
+
+\section{Results}
+
+\section{Discussion}
+
+Discussion of main results
+
+\subsection{Phylogenetic PCA for non-Brownian models}
+Does PhyloPCA works for non brownian models
+
+\subsection{Alternatives to PCA}
+Discuss developments of multivariate comparative methods with a focus on interpretability
+
+\section{Concluding remarks}
+Drive the point home
 
 \bibliographystyle{jecol}
 \bibliography{phylopca.bib}
