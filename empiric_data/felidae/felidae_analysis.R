@@ -20,12 +20,6 @@ dt <- log(data[mm,2:8])
 pc <- princomp(dt)
 ppc <- phyl.pca(phy.fel,dt)
 
-## Taking a look at the principal component analysis:
-pc$loadings
-pc$scores
-ppc$L
-ppc$S
-
 ## Fitting the models:
 models = c("BM", "OUrandomRoot", "EB")
 rawfits <- list()
@@ -38,24 +32,27 @@ for(i in 1:length(models)){
 }
 
 ## Get the AICw:
-raw.aicw <- list()
-pc.aicw <- list()
-ppc.aicw <- list()
-for(i in 1:length(models)){
-    raw.aicw[[i]] <- aicw(sapply(1:dim(dt)[2], function(x) rawfits[[i]][[x]]$aic))$w
-    pc.aicw[[i]] <- aicw(sapply(1:dim(dt)[2], function(x) pcfits[[i]][[x]]$aic))$w
-    ppc.aicw[[i]] <- aicw(sapply(1:dim(dt)[2], function(x) ppcfits[[i]][[x]]$aic))$w
-}
+bm.aicw <- lapply(1:dim(dt)[2], function(x) aicw(c(rawfits[[1]][[x]]$aic, pcfits[[1]][[x]]$aic, ppcfits[[1]][[x]]$aic))$w)
+ou.aicw <- lapply(1:dim(dt)[2], function(x) aicw(c(rawfits[[2]][[x]]$aic, pcfits[[2]][[x]]$aic, ppcfits[[2]][[x]]$aic))$w)
+eb.aicw <- lapply(1:dim(dt)[2], function(x) aicw(c(rawfits[[3]][[x]]$aic, pcfits[[3]][[x]]$aic, ppcfits[[3]][[x]]$aic))$w)
+
+## Make result tables:
+bm.table <- do.call(rbind, bm.aicw)
+colnames(bm.table) <- c("raw","pc","ppc")
+ou.table <- do.call(rbind, ou.aicw)
+colnames(ou.table) <- c("raw","pc","ppc")
+eb.table <- do.call(rbind, eb.aicw)
+colnames(eb.table) <- c("raw","pc","ppc")
 
 ## Plots:
 pdf("Felidae_pcs.pdf")
 par(mfrow = c(3,3))
-for(i in 1:length(models)){
-    plot(1:dim(dt)[2], raw.aicw[[i]], main = paste(models[i],"raw",sep="_")
+for(i in 1:3){
+    plot(1:dim(dt)[2], bm.table[,i], main = paste(models[1],colnames(bm.table)[i],sep="_")
          , ylim = c(0.0,1.0), ylab = "AICw", xlab = "PCs")
-    plot(1:dim(dt)[2], pc.aicw[[i]], main = paste(models[i],"pc",sep="_")
+    plot(1:dim(dt)[2], ou.table[,i], main = paste(models[2],colnames(ou.table)[i],sep="_")
          , ylim = c(0.0,1.0), ylab = "AICw", xlab = "PCs")
-    plot(1:dim(dt)[2], ppc.aicw[[i]], main = paste(models[i],"ppc",sep="_")
+    plot(1:dim(dt)[2], eb.table[,i], main = paste(models[3],colnames(eb.table)[i],sep="_")
          , ylim = c(0.0,1.0), ylab = "AICw", xlab = "PCs")
 }
 dev.off()
