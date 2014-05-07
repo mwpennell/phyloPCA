@@ -32,27 +32,33 @@ for(i in 1:length(models)){
 }
 
 ## Get the AICw:
-bm.aicw <- lapply(1:dim(dt)[2], function(x) aicw(c(rawfits[[1]][[x]]$aic, pcfits[[1]][[x]]$aic, ppcfits[[1]][[x]]$aic))$w)
-ou.aicw <- lapply(1:dim(dt)[2], function(x) aicw(c(rawfits[[2]][[x]]$aic, pcfits[[2]][[x]]$aic, ppcfits[[2]][[x]]$aic))$w)
-eb.aicw <- lapply(1:dim(dt)[2], function(x) aicw(c(rawfits[[3]][[x]]$aic, pcfits[[3]][[x]]$aic, ppcfits[[3]][[x]]$aic))$w)
+bm.aic <- lapply(1:dim(dt)[2], function(x) (c(rawfits[[1]][[x]]$aic, pcfits[[1]][[x]]$aic, ppcfits[[1]][[x]]$aic)))
+ou.aic <- lapply(1:dim(dt)[2], function(x) (c(rawfits[[2]][[x]]$aic, pcfits[[2]][[x]]$aic, ppcfits[[2]][[x]]$aic)))
+eb.aic <- lapply(1:dim(dt)[2], function(x) (c(rawfits[[3]][[x]]$aic, pcfits[[3]][[x]]$aic, ppcfits[[3]][[x]]$aic)))
+all.aicw <- lapply(1:dim(dt)[2], function(x) lapply(1:3, function(y) aicw(c(bm.aic[[x]][y], ou.aic[[x]][y], eb.aic[[x]][y]))$w))
+
 
 ## Make result tables:
-bm.table <- do.call(rbind, bm.aicw)
-colnames(bm.table) <- c("raw","pc","ppc")
-ou.table <- do.call(rbind, ou.aicw)
-colnames(ou.table) <- c("raw","pc","ppc")
-eb.table <- do.call(rbind, eb.aicw)
-colnames(eb.table) <- c("raw","pc","ppc")
+#bm.table <- do.call(rbind, bm.aicw)
+#colnames(bm.table) <- c("raw","pc","ppc")
+#ou.table <- do.call(rbind, ou.aicw)
+#colnames(ou.table) <- c("raw","pc","ppc")
+#eb.table <- do.call(rbind, eb.aicw)
+#colnames(eb.table) <- c("raw","pc","ppc")
+bm.table <- sapply(all.aicw, function(x) sapply(x, function(y) y[1]))
+ou.table <- sapply(all.aicw, function(x) sapply(x, function(y) y[2]))
+eb.table <- sapply(all.aicw, function(x) sapply(x, function(y) y[3]))
+rownames(bm.table) <- rownames(ou.table) <- rownames(eb.table) <- c("raw","pc","ppc")
 
 ## Plots:
 pdf("Felidae_pcs.pdf")
 par(mfrow = c(3,3))
 for(i in 1:3){
-    plot(1:dim(dt)[2], bm.table[,i], main = paste(models[1],colnames(bm.table)[i],sep="_")
+    plot(1:dim(dt)[2], bm.table[i,], main = paste(models[1],rownames(bm.table)[i],sep="_")
          , ylim = c(0.0,1.0), ylab = "AICw", xlab = "PCs")
-    plot(1:dim(dt)[2], ou.table[,i], main = paste(models[2],colnames(ou.table)[i],sep="_")
+    plot(1:dim(dt)[2], ou.table[i,], main = paste(models[2],rownames(ou.table)[i],sep="_")
          , ylim = c(0.0,1.0), ylab = "AICw", xlab = "PCs")
-    plot(1:dim(dt)[2], eb.table[,i], main = paste(models[3],colnames(eb.table)[i],sep="_")
+    plot(1:dim(dt)[2], eb.table[i,], main = paste(models[3],rownames(eb.table)[i],sep="_")
          , ylim = c(0.0,1.0), ylab = "AICw", xlab = "PCs")
 }
 dev.off()
