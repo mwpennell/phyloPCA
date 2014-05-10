@@ -1,5 +1,5 @@
 \documentclass[a4paper,12pt]{article}
-%\usepackage[osf]{mathpazo}
+\usepackage[osf]{mathpazo}
 \usepackage{ms}
 \usepackage{natbib}
 \usepackage{lineno}
@@ -26,7 +26,7 @@ Josef C. Uyeda$^{1,*}$, Daniel S. Caetano$^1$, and Matthew W. Pennell$^1$
 }
 
 \runninghead{PCA in comparative analyses}
-\keywords{Phylogenetic comparative methods, principal components, Brownian motion, Ornstein-Uhlenbeck}
+\keywords{Phylogenetic comparative methods, principal components, Brownian motion, Ornstein-Uhlenbeck, multivariate statistics}
 
 
 \begin{document}
@@ -38,59 +38,103 @@ Josef C. Uyeda$^{1,*}$, Daniel S. Caetano$^1$, and Matthew W. Pennell$^1$
 
 \section{Abstract}
 \begin{enumerate}
-\item A common procedure when analyzing multivariate data in a phylogenetic framework is to first transform the data into a set of principal components (PCs). Though techniques exist for controlling for phylogeny when performing this transformation, standard principal components continue to be widely used in comprative analyses.
-%% Daniel: Feel we should acknowledge the publications that do make use of the phylo-corrected approach.
+\item A common procedure when analyzing multivariate data in a phylogenetic framework is to first transform the data into a set of principal component (PC) axes. Techniques for ``correcting for phylogeny'' when computing PCs have been developed and applied widely in the empirical literature. However, standard (i.e., uncorrected) principal components continue to be widely used in comprative analyses.
 
-\item We demonstrate that failing to include phylogenetic relationships when calculating PC scores will positively mislead inferences of model choice and parameter estimation.  We argue that it is not valid to calculate PCs for interspecific data without including the phylogeny in the data transformation.
+\item We demonstrate that failing to include phylogenetic relationships when calculating PC scores will mislead inferences in a predictable manner. Specifically, even when data is simulated under Brownian motion (BM), the first several PC scores will appear to have evolved rapidly early in a clade's history and slowed down towards the present day.
 
-\item The primary method for calculating ``phylogenetically corrected'' PC scores relies on the assumption of a Brownian motion (BM) model of trait evolution. We test whether this assumption is robust to alternative models. We find that for many common models of evolution, calculating PC scores based on a BM model is a reasonable approximation though this approximation gets worse as the dimensionality of the analysis.
+\item The primary method for calculating ``phylogenetically corrected'' PC scores relies on the assumption that the traits have evolved under a multivariate BM model. It is unknown whether this assumption is reasonable if the actual traits have evolved under more complex scenarios. Using simulations, we find that for many common models of evolution, calculating PC scores based on a BM model is a reasonable approximation though this approximation gets worse as the dimensionality of the analysis increases.
 
-\item \emph{Synthesis:} While incorporating phylogeny when calculating PC scores does remove bias in many cases, a more fundamental issue remains when analyzing PCs in a comparative framework --- that drawing meaningful evolutionary inferences from models fit to PCs is challenging. We discuss alternatives measures and suggest that further theoretical and statistical developments are needed to fully make use of and interpret multivariate comparative data.
+\item \emph{Synthesis:} While incorporating phylogeny when calculating PC scores does remove bias in many cases, a more fundamental issue remains when analyzing PCs in a comparative framework --- that drawing meaningful evolutionary inferences from models fit to PCs is challenging. Alternatives approaches for modeling multivariate data on a phylogeny are likely to be more informative, though further statistical and conceptual innovations will be necessary for these to be more broadly applicable.
 \end{enumerate} 
 
 \newpage
 
 \section{Introduction}
-The units of measurements are not neutral or arbitrary; different ways of representing the same set of data can change the meaning of the measurements and alter the interpretations of subsequent statistical analyses \citep{Hand2004, HansenHoule2008, Houle2011}. Therefore, careful attention needs to be paid to how data is measured and how it can be transformed. Furthermore, this should be done with the scientific question in mind in order to ensure that resulting inferences are meaningful \citep{Houle2011}. 
+The units of measurements are not neutral or arbitrary; different ways of representing the same set of data can change the meaning of the measurements and alter the interpretations of subsequent statistical analyses \citep{Hand2004, HansenHoule2008, Houle2011}. Therefore, careful attention needs to be paid to how data is measured and how it is transformed. Furthermore, this should be done with the scientific question in mind in order to ensure that resulting inferences are meaningful \citep{Houle2011}. 
 
-For multivariate data, a common transformation is to represent the data in terms of its principal components (PC) axes. This involves converting a matrix of possibly correlated observations into a set of linear components that are by definition, orthogonal to (i.e., independent of) one another. The first PC axis is the eigenvector in the direction of the greatest variance, the second, the second greatest variance, etc. This is a very convenient representation of the data as the values for each observation for a given PC axes can be statistically analyzed independent of values for all other PCs. 
+Most approaches for studying evolution in a phylogenetic comparative framework were developed for univariate data \citep[reviewed in][]{PennellHarmon}. Even classical approaches for testing for correlated evolution across a phylogeny \citep[e.g.,][]{Felsenstein1985, Grafen1989, HarveyPagel1991} fundamentally model each trait as having evolved under an evolutionary process that is independent of the state of the other \citep{HansenOrzack2005}. However, the traits that we are actually interested in studying have likely evolved in concert with a suite of other traits and considering each trait is isolation may give a distorted picture of reality. Therefore, it is often desirable to reduce the multivariate dataset into a set of linear combinations of traits that are orthogonal to one another, such that each linear combination can then be analyzed with common comparative methods.
 
-Computing PC scores prior to analyses is a common procedure in phylogenetic comparative biology. It is often done when the data is by nature, multivariate and different measures are correlated with one another. Typical examples of such data include geometric morphometric data \citep[e.g.,][]{Dornburg2011, Hunt2013}, measurements of multiple morphological traits \citep[e.g.,][]{Harmon2010, BergmannIrshick2012, Weir2012, Pienaar2013}, and climatic data \citep[e.g.,][]{KozakWiens2010, Schnitzler2012}. Phylogenetic comparative methods \citep[PCMs; recently reviewed by][]{PennellHarmon} have been developed specifically to make use of the fact that species are non-independent data points owing to shared ancestry \citep{Felsenstein1985}, and researchers from many different fields have taken an interest in these methods. While the importance of considering phylogeny is the analyses of comparative data is widely recognized, the fact that data transformations should also incorporate phylogenetic information is not.
+The most common method for reducing the dimensionality of the dataset is to perform Principal Components Analyses (PCA) prior to analyzing the data using phylogenetic comparative methods. The first PC axis is the eigenvector in the direction of greatest variance, the second PC axis, the second greatest variance, and so on. However, standard methods for calculating PC scores assume that the samples are independent of one another, which is hardly ever the case for comparative data --- as a result of shared common ancestry, relatives are likely to share many traits and trait combinations. This fact is of course, now almost universally recognized by biologists and conducting comparative analyses without considering the phylogenetic relationships of species is anathema to most evolutionary biologists. 
 
-\citet{Revell2008} developed a procedure (explained in detail below) for converting multivariate data into ``phylogenetically corrected'' PC axes, by assuming that the original data evolved along the phylogeny using a Brownian motion (BM) model of evolution. In his analysis of simulated data, he demonstrated that failing to take phylogeny into can bias the estimation of eigenvalues. Here we expand upon his argument and demonstrate that performing comparative analyses on standard PCs is positively misleading and can lead researchers to inadvertantly make biological inferences from statistical artifacts. Our point has been made in other fields that deal with autocorrelation between observations, such as population genetics \citep{Novembre}, ecology \citep{Podani2002}, climate research \citep{Richman1986} and paleobiology \citep{Bookstein2012}. However, the connection between these previous results and phylogenetic comparative data has not been explicitly made and standard PCs continue to be widely used in the field. Furthermore, \citet{Revell2008} used a BM model to calculate the phylogenetically--corrected PC axes; it is unclear whether this is a valid procedure when alternate models, e.g., Ornstein-Uhlenbeck \citep[OU;][]{Hansen1997} are fit to the data. We argue that standard PC axes should never be analyzed in a phylogenetic comparative biology and point to alternatives that have been developed previously and to future directions for fully multivariate comparative methods.
+However, the necessity of considering phylogeny in some types of data transformations \citep{Revell2008} is not similarly recognized. Many researchers --- most of whom would never consider analyzing comparative data in a non--phylogenetic context --- continue the practice of conducting comparative analyses on standard PCs and thus inadvertantly introduce substantial bias into their analyses. Typical examples of traits where this is done include geometric morphometric landmarks \citep[e.g.,][]{Dornburg2011, Hunt2013}, measurements of multiple morphological traits \citep[e.g.,][]{Harmon2010, BergmannIrshick2012, Weir2012, Pienaar2013}, and climatic variables \citep[e.g.,][]{KozakWiens2010, Schnitzler2012}. We stress that we are not tyring to shame these authors and empahsize that the papers that we have cited are simply examples (picked more--or--less at random) from a substantial number of papers where this non--intuitive mistake was made.
+
+Fortunately, multiple potential solutions exists to address this problem.  One frequently used method is that of \citet{Revell2008}, who developed a procedure (explained in detail below) for converting multivariate data into ``phylogenetically corrected'' PC axes (hereafter, PPCA), by assuming that the original data evolved along the phylogeny using a multivariate Brownian motion (BM) model of evolution. In a brief simulation study, \citet{Revell2008} demonstrated that if the underlying model for the traits was indeed a multivariate BM model, performing standard PCA gave biased estimates of the eigenvalues, whereas PPCA removed this bias.
+
+In this brief contribution we first, extend the argument of \citet{Revell2008} and demonstrate that not only are the eigenvalues obtained from PCA biased but that they are biased in a systematic and predictable way. Performing comparative analyses on standard PC axes positively misleads inference. This point has been made in other fields that deal with autocorrelation between observations, such as population genetics \citep{Novembre}, ecology \citep{Podani2002}, climatology \citep{Richman1986} and paleobiology \citep{Bookstein2012}. However, the connection between these previous results and phylogenetic comparative data has not been explicitly made and standard PCs continue to be widely used in the field. We hope that our paper helps change this practice.
+
+Second, as stated above, \citet{Revell2008} assumed that the measured traits had evolved under a multivariate BM model. This has the potential to introduce an odd circularity into the analysis. If we assume that the underlying traits have evolved under BM and calculate a set of PPC axes based on this assumption, it seems reasonable to suppose that if the true model of trait evolution were different, the PPC scores would be inferred to have evolved in a more BM--like manner than the traits themselves. To our knowledge, the effect of this bias has not been explored. We perform a small simulation study to investigate this effect.
+
+Last, we consider the interpretation of evolutionary models fit to PPC axes and discuss the conceptual and statistical advantages and disadvantages of using PPCA compared to alternative approaches for studying multivariate evolution in a phylogenetic comparative framework.
 
 \section{Methods}
-\subsection{Computing Phylogenetic PC scores}
-We briefly review the approach of \citet{Revell2008} for computing ``phylogenetically--corrected'' PC scores for each species. Any phylogeny can be represented as a matrix $\mathbf{C}$ in which the elements $C_{i,j}$ are the shared path length between lineages $i$ and $j$ (the diagonals $C_{i,i}$ are simply the distance from the root to tip $i$). For a given evolutionary model we can generate a second matrix $\mathbf{\Sigma}$, which is the expected variance--covariance (vcv) matrix for the traits under the model. For a BM model of trait evolution, $\mathbf{\Sigma}=\sigma^2 \mathbf{C}$, where $\sigma^2$ is the rate parameter of the BM model. For the purpose of calculating the PCs, only the relative branch lengths matter, so we can arbitrarily set $\sigma^2=$ 1, and therefore set $\mathbf{\Sigma} = \mathbf{C}$. If we have a $n \times m$ data matrix $\mathbf{X}$ for $m$ traits and $n$ species.
-
-To calculate PCs we must first estimate the ancestral states (more properly thought of as ``phylogenetic means'') for all $m$ traits  
-\begin{equation}\label{eq:a}
-\mathbf{a}=[(\mathbf{1}^\prime \mathbf{\Sigma}^{-1} \mathbf{1})^{-1} 
-\mathbf{1}^\prime \mathbf{\Sigma}^{-1} \mathbf{X}]^\prime
-\end{equation}
-We can then estimate the evolutionary vcv matrix between the $m$ traits following \citet{RevellHarmon2008}
+\subsection{\emph{Overview of PPCA}}
+We briefly review the approach of \citet{Revell2008} for computing PPC scores for each species. If we assume that the traits have each evolved under a model of trait evolution, we can estimate an evolutionary variance--covariance (vcv) matrix between the $m$ traits that have been measured for $n$ species \citep{RevellHarmon2008, RevellCollar2009}:
 \begin{equation}\label{eq:r}
 \mathbf{R} = \frac{(\mathbf{X} - \mathbf{1a}^\prime ) \mathbf{\Sigma}^{-1} 
-(\mathbf{X} - \mathbf{1a}^\prime )}{n-1}
+(\mathbf{X} - \mathbf{1a}^\prime )}{n-1}.
 \end{equation}
-After standardizing for trait values to have unit variance
-\begin{equation}
-X_{\sigma i,j} = \frac{X_{i,j}}{\sqrt{R_{jj}}}
-\end{equation} 
+Here $\mathbf{X}$ is the $n \times m$ matrix of observed data, $\mathbf{\Sigma}$ is a $n \times n$ matrix with elements $\Sigma_{ij}$ being the expected covariance between traits in lineages $i$ and $j$, and $\mathbf{a}$ is a vector of phylogenetic means for all $m$ traits ($\mathbf{a}=[(\mathbf{1}^\prime \mathbf{\Sigma}^{-1} \mathbf{1})^{-1} 
+\mathbf{1}^\prime \mathbf{\Sigma}^{-1} \mathbf{X}]^\prime$). \emph{[include plain language description of what $\mathbf{R}$ actually represents.]}
+Under a BM model of trait evolution, $\mathbf{\Sigma}$ simply mirrors the structure of the phylogeny, such that $\Sigma_{i,j}$ is the sum of shared branch lengths (from the root to the most recent common ancestor) between lineages $i$ and $j$. (We note that as only relative branch lengths matter for these calculations, we can arbitrarily set the BM rate parameter $\sigma^2$ equal to unity.) 
 
-\subsection{Simulations}
+\emph{[Nice explanation of how eigenvalues $\mathbf{D}$ and eigenvectors $\mathbf{V}$ of the phylogenetic]}
+
+We obtain PC scores for each species by projecting the PC axes into the original space
+\begin{equation}
+\mathbf{S} = (\mathbf{X} - \mathbf{1a}^\prime )\mathbf{V}
+\end{equation}
+and the loadings $L$ for each trait $i$ on the $j^{\mathrm{th}}$ PPC axis
+\begin{equation}
+L_{ij} = \frac{K_{ij}}{\sqrt{R_{ii}D_{jj}}}
+\end{equation}
+where $\mathbf{K}$ is the cross--covariance matrix $\mathbf{K}=(n-1)^{-1}(\mathbf{X}-\mathbf{1a}^\prime)^\prime \mathbf{\Sigma}^{-1} \mathbf{S}$ \citep[see][for details and explanation]{Revell2008}.
+
+The end result of this procedure is a set of PPC axes, each representing of linear combinations of traits, and scores for all species for each PPC axis. The PPC scores are in the original species space and are therefore phylogenetically non--independent in the same way that the measured traits are.  
+
+
+\subsection{\emph{Simulations}}
+
+We did x
+
+\subsection{\emph{Empirical examples}}
 
 \section{Results}
 
+\subsection{\emph{Simulations}}
+
+\subsection{\emph{Empirical examples}}
+
 \section{Discussion}
+\subsection{\emph{Standard PCA should not be used for comparative analyses}} 
 
-Discussion of main results
+Discussion of main results (both simulated and empirical)
 
-\subsection{Phylogenetic PCA for non-Brownian models}
-\citet{Revell2008} developed a phylogenetically--corrected version of PCA with the assumption that all originally measured traits had each evolved under a Brownian motion process. Many authors have used his approach to compute PC scores and then subsequently fit alternative models of trait evolution to the PCs \citep{somethings}. \citet{Revell2008} suggested a procedure for incorporating alternative models such as Pagel's $\lambda$ \citep{Pagel1999}, by first optimizing the additional parameters using the phylogeny and the original data \citep[e.g., following the method of][]{Freckleton2002} and then using the estimated $\mathbf{\Sigma}$ matrix under lambda to compute the PCs. However, this is not an entirely satisfying solution as $\mathbf{\Sigma}$ is optimized on the data, which will have a different evolutionary model than that which is subsequently fit to the PCs, leading to an internal inconsistency in the analysis \citep[as pointed out by][this may lead to different estimates of the same parameter at different steps in the analysis]{Revell2008}. In this paper we show that...
+Tie into results from other studies (e.g., novembre)
 
-\subsection{The interpretation of phylogenetic PCA and its alternatives}
-Aside from the statistical issues raised here, a broader, and perhaps more interesting, question is how one should draw evolutionary inferences from models of trait evolution fit to PC axes. The purpose of fitting macroevolutionary models to traits (or, proxies for traits, such as climate variables, which are stand--ins for unmeasured thermal tolerance, habitat, preference, etc.) is to make inferences regarding the tempo and mode of evolution and the evolutionary processes that driven divergence (or convergence). 
+These results certainly do not imply that the biological inferences made from analyzing standard PC scores in a comparative framework are necessarily incorrect.  
+Interestingly, when \citet{Harmon2010} analyzed the evolution of PC2 (what they referred to as ``shape'') obtained using standard PCA, they found very little support for the ``Early Burst'' model \citep{Blomberg2003} across their 39 datasets. The fact that their use of standard PC axes biased their results \emph{towards an ``Early Burst'' pattern} only serves to strengthen their overall conclusion that such slowdowns are indeed rare \citep[but see][]{SlaterPennell}. However, our results do suggest that in some cases, analyses conducted with PC axes should perhaps be revisited to ensure that results are robust.
+
+\subsection{\emph{Using PPCA when trait evolution is non-Brownian}}
+In his original PPCA method, \citet{Revell2008} assumed that the original traits evolved under a multivariate BM model. He also suggested that one could potentially use alternative covariance structures. For example, one could first optimize the $\lambda$ model \citep{Pagel1999} across all traits simultaneously \citep[using the method of][]{Freckleton2002} and then rescale the branch lengths of the tree according to the estimated parameter in order to obtain $\mathbf{\Sigma}$ for use in Equation \ref{eq:r}. However, this is not a completely satisfying solution for two reasons. First, as noted by \citet{Revell2008}, the value of $\lambda$ used to construct the covariance structure for the PPCA will likely be different from the same parameter estimated using the PC scores themselves. Second, while this method could be extended to include other models \citep{ButlerKing2009, motmot}, this is restricted to models that assume a shared mean and variance structure across traits \citep[see][for examples where this does not  apply]{Hansen2008, Bartoszek2013}.
+
+In our simulations, we found x.
+
+This is because of y.
+
+The effect of dimensionality
+
+\subsection{\emph{The interpretation of PPCA and its alternatives}}
+
+Notes on structure
+\begin{enumerate}
+\item Using PC scores removes links to models of evolutionary processes
+\item Using PC scores abstracts from the traits we actually care about
+\item Distinction between multivariate analyses and analyses of multidimensional traits
+\item Multivariate analyses: discuss big covariance approaches (Revell and Harmon, Revell and Collar, Thomas and Freckleton, Butler and King 2009), SLOUCH, mvSLOUCH process models
+\item Multidimensional analyses: Klienberg, Adams, Bookstein
+\end{enumerate}
+
+Aside from the statistical issues raised here, a broader, and perhaps more interesting, question is how one should draw evolutionary inferences from models of trait evolution fit to PPC axes. The purpose of fitting macroevolutionary models to traits (or, proxies for traits, such as climate variables, which are stand--ins for unmeasured thermal tolerance, habitat, preference, etc.) is to make inferences regarding the tempo and mode of evolution and the evolutionary processes that driven divergence (or convergence). 
 
 Many macroevolutionary models, such as BM and OU, can be explicitly tied to models from quantitative genetics \citep{HansenMartins1996, PennellHarmon, PennellPE}, while others \citep[notably the tree transformations $\lambda, \delta, \kappa$ proposed by][]{Pagel1997, Pagel1999} are purely phenomological constructs. (For example, while the $\lambda$ model \citep{Pagel1999} can be construed as a sort of ``phylogenetic heritability'' \citep{HansenOrzack2005}, the fact that $\lambda$ posits a different statistical model for terminal and internal branches, clearly makes no sense from a quantitative genetics perspective.)  PC axes are a convenient way of representing multivariate data as univariate measurements but doing so comes at the cost of losing all connection to quantiative genetics models. It is meaningless to discuss the evolution of PC scores in terms of directional or stabilizing selection \emph{[connect to ideas about conditional evolvability, explain this better]}.  This may be acceptable if the goal of fitting models is to make broad--scale inferences about the ``rate'' or ``mode'' of evolution \citep{Hunt2012}, but it is not appropriate for tying the models to specific quantitative genetic parameters \citep[\emph{sensu}][]{EstesArnold2007, PennellPE}.
 
@@ -103,7 +147,9 @@ Alternative methods for analyzing multivariate phenotypic data have been develop
 To borrow from \citet{HansenHoule2008} in a slightly different context, the development of truly multivariate methods will undoubtedly raise ``theoretical and statistical challenges, but these seem a small price to pay for meaning'' (p. 1213).
 
 \section{Concluding remarks}
-In this note, we sought to clarify exactly how failing to consider phylogeny when transforming data into PC axes can be positively misleading. In our reading of the literature, we have found this to be a common oversight in many empirical papers. We argue that this is should be avoided whenever possible. We have shown that using a BM model of trait evolution to calculate the PC axes is a reasonable approximation when the data is evolved under some types of models but not others. Last, we want to emphasize the point that different transformations of the same data lead to fundamentally different evolutionary inferences. We echo calls \citep{HansenHoule2008, Houle2011} that researchers should always think carefully about what measurements are used for analyses and do so with the end question in mind.
+In this note, we sought to clarify exactly how failing to consider phylogeny when transforming data into PC axes can be positively misleading. As the axes of greatest variance will tend to mirror the deepest splits in the phylogeny, the PC scores will appear to have evolved rapidly early in the clade's history and slowed down towards the present day. This can lead researchers to inadvertanly attribute to biology what is merely a statistical artifact. And despite the development of methods to current for this, in our reading of the literature, we have found that failing to consider phylogeny when calculating PCs to be a common oversight. We hope our paper raises awareness of these issues and helps empiricists make informed decisions when analyzing comparative data. Last, we want to emphasize the point that different transformations of the same data lead to fundamentally different evolutionary inferences. We echo calls \citep{HansenHoule2008, Houle2011} that researchers should always think carefully about what measurements are used for analyses and do so with the end question in mind.
+
+\newpage
 
 \bibliographystyle{jecol}
 \bibliography{phylopca.bib}
