@@ -5,8 +5,31 @@ sim.tree.pcs.ind <- function(ntips, traits, sig2dist=rexp, lambda=0.1, mu=0, ...
   X <- sapply(1:traits,function(x) fastBM(tree,sig2=sig2dist(1, ...), nsim=1))
   pc <- princomp(X)
   ppc <- phyl.pca(tree,X)
-  return(list(tree=tree, raw=X, pc=pc$scores, ppc=ppc$scores, pcall=pc, ppcall=ppc))
+  return(list(tree=tree, raw=X, pc=pc$scores, ppc=ppc$S, pcall=pc, ppcall=ppc))
 }
+
+sim.tree.pcs.ind.ou <- function(ntips, traits, alpha, sig2, lambda=0.1, mu=0, ...){
+  tree <- sim.bd.taxa(ntips,1,lambda=0.1,mu=0)[[1]][[1]]
+  tree$edge.length <- tree$edge.length/max(branching.times(tree))
+  tr <- rescale(tree, model="OU", alpha)
+  #outree <- rescale(tree,alpha=log(2),model="OU")
+  X <- sapply(1:traits, function(x) fastBM(tr, sig2=sig2, nsim=1))
+  pc <- princomp(X)
+  ppc <- phyl.pca(tree,X)
+  return(list(tree=tree, raw=X, pc=pc$scores, ppc=ppc$S, pcall=pc, ppcall=ppc))
+}
+
+sim.tree.pcs.ind.eb <- function(ntips, traits, a, sig2, lambda=0.1, mu=0, ...){
+  tree <- sim.bd.taxa(ntips,1,lambda=0.1,mu=0)[[1]][[1]]
+  tree$edge.length <- tree$edge.length/max(branching.times(tree))
+  tr <- rescale(tree, model="EB", a)
+  #outree <- rescale(tree,alpha=log(2),model="OU")
+  X <- sapply(1:traits, function(x) fastBM(tr,sig2=sig2, nsim=1))
+  pc <- princomp(X)
+  ppc <- phyl.pca(tree,X)
+  return(list(tree=tree, raw=X, pc=pc$scores, ppc=ppc$S, pcall=pc, ppcall=ppc))
+}
+
 
 Posdef <- function (n, ev = rexp(n, 1/100)) {
   Z <- matrix(ncol=n, rnorm(n^2))
@@ -43,6 +66,7 @@ sim.tree.pcs.mv <- function(ntips, traits, sig2dist=rexp, lambda=0.1, mu=0, ...)
   return(list(tree=tree, raw=simdat, pc=pc$scores, ppc=ppc$S, pcall=pc, ppcall=ppc, R=R))
 }
 
+
 simandfitPCs <- function(ntips, traits, trait.seq=1, models = c("BM", "OUrandomRoot", "EB")){
   simdat <- sim.tree.pcs.mv(ntips, traits, sig2dist=rexp, lambda=1/100)
   transforms <- c("raw", "pc", "ppc")
@@ -58,6 +82,39 @@ simandfitPCs <- function(ntips, traits, trait.seq=1, models = c("BM", "OUrandomR
   names(aicw.table) <- paste("trait", trait.seq, sep="")
   return(aicw.table)
 }
+
+simandfitPCs.ind.ou <- function(ntips, traits, trait.seq=1, alpha, sig2, models = c("BM", "OUrandomRoot", "EB")){
+  simdat <- sim.tree.pcs.ind.ou(ntips, traits, alpha, sig2, lambda=1/100)
+  transforms <- c("raw", "pc", "ppc")
+  lower.bounds <- c(NULL, 10^-12, NULL)
+  rawfits <- foreach(i=trait.seq) %dopar% suppressWarnings(lapply(1:length(models), function(x) phylolm(simdat$raw[,i]~1, phy=simdat$tree, model=models[x])))
+  pcfits <-  foreach(i=trait.seq) %dopar% suppressWarnings(lapply(1:length(models), function(x) phylolm(simdat$pc[,i]~1, phy=simdat$tree, model=models[x])))
+  ppcfits <-  foreach(i=trait.seq) %dopar% suppressWarnings(lapply(1:length(models), function(x) phylolm(simdat$ppc[,i]~1, phy=simdat$tree, model=models[x])))
+  raw.aicw <- lapply(1:length(trait.seq), function(y) aicw(sapply(rawfits[[y]], function(x) x$aic))$w)
+  pc.aicw <- lapply(1:length(trait.seq), function(y) aicw(sapply(pcfits[[y]], function(x) x$aic))$w)
+  ppc.aicw <- lapply(1:length(trait.seq), function(y) aicw(sapply(ppcfits[[y]], function(x) x$aic))$w)
+  aicw.table <- lapply(1:length(trait.seq), function(y) matrix(c(raw.aicw[[y]], pc.aicw[[y]], ppc.aicw[[y]]), nrow=1))
+  aicw.table <- lapply(1:length(trait.seq), function(y){ colnames(aicw.table[[y]]) <- as.vector(t(outer(transforms, models, paste, sep="_"))); aicw.table[[y]]})
+  names(aicw.table) <- paste("trait", trait.seq, sep="")
+  return(aicw.table)
+}
+
+simandfitPCs.ind.eb <- function(ntips, traits, trait.seq=1, a, sig2, models = c("BM", "OUrandomRoot", "EB")){
+  simdat <- sim.tree.pcs.ind.eb(ntips, traits, a, sig2, lambda=1/100)
+  transforms <- c("raw", "pc", "ppc")
+  lower.bounds <- c(NULL, 10^-12, NULL)
+  rawfits <- foreach(i=trait.seq) %dopar% suppressWarnings(lapply(1:length(models), function(x) phylolm(simdat$raw[,i]~1, phy=simdat$tree, model=models[x])))
+  pcfits <-  foreach(i=trait.seq) %dopar% suppressWarnings(lapply(1:length(models), function(x) phylolm(simdat$pc[,i]~1, phy=simdat$tree, model=models[x])))
+  ppcfits <-  foreach(i=trait.seq) %dopar% suppressWarnings(lapply(1:length(models), function(x) phylolm(simdat$ppc[,i]~1, phy=simdat$tree, model=models[x])))
+  raw.aicw <- lapply(1:length(trait.seq), function(y) aicw(sapply(rawfits[[y]], function(x) x$aic))$w)
+  pc.aicw <- lapply(1:length(trait.seq), function(y) aicw(sapply(pcfits[[y]], function(x) x$aic))$w)
+  ppc.aicw <- lapply(1:length(trait.seq), function(y) aicw(sapply(ppcfits[[y]], function(x) x$aic))$w)
+  aicw.table <- lapply(1:length(trait.seq), function(y) matrix(c(raw.aicw[[y]], pc.aicw[[y]], ppc.aicw[[y]]), nrow=1))
+  aicw.table <- lapply(1:length(trait.seq), function(y){ colnames(aicw.table[[y]]) <- as.vector(t(outer(transforms, models, paste, sep="_"))); aicw.table[[y]]})
+  names(aicw.table) <- paste("trait", trait.seq, sep="")
+  return(aicw.table)
+}
+
 
 #Simulate tree and data for pgls using mvBM. Removes first trait from the pca.
 sim.tree.pcs.pgls <- function(ntips, traits, foc2trans="BM", rescalepar=1, sig2dist=rexp, me=0, lambda=0.1, mu=0, ...){
@@ -141,3 +198,18 @@ laddertree <- function(ntips){
 ##tree <- reorder(tree, "postorder")
 #tree$tip.label <- sapply(tree$tip.label, function(x) paste("t", x, sep=""))
 #tree$edge.length <- tree$edge.length/max(nodeHeights(tree))
+
+makeTransparent <- function (someColor, alpha = 100){
+  newColor <- col2rgb(someColor)
+  apply(newColor, 2, function(curcoldata) {
+    rgb(red = curcoldata[1], green = curcoldata[2], blue = curcoldata[3], 
+        alpha = alpha, maxColorValue = 255)
+  })
+}
+
+lines.loess <- function(x, y, ...){
+  df <- as.data.frame(x=x, y=y)
+  tmp <- loess(y~x, data=df, )
+  pred <- predict(tmp, data.frame(x=seq(0,1,0.01)), se=FALSE)
+  lines(seq(0,1,0.01), pred, ...)
+}
