@@ -89,21 +89,23 @@ dev.off()
 
 
 ## Figure 3
-load("sims_mv_50_20_.rds")
-head(res)
 
-bm <- melt(res)
-type <- rep(NA, nrow(bm))
-bm <- cbind(bm, type)
-bm$variable <- as.character(bm$variable)
+## function to restructure sim data
+build.sim.data.table <- function(x){
+    df <- melt(x)
+    type <- rep(NA, nrow(df))
+    df <- cbind(df, type)
+    df$variable <- as.character(df$variable)
 
-for (i in 1:nrow(bm)){
-    tmp <- strsplit(bm[i,"variable"], split="_")
-    bm[i,"variable"] <- tmp[[1]][1]
-    bm[i,"type"] <- tmp[[1]][2]
+    for (i in 1:nrow(df)){
+        tmp <- strsplit(df[i,"variable"], split="_")
+        df[i,"variable"] <- tmp[[1]][1]
+        df[i,"type"] <- tmp[[1]][2]
+    }
+    df
 }
 
-
+    
 
 fig.box.aicw <- function(df){
 
@@ -112,12 +114,12 @@ fig.box.aicw <- function(df){
     df$variable <- factor(df$variable, levels=c("raw", "pc", "ppc"),
                       labels=c("Original data", "PCA", "Phylogenetic PCA"))
 
-    df$trait <- factor(df$trait, levels=levels(df$trait), labels=c(1,2,3,4,5,10,15,20))
+    df$trait <- factor(df$trait, levels=levels(df$trait), labels=c(1,2,3,5,7,10,13,16, 20))
     
     p <- ggplot(df, aes(factor(trait), value))
     p <- p + geom_boxplot(aes(fill=factor(trait)))
     p <- p + facet_grid(type~variable)
-    p <- p + scale_fill_manual(values=col[c(1,2,3,4,5,10,15,20)])
+    p <- p + scale_fill_manual(values=col[c(1,2,3,5,7,10,13,16, 20)])
     p <- p + theme_bw()
     p <- p + theme(strip.background=element_rect(fill="white"),
                    plot.background=element_blank(),
@@ -130,9 +132,36 @@ fig.box.aicw <- function(df){
     p
 }
 
-pdf("bm-box.pdf", height=8, width=8)
-fig.box.aicw(bm)
+## Multivariate BM
+load("simsBM_ind_50_20_.rds")
+bm.ind <- build.sim.data.table(bmres)
+pdf("box-aicw-mvbm.pdf", height=8, width=9)
+fig.box.aicw(bm.ind)
 dev.off()
+
+
+## Multivariate OU
+load("simsOU_ind_50_20_.rds")
+ou.ind <- build.sim.data.table(oures)
+pdf("box-aicw-mvou.pdf", height=8, width=9)
+fig.box.aicw(ou.ind)
+dev.off()
+
+## Multivariate EB
+load("simsEB_ind_50_20_.rds")
+eb.ind <- build.sim.data.table(ebres)
+pdf("box-aicw-mveb.pdf", height=8, width=9)
+fig.box.aicw(eb.ind)
+dev.off()
+
+## Note trait numbers differ so I have used a different form of the figure fxn for now
+
+## Multivariate and Correlated BM
+load("sims_mv_50_20_.rds")
+bm.cor <- build.sim.data.table(res)
+
+
+
 
 
 
@@ -177,9 +206,14 @@ return(legend)}
 fig.model.support.alpha <- function(df){
     .e <- environment()
 
-    df$variable <- factor(df$variable, levels=c("BM", "OU", "EB", "Alpha"))
+    df$simmodel <- factor(df$simmodel,
+                          levels=c("BM", "OUfixedRoot", "EB", "alpha", "sig2", "halflife"),
+                          labels=c("BM", "OU", "EB", "alpha", "sig2", "halflife"))
+    df$trait <- factor(df$trait, levels=c("trait1", "trait2", "trait3", "trait5", "trait7","trait10", "trait13", "trait16", "trait20"), labels=c(1,2,3,5,7,10,13,16,20))
+    df$type <- factor(df$type, levels=c("raw", "ppc"),
+                      labels=c("Original data", "Phylogenetic PCA"))
 
-    p <- q <- ggplot(df, aes(factor(trait), value, fill=variable), environment = .e)
+    p <- q <- ggplot(df, aes(trait, value, fill=simmodel), environment = .e)
     p <- p +  geom_bar(data=subset(df, est == "AICw"), stat="identity", position="stack")
     p <- p + scale_y_continuous(name="AICw")
     p <- p + scale_fill_manual(values=col[c(2,11,14)], name="Model")
@@ -196,9 +230,9 @@ fig.model.support.alpha <- function(df){
     lwidth <- sum(legend$width)
     
 
-    
-    q <- q + geom_point(data=subset(df, est=="Alpha"), color=col[11])
-    q <- q + geom_hline(aes(yintercept=0.2), color=col[10])
+    q <- q + geom_hline(aes(yintercept=2), color=col[2])
+    q <- q + geom_point(data=subset(df, est=="Alpha" & simmodel=="alpha"),
+                        alpha=0.75, color=col[11])
     q <- q + facet_grid(.~type)
     q <- q + theme_bw()
     q <- q + theme(strip.background=element_rect(fill="white"),
@@ -214,6 +248,34 @@ fig.model.support.alpha <- function(df){
                              widths=unit.c(unit(1, "npc") - lwidth,lwidth), nrow=2))
     
 }
+
+
+load("OUmeanAICw.rds")
+load("OUsimParameterEstimates.rds")
+## do a bit of processing
+pars.tmp <- parsdf[,-ncol(parsdf)]
+colnames(pars.tmp) <- colnames(OUmeanAICw)
+pars.tmp$trait <- as.character(pars.tmp$trait)
+pars.tmp$trait <- sapply(pars.tmp$trait, function(x) sub(".", "", x, fixed=TRUE))
+
+## combine the dataframes
+est <- rep("AICw", nrow(OUmeanAICw))
+OUmeanAICw <- cbind(OUmeanAICw, est)
+est <- rep("Alpha", nrow(pars.tmp))
+pars.tmp <- cbind(pars.tmp, est)
+oudf <- rbind(OUmeanAICw, pars.tmp)
+
+## remove standard PC
+oudf$type <- as.character(oudf$type)
+oudf <- oudf[-which(oudf$type == "pc"),]
+oudf$type <- as.factor(oudf$type)
+oudf$trait <- as.factor(oudf$trait)
+
+pdf("model-support-alpha.pdf", height=7, width=9, onefile = FALSE)
+fig.model.support.alpha(oudf)
+dev.off()
+
+
 
 
 
