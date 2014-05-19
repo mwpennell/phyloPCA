@@ -91,10 +91,21 @@ dev.off()
 ## Figure 3
 
 ## function to restructure sim data
-build.sim.data.table <- function(x){
-    df <- melt(x)
+build.sim.data.table <- function(x, trait.set){
+
+    ## subset by desired trait set
+    trait.names <- levels(x$trait)[trait.set]
+    subx <- subset(x, trait %in% trait.names)
+    subx$trait <- factor(subx$trait)
+
+    ## creat data frame
+    df <- melt(subx)
+
+    ## add extra row to sort datasets
     type <- rep(NA, nrow(df))
     df <- cbind(df, type)
+
+    ## break column names up
     df$variable <- as.character(df$variable)
 
     for (i in 1:nrow(df)){
@@ -102,6 +113,13 @@ build.sim.data.table <- function(x){
         df[i,"variable"] <- tmp[[1]][1]
         df[i,"type"] <- tmp[[1]][2]
     }
+
+    ## recreate as factors
+    df$trait <- factor(df$trait, levels=levels(df$trait), labels=trait.set)
+    df$variable <- factor(df$variable, levels=c("raw", "pc", "ppc"),
+                      labels=c("Original data", "PCA", "Phylogenetic PCA"))
+    df$type <- factor(df$type, levels=c("BM", "OUfixedRoot", "EB"),
+                      labels=c("BM", "OU", "EB"))
     df
 }
 
@@ -109,17 +127,10 @@ build.sim.data.table <- function(x){
 
 fig.box.aicw <- function(df){
 
-    df$type <- factor(df$type, levels=c("BM", "OUfixedRoot", "EB"),
-                      labels=c("BM", "OU", "EB"))
-    df$variable <- factor(df$variable, levels=c("raw", "pc", "ppc"),
-                      labels=c("Original data", "PCA", "Phylogenetic PCA"))
-
-    df$trait <- factor(df$trait, levels=levels(df$trait), labels=c(1,2,3,5,7,10,13,16, 20))
-    
     p <- ggplot(df, aes(factor(trait), value))
     p <- p + geom_boxplot(aes(fill=factor(trait)))
     p <- p + facet_grid(type~variable)
-    p <- p + scale_fill_manual(values=col[c(1,2,3,5,7,10,13,16, 20)])
+    p <- p + scale_fill_manual(values=col[as.numeric(levels(df$trait))])
     p <- p + theme_bw()
     p <- p + theme(strip.background=element_rect(fill="white"),
                    plot.background=element_blank(),
@@ -132,9 +143,15 @@ fig.box.aicw <- function(df){
     p
 }
 
+
+
+## set subset
+trait.set <- c(1,2,5,10,15,20)
+
+
 ## Multivariate BM
 load("simsBM_ind_50_20_.rds")
-bm.ind <- build.sim.data.table(bmres)
+bm.ind <- build.sim.data.table(bmres, trait.set)
 pdf("box-aicw-mvbm.pdf", height=8, width=9)
 fig.box.aicw(bm.ind)
 dev.off()
@@ -142,23 +159,32 @@ dev.off()
 
 ## Multivariate OU
 load("simsOU_ind_50_20_.rds")
-ou.ind <- build.sim.data.table(oures)
+ou.ind <- build.sim.data.table(oures, trait.set)
 pdf("box-aicw-mvou.pdf", height=8, width=9)
 fig.box.aicw(ou.ind)
 dev.off()
 
 ## Multivariate EB
 load("simsEB_ind_50_20_.rds")
-eb.ind <- build.sim.data.table(ebres)
+eb.ind <- build.sim.data.table(ebres, trait.set)
 pdf("box-aicw-mveb.pdf", height=8, width=9)
 fig.box.aicw(eb.ind)
 dev.off()
 
-## Note trait numbers differ so I have used a different form of the figure fxn for now
-
 ## Multivariate and Correlated BM
+## Note that different trait numbers were used so I am subsetting differently for now
 load("sims_mv_50_20_.rds")
-bm.cor <- build.sim.data.table(res)
+bm.cor <- build.sim.data.table(res, trait.set=seq_len(length(levels(res$trait))))
+
+## traits 1,2,3,4,5,10,15,20
+cor.tr <- c(1,2,5,6,7,8)
+bm.cor <- subset(bm.cor, trait %in% cor.tr)
+bm.cor$trait <- factor(bm.cor$trait)
+bm.cor$trait <- factor(bm.cor$trait, levels=levels(bm.cor$trait),
+                       labels=c(1,2,5,10,15,20))
+pdf("box-aicw-corbm.pdf", height=8, width=9)
+fig.box.aicw(bm.cor)
+dev.off()
 
 
 
@@ -206,13 +232,6 @@ return(legend)}
 fig.model.support.alpha <- function(df){
     .e <- environment()
 
-    df$simmodel <- factor(df$simmodel,
-                          levels=c("BM", "OUfixedRoot", "EB", "alpha", "sig2", "halflife"),
-                          labels=c("BM", "OU", "EB", "alpha", "sig2", "halflife"))
-    df$trait <- factor(df$trait, levels=c(paste("trait", 1:20, sep="")), labels=1:20)
-    df$type <- factor(df$type, levels=c("raw", "ppc"),
-                      labels=c("Original data", "Phylogenetic PCA"))
-
     p <- q <- ggplot(df, aes(trait, value, fill=simmodel), environment = .e)
     p <- p +  geom_bar(data=subset(df, est == "AICw"), stat="identity", position="stack")
     p <- p + scale_y_continuous(name="AICw")
@@ -224,16 +243,15 @@ fig.model.support.alpha <- function(df){
                    panel.grid.major=element_blank(),
                    panel.grid.minor=element_blank(),
                    axis.ticks.y=element_blank(),
-                   axis.text.y=element_blank(),
+                   axis.text.y=element_text(color="white", size=3.75),
                    axis.title.x=element_blank())
     legend <- g.legend(p)
     lwidth <- sum(legend$width)
     
 
-    q <- q + geom_hline(aes(yintercept=2), color=col[2])
-    q <- q + geom_point(data=subset(df, est=="Alpha" & simmodel=="alpha"),
-                        alpha=0.75, color=col[11])
-    q <- q + ylim(c(0, 20))
+
+    q <- q + geom_hline(aes(yintercept=2), color=col[5], size=2)
+    q <- q + geom_boxplot(data=subset(df, est=="Par" & simmodel=="alpha"),fill=col[11], color="black", outlier.size = 1)
     q <- q + facet_grid(.~type)
     q <- q + theme_bw()
     q <- q + theme(strip.background=element_rect(fill="white"),
@@ -241,6 +259,7 @@ fig.model.support.alpha <- function(df){
                    panel.grid.major=element_blank(),
                    panel.grid.minor=element_blank(),
                    legend.position="none")
+    q <- q + ylim(c(0,20))
     q <- q + ylab(expression(alpha))
     q <- q + xlab("Trait/PC axis")
     q <- strip.remover(q, "x")
@@ -254,27 +273,34 @@ fig.model.support.alpha <- function(df){
 load("OUmeanAICw.rds")
 load("OUsimParameterEstimates.rds")
 ## do a bit of processing
-pars.tmp <- parsdf[,-ncol(parsdf)]
+parsdf$trait <- as.character(parsdf$trait)
+parsdf$trait <- sapply(parsdf$trait, function(x) sub(".", "", x, fixed=TRUE))
+parsdf$trait <- factor(parsdf$trait)
+pars.tmp <- melt(parsdf)
 colnames(pars.tmp) <- colnames(OUmeanAICw)
-pars.tmp$value <- pars.tmp$simmodel
-pars.tmp$simmodel <- "alpha"
-pars.tmp$trait <- as.character(pars.tmp$trait)
-pars.tmp$trait <- sapply(pars.tmp$trait, function(x) sub(".", "", x, fixed=TRUE))
 
 ## combine the dataframes
 est <- rep("AICw", nrow(OUmeanAICw))
 OUmeanAICw <- cbind(OUmeanAICw, est)
-est <- rep("Alpha", nrow(pars.tmp))
+est <- rep("Par", nrow(pars.tmp))
 pars.tmp <- cbind(pars.tmp, est)
 oudf <- rbind(OUmeanAICw, pars.tmp)
 
-## remove standard PC
-oudf$type <- as.character(oudf$type)
-oudf <- oudf[-which(oudf$type == "pc"),]
-oudf$type <- as.factor(oudf$type)
-oudf$trait <- as.factor(oudf$trait)
+## prune down dataset to raw and phylo pca only
+oudf <- subset(oudf, type %in% c("raw", "ppc"))
+oudf$type <- factor(oudf$type)
+oudf$type <- factor(oudf$type, levels=c("raw", "ppc"), labels=c("Original data", "Phylogenetic PCA"))
 
-pdf("model-support-alpha.pdf", height=7, width=9, onefile = FALSE)
+## prune down dataset to exclude only BM, OU, EB, alpha
+oudf <- subset(oudf, simmodel %in% c("BM", "EB", "OUfixedRoot", "alpha"))
+oudf$simmodel <- factor(oudf$simmodel)
+oudf$simmodel <- factor(oudf$simmodel, levels=c("BM", "OUfixedRoot", "EB", "alpha"),
+                        labels=c("BM", "OU", "EB", "alpha"))
+
+oudf$trait <- factor(oudf$trait, levels=unique(oudf$trait), labels=c(1:20))
+
+
+pdf("model-support-alpha.pdf", height=7, width=10, onefile = FALSE)
 fig.model.support.alpha(oudf)
 dev.off()
 
