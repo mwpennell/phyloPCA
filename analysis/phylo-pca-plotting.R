@@ -209,7 +209,7 @@ fig.model.support.alpha <- function(df){
     df$simmodel <- factor(df$simmodel,
                           levels=c("BM", "OUfixedRoot", "EB", "alpha", "sig2", "halflife"),
                           labels=c("BM", "OU", "EB", "alpha", "sig2", "halflife"))
-    df$trait <- factor(df$trait, levels=c("trait1", "trait2", "trait3", "trait5", "trait7","trait10", "trait13", "trait16", "trait20"), labels=c(1,2,3,5,7,10,13,16,20))
+    df$trait <- factor(df$trait, levels=c(paste("trait", 1:20, sep="")), labels=1:20)
     df$type <- factor(df$type, levels=c("raw", "ppc"),
                       labels=c("Original data", "Phylogenetic PCA"))
 
@@ -233,6 +233,7 @@ fig.model.support.alpha <- function(df){
     q <- q + geom_hline(aes(yintercept=2), color=col[2])
     q <- q + geom_point(data=subset(df, est=="Alpha" & simmodel=="alpha"),
                         alpha=0.75, color=col[11])
+    q <- q + ylim(c(0, 20))
     q <- q + facet_grid(.~type)
     q <- q + theme_bw()
     q <- q + theme(strip.background=element_rect(fill="white"),
@@ -255,6 +256,8 @@ load("OUsimParameterEstimates.rds")
 ## do a bit of processing
 pars.tmp <- parsdf[,-ncol(parsdf)]
 colnames(pars.tmp) <- colnames(OUmeanAICw)
+pars.tmp$value <- pars.tmp$simmodel
+pars.tmp$simmodel <- "alpha"
 pars.tmp$trait <- as.character(pars.tmp$trait)
 pars.tmp$trait <- sapply(pars.tmp$trait, function(x) sub(".", "", x, fixed=TRUE))
 
