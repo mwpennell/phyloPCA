@@ -11,7 +11,7 @@ library(plyr)
 library(phytools)
 library(phylolm)
 
-load("data.Rdata")
+load("climate.data.RData")
 
 phy <- read.nexus("1741-7007-10-12-s5.nex")[[1]]
 sp.total <- phy$tip.label
@@ -21,11 +21,11 @@ sp <- sp.total[which(!sp.total %in% c("Equus_caballus","Bos_taurus","Artibeus_ja
                                      ,"Rattus_norvegicus","Mus_musculus"))]
 
 ## Get occurrence data for the species:
-dt <- occ(query = sp, from = c("gbif"), limit = 100)
-dtfix <- fixnames(dt, how = "query")
-dt.df <- occ2df(dtfix)
-head(dt.df) ## Nice!
-dim(dt.df)
+## dt <- occ(query = sp, from = c("gbif"), limit = 100)
+## dtfix <- fixnames(dt, how = "query")
+## dt.df <- occ2df(dtfix)
+## head(dt.df) ## Nice!
+## dim(dt.df)
 
 ## Plot to see where the species are:
 data(wrld_simpl)
@@ -57,25 +57,25 @@ data(wrld_simpl)
 ## BIO18 = Precipitation of Warmest Quarter (PWaQ)
 ## BIO19 = Precipitation of Coldest Quarter (PCQ)
 
-nms <- c("amT","mdrT","isoT","Tseas","TmaxWM","TminCM","Tar","TmeanWeQ","TmeanDQ","TmeanWaQ","TmeanCQ","aP"
-         ,"PWeM","PDM","Pseas","PWeQ","PDQ","PWaQ","PCQ")
-index <- 1:19
+## nms <- c("amT","mdrT","isoT","Tseas","TmaxWM","TminCM","Tar","TmeanWeQ","TmeanDQ","TmeanWaQ","TmeanCQ","aP"
+##          ,"PWeM","PDM","Pseas","PWeQ","PDQ","PWaQ","PCQ")
+## index <- 1:19
 
-climate <- stack()
-for(i in index){
-    r <- raster(paste("~/Documents/Academicos/Harmon_Lab/Projects/PhyloPCA_paper/bio_2-5m_bil/bio",index[i]
-                      ,".bil",sep = ""))
-    climate <- stack(climate, r)
-}
-nlayers(climate)
+## climate <- stack()
+## for(i in index){
+##     r <- raster(paste("~/Documents/Academicos/Harmon_Lab/Projects/PhyloPCA_paper/bio_2-5m_bil/bio",index[i]
+##                       ,".bil",sep = ""))
+##     climate <- stack(climate, r)
+## }
+## nlayers(climate)
 
-## plot(climate@layers[[12]], main = nms[12]) ## Annual Precipitation plot.
-## points(dt.df$longitude, dt.df$latitude, col = "red", cex = 0.25)
+## ## plot(climate@layers[[12]], main = nms[12]) ## Annual Precipitation plot.
+## ## points(dt.df$longitude, dt.df$latitude, col = "red", cex = 0.25)
 
-## Extract the bioclimate data for each occurrence:
-bioclim <- extract(climate, dt.df[,2:3], method='simple', df=TRUE)
-bioclim <- bioclim[,-1]
-names(bioclim) <- c(nms)
+## ## Extract the bioclimate data for each occurrence:
+## bioclim <- extract(climate, dt.df[,2:3], method='simple', df=TRUE)
+## bioclim <- bioclim[,-1]
+## names(bioclim) <- c(nms)
 
 ## biobuff <- extract(climate, dt.df[,2:3], method='simple', buffer=500, fun=mean, df=TRUE)
 ## This will get the climate data for a 5km radius, then give the mean for each point.
@@ -89,9 +89,9 @@ mean.c <- colwise(mean, na.rm = TRUE)
 bio.mean <- ddply(bio.dt, "species", function(x) mean.c(x) )
 
 ## Check the data (it has NA's):
-summary(bio.mean)
+summary(bio.mean) ## Yep.
 
-## Take out NaN species:
+## Take out Na:
 ss <- apply(bio.mean[,-1], 2, function(x) is.na(x) )
 ss[,1]
 bio.mean <- bio.mean[!ss[,1],]
@@ -104,15 +104,10 @@ rownames(bio.mean) <- bio.mean$species ## phyl.pca requirement.
 bio.mean <- bio.mean[,-1]
 
 ## Find PCs and Phylogenetic PCs.
-is.binary.tree(phy.car)
-is.rooted(phy.car)
 phy.car <- multi2di(phy.car)
 
 pc <- princomp(bio.mean)
 ppc <- phyl.pca(phy.car, bio.mean)
-
-pc$loadings
-pc$scores
 
 #################################################################################
 
@@ -144,7 +139,7 @@ eb.table <- sapply(all.aicw, function(x) sapply(x, function(y) y[3]))
 rownames(bm.table) <- rownames(ou.table) <- rownames(eb.table) <- c("raw","pc","ppc")
 
 ## Plots:
-pdf("Carnivora_2-5_bioclim_no_log.pdf")
+pdf("Carnivora_2-5_bioclim.pdf")
 par(mfrow = c(3,3))
 for(i in 1:3){
     plot(index, bm.table[i,], main = paste(models[1],rownames(bm.table)[i],sep="_")
@@ -161,8 +156,8 @@ dev.off()
 
 par(mfrow = c(3,4))
 for(i in 1:12){
-    r <- bio.log[,i]
-    names(r) <- rownames(bio.log)
+    r <- bio.mean[,i]
+    names(r) <- rownames(bio.mean)
     phenogram(phy.car, r)
 }
 dev.copy2pdf()
@@ -179,35 +174,5 @@ for(i in 1:12){
 }
 dev.copy2pdf()
 
-## Seems reasonable that OU is the best model. Note how, given the number of species, the trait values are clustered.
-
-## Check the likelihood of fit continuous:
-
-r <- bio.log[,1]
-names(r) <- rownames(bio.log)
-bm <- fitContinuous(phy.car, r, model = "BM")
-bm$opt$aic
-ou <- fitContinuous(phy.car, r, model = "OU")
-ou$opt$aic
-eb <- fitContinuous(phy.car, r, model = "EB")
-eb$opt$aic
-
-## Check AICw:
-aics <- c(bm$opt$aicc, ou$opt$aicc, eb$opt$aicc)
-names(aics) <- c("bm","ou","eb")
-aics <- aics[order(aics)]
-
-w <- vector()
-for(i in 1:3){
-    delta <- aics[i] - aics[1]
-    w[i] <- exp(-0.5 * delta)
-}
-
-aicw <- vector()
-for(i in 1:3){
-    aicw[i] <- w[i]/sum(w)
-}
-
-names(aics)
-aicw
-aics
+## Save results:
+save.image("results_fitted.RData")
