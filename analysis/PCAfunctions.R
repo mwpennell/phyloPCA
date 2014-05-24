@@ -5,8 +5,31 @@ sim.tree.pcs.ind <- function(ntips, traits, sig2dist=rexp, lambda=0.1, mu=0, ...
   X <- sapply(1:traits,function(x) fastBM(tree,sig2=sig2dist(1, ...), nsim=1))
   pc <- princomp(X)
   ppc <- phyl.pca(tree,X)
-  return(list(tree=tree, raw=X, pc=pc$scores, ppc=ppc$scores, pcall=pc, ppcall=ppc))
+  return(list(tree=tree, raw=X, pc=pc$scores, ppc=ppc$S, pcall=pc, ppcall=ppc))
 }
+
+sim.tree.pcs.ind.ou <- function(ntips, traits, alpha, sig2, lambda=0.1, mu=0, ...){
+  tree <- sim.bd.taxa(ntips,1,lambda=0.1,mu=0)[[1]][[1]]
+  tree$edge.length <- tree$edge.length/max(branching.times(tree))
+  tr <- rescale(tree, model="OU", alpha)
+  #outree <- rescale(tree,alpha=log(2),model="OU")
+  X <- sapply(1:traits, function(x) fastBM(tr, sig2=sig2, nsim=1))
+  pc <- princomp(X)
+  ppc <- phyl.pca(tree,X)
+  return(list(tree=tree, raw=X, pc=pc$scores, ppc=ppc$S, pcall=pc, ppcall=ppc))
+}
+
+sim.tree.pcs.ind.eb <- function(ntips, traits, a, sig2, lambda=0.1, mu=0, ...){
+  tree <- sim.bd.taxa(ntips,1,lambda=0.1,mu=0)[[1]][[1]]
+  tree$edge.length <- tree$edge.length/max(branching.times(tree))
+  tr <- rescale(tree, model="EB", a)
+  #outree <- rescale(tree,alpha=log(2),model="OU")
+  X <- sapply(1:traits, function(x) fastBM(tr,sig2=sig2, nsim=1))
+  pc <- princomp(X)
+  ppc <- phyl.pca(tree,X)
+  return(list(tree=tree, raw=X, pc=pc$scores, ppc=ppc$S, pcall=pc, ppcall=ppc))
+}
+
 
 Posdef <- function (n, ev = rexp(n, 1/100)) {
   Z <- matrix(ncol=n, rnorm(n^2))
@@ -43,6 +66,7 @@ sim.tree.pcs.mv <- function(ntips, traits, sig2dist=rexp, lambda=0.1, mu=0, ...)
   return(list(tree=tree, raw=simdat, pc=pc$scores, ppc=ppc$S, pcall=pc, ppcall=ppc, R=R))
 }
 
+
 simandfitPCs <- function(ntips, traits, trait.seq=1, models = c("BM", "OUrandomRoot", "EB")){
   simdat <- sim.tree.pcs.mv(ntips, traits, sig2dist=rexp, lambda=1/100)
   transforms <- c("raw", "pc", "ppc")
@@ -58,6 +82,140 @@ simandfitPCs <- function(ntips, traits, trait.seq=1, models = c("BM", "OUrandomR
   names(aicw.table) <- paste("trait", trait.seq, sep="")
   return(aicw.table)
 }
+
+fitPCs <- function(simdat, trait.seq=1, models = c("BM", "OUfixedRoot", "EB")){
+  transforms <- c("raw", "pc", "ppc")
+  lower.bounds <- c(NULL, 10^-12, NULL)
+  rawfits <- foreach(i=trait.seq) %dopar% suppressWarnings(lapply(1:length(models), function(x) phylolm(simdat$raw[,i]~1, phy=simdat$tree, model=models[x])))
+  pcfits <-  foreach(i=trait.seq) %dopar% suppressWarnings(lapply(1:length(models), function(x) phylolm(simdat$pc[,i]~1, phy=simdat$tree, model=models[x])))
+  ppcfits <-  foreach(i=trait.seq) %dopar% suppressWarnings(lapply(1:length(models), function(x) phylolm(simdat$ppc[,i]~1, phy=simdat$tree, model=models[x])))
+  raw.aicw <- lapply(1:length(trait.seq), function(y) aicw(sapply(rawfits[[y]], function(x) x$aic))$w)
+  pc.aicw <- lapply(1:length(trait.seq), function(y) aicw(sapply(pcfits[[y]], function(x) x$aic))$w)
+  ppc.aicw <- lapply(1:length(trait.seq), function(y) aicw(sapply(ppcfits[[y]], function(x) x$aic))$w)
+  aicw.table <- lapply(1:length(trait.seq), function(y) matrix(c(raw.aicw[[y]], pc.aicw[[y]], ppc.aicw[[y]]), nrow=1))
+  aicw.table <- lapply(1:length(trait.seq), function(y){ colnames(aicw.table[[y]]) <- as.vector(t(outer(transforms, models, paste, sep="_"))); aicw.table[[y]]})
+  aicw.table <- do.call(rbind, aicw.table)
+  aicw.table <- as.data.frame(aicw.table)
+  aicw.table <- data.frame("trait"=factor(paste("trait", trait.seq, sep=""),levels=paste("trait", trait.seq, sep="")), aicw.table)
+  return(aicw.table)
+}
+
+fitPCOU <- function(simdat, trait.seq=1, models = c("BM", "OUfixedRoot", "EB")){
+  transforms <- c("raw", "pc", "ppc")
+  lower.bounds <- c(NULL, 10^-12, NULL)
+  rawfits <- foreach(i=trait.seq) %dopar% suppressWarnings(lapply(1:length(models), function(x) phylolm(simdat$raw[,i]~1, phy=simdat$tree, model=models[x])))
+  pcfits <-  foreach(i=trait.seq) %dopar% suppressWarnings(lapply(1:length(models), function(x) phylolm(simdat$pc[,i]~1, phy=simdat$tree, model=models[x])))
+  ppcfits <-  foreach(i=trait.seq) %dopar% suppressWarnings(lapply(1:length(models), function(x) phylolm(simdat$ppc[,i]~1, phy=simdat$tree, model=models[x])))
+  raw.aicw <- lapply(1:length(trait.seq), function(y) aicw(sapply(rawfits[[y]], function(x) x$aic))$w)
+  pc.aicw <- lapply(1:length(trait.seq), function(y) aicw(sapply(pcfits[[y]], function(x) x$aic))$w)
+  ppc.aicw <- lapply(1:length(trait.seq), function(y) aicw(sapply(ppcfits[[y]], function(x) x$aic))$w)
+  aicw.table <- lapply(1:length(trait.seq), function(y) matrix(c(raw.aicw[[y]], pc.aicw[[y]], ppc.aicw[[y]]), nrow=1))
+  aicw.table <- lapply(1:length(trait.seq), function(y){ colnames(aicw.table[[y]]) <- as.vector(t(outer(transforms, models, paste, sep="_"))); aicw.table[[y]]})
+  aicw.table <- do.call(rbind, aicw.table)
+  aicw.table <- as.data.frame(aicw.table)
+  aicw.table <- data.frame("trait"=factor(paste("trait", trait.seq, sep=""),levels=paste("trait", trait.seq, sep="")), aicw.table)
+  alpha <-  sapply(list(rawfits, pcfits, ppcfits), function(x) sapply(1:length(trait.seq), function (y) sapply(x[[y]][2], function(z) z$optpar)))
+  sig2 <- sapply(list(rawfits, pcfits, ppcfits), function(x) sapply(1:length(trait.seq), function (y) sapply(x[[y]][2], function(z) z$sigma2)))
+  colnames(alpha)<- colnames(sig2) <- c("raw", "pc", "ppc")
+  alpha <- data.frame(trait=paste("trait", trait.seq, sep="."), as.data.frame(alpha))
+  sig2 <- data.frame(trait=paste("trait", trait.seq, sep="."), as.data.frame(sig2))
+  return(list(alpha=alpha, sig2=sig2, aicw.table=aicw.table))
+}
+
+get.contrasts <- function(dat){
+  btimes <- lapply(1:nsims, function(x) 1 - branching.times(dat[[x]]$tree))
+  picraw <- lapply(1:nsims, function(x) sapply(1:ntraits, function(y) pic(dat[[x]]$raw[,y], dat[[x]]$tree)))
+  picpc <- lapply(1:nsims, function(x) sapply(1:ntraits, function(y) pic(dat[[x]]$pc[,y], dat[[x]]$tree)))
+  picppc <- lapply(1:nsims, function(x) sapply(1:ntraits, function(y) pic(dat[[x]]$ppc[,y], dat[[x]]$tree)))
+  rawdf <- lapply(1:nsims, function(x) data.frame(type="raw", times=btimes[[x]], trait=picraw[[x]]))
+  pcdf <- lapply(1:nsims, function(x) data.frame(type="pc", times=btimes[[x]], trait=picpc[[x]]))
+  ppcdf <- lapply(1:nsims, function(x) data.frame(type="ppc", times=btimes[[x]], trait=picppc[[x]]))
+  df <- lapply(1:nsims, function(x) rbind(rawdf[[x]], pcdf[[x]], ppcdf[[x]]))
+}
+
+get.dtt <- function(dat){
+  raw.bytrait <- lapply(1:ntraits, function(x) lapply(1:nsims, function(y) dat[[y]]$raw[,x]))
+  pc.bytrait <- lapply(1:ntraits, function(x) lapply(1:nsims, function(y) dat[[y]]$pc[,x]))
+  ppc.bytrait <- lapply(1:ntraits, function(x) lapply(1:nsims, function(y) dat[[y]]$ppc[,x]))
+  dttraw <- lapply(1:ntraits, function(y) lapply(1:nsims, function(x) dtt(dat[[x]]$tree, raw.bytrait[[y]][[x]], plot=FALSE)))
+  dispraw <- lapply(1:ntraits, function(x) unlist(lapply(1:nsims, function(y) dttraw[[x]][[y]]$dtt)))
+  times <- unlist(lapply(1:ntraits, function(x) unlist(lapply(1:nsims, function(y) dttraw[[x]][[y]]$times))))
+  
+  dttpc <- lapply(1:ntraits, function(y) lapply(1:nsims, function(x) dtt(dat[[x]]$tree, pc.bytrait[[y]][[x]], plot=FALSE)))
+  disppc <- lapply(1:ntraits, function(x) unlist(lapply(1:nsims, function(y) dttpc[[x]][[y]]$dtt)))
+  dttppc <- lapply(1:ntraits, function(y) lapply(1:nsims, function(x) dtt(dat[[x]]$tree, ppc.bytrait[[y]][[x]], plot=FALSE)))
+  dispppc <- lapply(1:ntraits, function(x) unlist(lapply(1:nsims, function(y) dttppc[[x]][[y]]$dtt)))
+  disp <- list(do.call(cbind, dispraw), do.call(cbind, disppc), do.call(cbind, dispppc))
+  types <- c("raw", "pc", "ppc")
+  dispdf <- lapply(1:3, function(x) data.frame(type=types[x], times=times, trait=disp[[x]]))
+  dispdf <- do.call(rbind, dispdf)
+  dispmelt <- melt(dispdf, id=c('type', 'times'))
+  return(dispmelt)
+}
+
+get.meanAICws <- function(res){
+  aicws <- lapply(res, function(x) x$aicw.table)
+  aicws <- do.call(rbind, aicws)
+  meanaicws <- apply(aicws[2:ncol(aicws)], 2, function(x) tapply(x, aicws[,1], mean))
+  meanaicws <- as.data.frame(meanaicws)
+  meanaicws$trait <- rownames(meanaicws)
+  meanaicws <- melt(meanaicws, id.vars="trait")
+  meanaicws$type <- factor(sapply(strsplit(as.character(meanaicws$variable), split="_"), function(x) x[[1]]))
+  meanaicws$simmodel <- factor(sapply(strsplit(as.character(meanaicws$variable), split="_"), function(x) x[[2]]))
+  meanaicws <- meanaicws[,-2]
+  meanaicws <- meanaicws[,c(1,3,4,2)]
+}
+
+get.parsOU <- function(res){
+  alphares <- lapply(res, function(x) x[['alpha']])
+  alphares <- do.call(rbind, alphares)
+  sig2res <- lapply(res, function(x) x[['sig2']])
+  sig2res <- do.call(rbind, sig2res)
+  sig2melt <- melt(sig2res, id.vars="trait")
+  alphamelt <- melt(alphares, id.vars="trait")
+  parsdf <- alphamelt
+  colnames(parsdf)[3] <- "alpha"
+  parsdf$sig2 <- sig2melt$value
+  parsdf$halflife <- log(2)/parsdf$alpha
+  #head(parsdf)
+  #parsmelt <- melt(parsdf, id.vars=c("trait", "variable"))
+  #colnames(parsmelt)[3] = "parameter"
+  #parsmelt$traitno <- trait.seq
+  return(parsdf)
+}
+
+simandfitPCs.ind.ou <- function(ntips, traits, trait.seq=1, alpha, sig2, models = c("BM", "OUrandomRoot", "EB")){
+  simdat <- sim.tree.pcs.ind.ou(ntips, traits, alpha, sig2, lambda=1/100)
+  transforms <- c("raw", "pc", "ppc")
+  lower.bounds <- c(NULL, 10^-12, NULL)
+  rawfits <- foreach(i=trait.seq) %dopar% suppressWarnings(lapply(1:length(models), function(x) phylolm(simdat$raw[,i]~1, phy=simdat$tree, model=models[x])))
+  pcfits <-  foreach(i=trait.seq) %dopar% suppressWarnings(lapply(1:length(models), function(x) phylolm(simdat$pc[,i]~1, phy=simdat$tree, model=models[x])))
+  ppcfits <-  foreach(i=trait.seq) %dopar% suppressWarnings(lapply(1:length(models), function(x) phylolm(simdat$ppc[,i]~1, phy=simdat$tree, model=models[x])))
+  raw.aicw <- lapply(1:length(trait.seq), function(y) aicw(sapply(rawfits[[y]], function(x) x$aic))$w)
+  pc.aicw <- lapply(1:length(trait.seq), function(y) aicw(sapply(pcfits[[y]], function(x) x$aic))$w)
+  ppc.aicw <- lapply(1:length(trait.seq), function(y) aicw(sapply(ppcfits[[y]], function(x) x$aic))$w)
+  aicw.table <- lapply(1:length(trait.seq), function(y) matrix(c(raw.aicw[[y]], pc.aicw[[y]], ppc.aicw[[y]]), nrow=1))
+  aicw.table <- lapply(1:length(trait.seq), function(y){ colnames(aicw.table[[y]]) <- as.vector(t(outer(transforms, models, paste, sep="_"))); aicw.table[[y]]})
+  names(aicw.table) <- paste("trait", trait.seq, sep="")
+  return(aicw.table)
+}
+
+simandfitPCs.ind.eb <- function(ntips, traits, trait.seq=1, a, sig2, models = c("BM", "OUrandomRoot", "EB")){
+  simdat <- sim.tree.pcs.ind.eb(ntips, traits, a, sig2, lambda=1/100)
+  transforms <- c("raw", "pc", "ppc")
+  lower.bounds <- c(NULL, 10^-12, NULL)
+  rawfits <- foreach(i=trait.seq) %dopar% suppressWarnings(lapply(1:length(models), function(x) phylolm(simdat$raw[,i]~1, phy=simdat$tree, model=models[x])))
+  pcfits <-  foreach(i=trait.seq) %dopar% suppressWarnings(lapply(1:length(models), function(x) phylolm(simdat$pc[,i]~1, phy=simdat$tree, model=models[x])))
+  ppcfits <-  foreach(i=trait.seq) %dopar% suppressWarnings(lapply(1:length(models), function(x) phylolm(simdat$ppc[,i]~1, phy=simdat$tree, model=models[x])))
+  raw.aicw <- lapply(1:length(trait.seq), function(y) aicw(sapply(rawfits[[y]], function(x) x$aic))$w)
+  pc.aicw <- lapply(1:length(trait.seq), function(y) aicw(sapply(pcfits[[y]], function(x) x$aic))$w)
+  ppc.aicw <- lapply(1:length(trait.seq), function(y) aicw(sapply(ppcfits[[y]], function(x) x$aic))$w)
+  aicw.table <- lapply(1:length(trait.seq), function(y) matrix(c(raw.aicw[[y]], pc.aicw[[y]], ppc.aicw[[y]]), nrow=1))
+  aicw.table <- lapply(1:length(trait.seq), function(y){ colnames(aicw.table[[y]]) <- as.vector(t(outer(transforms, models, paste, sep="_"))); aicw.table[[y]]})
+  names(aicw.table) <- paste("trait", trait.seq, sep="")
+  return(aicw.table)
+}
+
 
 #Simulate tree and data for pgls using mvBM. Removes first trait from the pca.
 sim.tree.pcs.pgls <- function(ntips, traits, foc2trans="BM", rescalepar=1, sig2dist=rexp, me=0, lambda=0.1, mu=0, ...){
@@ -141,3 +299,18 @@ laddertree <- function(ntips){
 ##tree <- reorder(tree, "postorder")
 #tree$tip.label <- sapply(tree$tip.label, function(x) paste("t", x, sep=""))
 #tree$edge.length <- tree$edge.length/max(nodeHeights(tree))
+
+makeTransparent <- function (someColor, alpha = 100){
+  newColor <- col2rgb(someColor)
+  apply(newColor, 2, function(curcoldata) {
+    rgb(red = curcoldata[1], green = curcoldata[2], blue = curcoldata[3], 
+        alpha = alpha, maxColorValue = 255)
+  })
+}
+
+lines.loess <- function(x, y, ...){
+  df <- as.data.frame(x=x, y=y)
+  tmp <- loess(y~x, data=df, )
+  pred <- predict(tmp, data.frame(x=seq(0,1,0.01)), se=FALSE)
+  lines(seq(0,1,0.01), pred, ...)
+}

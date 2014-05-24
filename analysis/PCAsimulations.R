@@ -41,37 +41,55 @@ boxplot.prep <- function(x){
 }
 bx <- lapply(1:ncol(res.all[[1]]), function(x) boxplot(boxplot.prep(x), ylab="AICw",xlab="Trait", main=colnames(res.all[[1]])[x]))
 
+## Create plot of contrasts through time
+nsims = 50
+dat <- lapply(1:nsims, function(x) sim.tree.pcs.mv(ntips, ntraits))
+btimes <- lapply(1:nsims, function(x) 1 - branching.times(dat[[x]]$tree))
+picrawdat <- lapply(1:nsims, function(x) sapply(1:ntraits, function(y) pic(dat[[x]]$raw[,y], dat[[x]]$tree)))
+picpcdat <- lapply(1:nsims, function(x) sapply(1:ntraits, function(y) pic(dat[[x]]$pc[,y], dat[[x]]$tree)))
+picppcdat <- lapply(1:nsims, function(x) sapply(1:ntraits, function(y) pic(dat[[x]]$ppc[,y], dat[[x]]$tree)))
 
-##
-registerDoMC(cores=8)
-trait.seq <- c(2, 3, 5, 10, 15, 20, 30)
-pglsres <- foreach(i=1:50) %dopar% simandfitPGLS(100, 30, trait.seq, foc2trans="BM", rescalepar=1, me=0)
-rawpgls <- sapply(pglsres, function(x) x$raw[,2])
-pcpgls  <- sapply(pglsres, function(x) x$pc[,2])
-ppcpgls <- sapply(pglsres, function(x) x$ppc[,2])
-simdat <- lapply(pglsres, function(x) x$simdat)
-pairs((simdat[[1]]$pc[1:50, 1:10]))
-plot(simdat[[10]]$pc[,2],simdat[[1]]$pc[,3])
+raw.bytrait <- lapply(1:ntraits, function(x) lapply(1:nsims, function(y) dat[[y]]$raw[,x]))
+dttraw <- lapply(1:ntraits, function(y) lapply(1:nsims, function(x) dtt(dat[[x]]$tree, raw.bytrait[[y]][[x]], plot=FALSE)))
+dispraw <- lapply(1:ntraits, function(x) unlist(lapply(1:nsims, function(y) dttraw[[x]][[y]]$dtt)))
+times <- lapply(1:ntraits, function(x) unlist(lapply(1:nsims, function(y) dttraw[[x]][[y]]$times)))
 
-par(mfrow=c(1,3))
-plot(ecdf(rawpgls[1,]), ylim=c(0,1), xlim=c(0,1))
-lapply(1:length(trait.seq), function(x) lines(ecdf(rawpgls[x,]), col=heat.colors(13)[x]))
-curve(1*x, add=TRUE)
-plot(ecdf(pcpgls[1,]), ylim=c(0,1), xlim=c(0,1))
-lapply(1:length(trait.seq), function(x) lines(ecdf(pcpgls[x,]), col=heat.colors(13)[x]))
-curve(1*x, add=TRUE)
-plot(ecdf(rawpgls[1,]), ylim=c(0,1), xlim=c(0,1))
-lapply(1:length(trait.seq), function(x) lines(ecdf(ppcpgls[x,]), col=heat.colors(13)[x]))
-curve(1*x, add=TRUE)
+pc.bytrait <- lapply(1:ntraits, function(x) lapply(1:nsims, function(y) dat[[y]]$pc[,x]))
+dttpc <- lapply(1:ntraits, function(y) lapply(1:nsims, function(x) dtt(dat[[x]]$tree, pc.bytrait[[y]][[x]], plot=FALSE)))
+disppc <- lapply(1:ntraits, function(x) unlist(lapply(1:nsims, function(y) dttpc[[x]][[y]]$dtt)))
 
-par(mfrow=c(1,3))
-yl <- c(-0, 1)
-boxplot(t(rawpgls), ylim=yl)
-boxplot(t(pcpgls ), ylim=yl)
-boxplot(t(ppcpgls), ylim=yl)
+ppc.bytrait <- lapply(1:ntraits, function(x) lapply(1:nsims, function(y) dat[[y]]$ppc[,x]))
+dttppc <- lapply(1:ntraits, function(y) lapply(1:nsims, function(x) dtt(dat[[x]]$tree, ppc.bytrait[[y]][[x]], plot=FALSE)))
+dispppc <- lapply(1:ntraits, function(x) unlist(lapply(1:nsims, function(y) dttppc[[x]][[y]]$dtt)))
 
-plot(pcpgls[,1], ylim=c(0,1), type="n")
-lapply(1:20, function(x) lines(pcpgls[,x], col=x))
-plot(ppcpgls[,1], ylim=c(0,1), type="n")
-lapply(1:20, function(x) lines(ppcpgls[,x], col=x))
+
+par(mfrow=c(2,3))
+pal = rainbow
+alph=10
+cex=0.5
+
+plot(c(0,1), c(0,3), type='n', main="raw", xlab="time", ylab="contrasts")
+gb <- lapply(1:ntraits, function(x) lapply(1:nsims, function(y) points(btimes[[y]], abs(picrawdat[[y]][,x]), col=makeTransparent(pal(ntraits)[x], alpha=alph),bg=makeTransparent(pal(ntraits)[x], alpha=alph), cex=cex, pch=21)))
+picraw.bytrait <- lapply(1:ntraits, function(x) sapply(1:nsims, function(y) abs(picrawdat[[y]][,x])))
+gb <- lapply(1:ntraits,function(x) abline(lm(unlist(as.data.frame(picraw.bytrait[[x]]))~unlist(btimes)), col=pal(ntraits)[x], lwd=1.5))
+
+plot(c(0,1), c(0,3), type='n', main="pc", xlab="time", ylab="contrasts")
+gb <- lapply(1:ntraits, function(x) lapply(1:nsims, function(y) points(btimes[[y]], abs(picpcdat[[y]][,x]), col=makeTransparent(pal(ntraits)[x], alpha=alph),bg=makeTransparent(pal(ntraits)[x], alpha=alph), cex=cex, pch=21)))
+picpc.bytrait <- lapply(1:ntraits, function(x) sapply(1:nsims, function(y) abs(picpcdat[[y]][,x])))
+gb <- lapply(1:ntraits,function(x) abline(lm(unlist(as.data.frame(picpc.bytrait[[x]]))~unlist(btimes)), col=pal(ntraits)[x], lwd=1.5))
+
+
+plot(c(0,1), c(0,3), type='n', main="ppc", xlab="time", ylab="contrasts")
+gb <- lapply(1:ntraits, function(x) lapply(1:nsims, function(y) points(btimes[[y]], abs(picppcdat[[y]][,x]), col=makeTransparent(pal(ntraits)[x], alpha=alph),bg=makeTransparent(pal(ntraits)[x], alpha=alph), cex=cex, pch=21)))
+picppc.bytrait <- lapply(1:ntraits, function(x) sapply(1:nsims, function(y) abs(picppcdat[[y]][,x])))
+gb <- lapply(1:ntraits,function(x) abline(lm(unlist(as.data.frame(picppc.bytrait[[x]]))~unlist(btimes)), col=pal(ntraits)[x], lwd=1.5))
+
+plot(c(0,1), c(0,1.5), type="n", main="raw", xlab="time", ylab="disparity")
+gb <- lapply(1:ntraits, function(x) lines.loess(times[[x]], dispraw[[x]], col=pal(ntraits)[x]))
+
+plot(c(0,1), c(0,1.5), type="n", main="pc", xlab="time", ylab="disparity")
+gb <- lapply(1:ntraits, function(x) lines.loess(times[[x]], disppc[[x]], col=pal(ntraits)[x]))
+
+plot(c(0,1), c(0,1.5), type="n", main="ppc", xlab="time", ylab="disparity")
+gb <- lapply(1:ntraits, function(x) lines.loess(times[[x]], dispppc[[x]], col=pal(ntraits)[x]))
 
