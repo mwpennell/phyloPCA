@@ -21,7 +21,8 @@ pc <- princomp(dt)
 ppc <- phyl.pca(phy.fel,dt)
 
 ## Fitting the models:
-models = c("BM", "OUrandomRoot", "EB")
+## models = c("BM", "OUrandomRoot", "EB")
+models <- c("BM", "OUfixedRoot", "EB")
 rawfits <- list()
 pcfits <- list()
 ppcfits <- list()

@@ -112,7 +112,8 @@ ppc <- phyl.pca(phy.car, bio.mean)
 #################################################################################
 
 ## Fitting the models with log-transformation:
-models <- c("BM", "OUrandomRoot", "EB")
+## models <- c("BM", "OUrandomRoot", "EB")
+models <- c("BM", "OUfixedRoot", "EB")
 rawfits <- list()
 pcfits <- list()
 ppcfits <- list()

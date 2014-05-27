@@ -2,6 +2,17 @@ load("./results_fitted.RData")
 
 library(phylolm)
 
+## Quick check for correlation among variables:
+library(ggplot2)
+library(reshape2)
+
+head(bioclim)
+head(bio.mean)
+cr <- cor(bio.mean)
+
+## Heat map with correlation among variables:
+qplot(x=Var1, y=Var2, data=melt(cr), fill=value, geom="tile")
+
 ## Checking parameter estimates for the Ou model:
 
 alpha.raw <- vector()
