@@ -1,0 +1,218 @@
+## # Simulations exploring the effects of different types of PCA on model-based phylogenetic inference.
+
+## Load packages
+rm(list=ls(all=TRUE))
+require(phytools)
+require(geiger)
+require(phylolm)
+require(foreach)
+require(doMC)
+require(MASS)
+require(nlme)
+require(reshape2)
+require(ggplot2)
+
+## Read in functions
+source("./R/analysis-helper.R")
+
+## Set the number of cores for parallel analysis
+registerDoMC(cores=3)
+
+## Specify the number of tips, traits and a vector specifying which traits to fit models to.
+ntips <- 50
+ntraits <- 20
+
+## Select which of the traits to study
+trait.seq= c(1,2,5,10,15,20)
+
+## This function simulates a phylogenetic tree using a birth-death model with extinction = 0. The tree is rescaled to unit height. It then simulates a trait variance-covariance matrix by simulating eigenvalues from an exponential distribution with lambda = 1/100. These are then used to simulate under multivariate Brownian motion on the phylogeny. Note that simulating the data for a large number of tips and traits is computationally intensive (requires a ntraits x ntips covariance matrix).
+## Skipped running and just load saved simulations
+#simdat <- foreach(i=1:100) %dopar% sim.tree.pcs.mv(ntips, ntraits, sig2dist=rexp, lambda=1/100)
+#res <- foreach(i=1:100) %dopar% fitPCs(simdat[[i]], trait.seq, models=c("BM", "OUfixedRoot", "EB"))
+#res <- do.call(rbind, res)
+#save(res, file=paste("./output/sims","mv", ntips, ntraits, ".rds", sep="_"))
+
+load(paste("./output/sims","mv", ntips, ntraits, ".rds", sep="_"))
+
+bm.cor <- build.sim.data.table(res, trait.set=trait.seq)
+
+## Figure 1- Distribution of Akaike weights for the Brownian motion (top row), Ornstein–Uhlenbeck (middle row) or Early–Burst model (bottom row).
+## Data simulated under correlated multivariate Brownian Motion
+fig.box.aicw(bm.cor)
+
+
+
+##  # Simulate uncorrelated data under BM, OU and EB and analyze using model selection, node-height test, and disparity through time.
+
+## Simulate the data
+nsims = 100
+#bmdat <- lapply(1:nsims, function(x) sim.tree.pcs.ind(ntips, ntraits, sig2dist=function(x){0.25}))
+#oudat <- lapply(1:nsims, function(x) sim.tree.pcs.ind.ou(ntips, ntraits, alpha=2, sig2=1))
+#ebdat <- lapply(1:nsims, function(x) sim.tree.pcs.ind.eb(ntips, ntraits, a=log(0.02), sig2=1))
+
+## Calculate the contrasts for each of the first 50 simulated datasets.
+#bmcont <- get.contrasts(bmdat[1:50], "BM")
+#oucont <- get.contrasts(oudat[1:50], "OU")
+#ebcont <- get.contrasts(ebdat[1:50], "EB")
+
+## Combine all and save
+#contrasts <- rbind(bmcont, oucont, ebcont)
+#save(contrasts, file="./output/contrastsdata.rds")
+
+## Calculate the disparity through time for each simulated dataset
+#bmdtt <- get.dtt(bmdat[1:50], "BM") 
+#oudtt <- get.dtt(oudat[1:50], "OU")
+#ebdtt <- get.dtt(ebdat[1:50], "EB")
+
+#dispdat <- do.call(rbind, list(bmdtt, oudtt, ebdtt))
+#save(dispdat, file="./output/disparitydata.rds")
+
+## Load back in saved output for contrasts and disparity
+load("./output/contrastsdata.rds")
+load("./output/disparitydata.rds")
+
+## Figure 3- Relationship between the average phylogenetic independent contrasts and the height of the node across 100 datasets simulated under either
+##a BM (top row), OU (middle row) or EB (bottom row) model of evolution.
+fig.nh.3panel(contrasts)
+
+## Figure 4- Relative disparity through time for the same simulated datasets as in Figure 3.
+fig.dtt.3panel(dispdat)
+
+## Simulate under OU, BM and EB uncorrelated, fit models and calculate AICweights and compare parameter estimates.
+registerDoMC(cores=3)
+#oufits <- foreach(i=1:100) %dopar% fitPCOU(oudat[[i]], 1:20, models=c("BM", "OUfixedRoot", "EB"))
+#ebfits <- foreach(i=1:100) %dopar% fitPCs(ebdat[[i]], trait.seq, models=c("BM", "OUfixedRoot", "EB"))
+#bmfits <- foreach(i=1:100) %dopar% fitPCs(bmdat[[i]], trait.seq, models=c("BM", "OUfixedRoot", "EB"))
+
+## Get just the aicws for the OU results, filtering out the parameter estimates
+#ouaicws <- lapply(oufits, function(x) x$aicw.table)
+#oures <- do.call(rbind, ouaicws)
+## Collect other AIC weights for EB and BM
+#ebres <- do.call(rbind, ebfits)
+#bmres <- do.call(rbind, bmfits)
+
+## Save output
+#save(oures, file=paste("./output/simsOU","ind", ntips, ntraits, ".rds", sep="_"))
+#save(ebres, file=paste("./output/simsEB","ind", ntips, ntraits, ".rds", sep="_"))
+#save(bmres, file=paste("./output/simsBM","ind", ntips, ntraits, ".rds", sep="_"))
+
+## Load fits back into the workspace
+load(paste("./output/simsOU","ind", ntips, ntraits, ".rds", sep="_"))
+load(paste("./output/simsBM","ind", ntips, ntraits, ".rds", sep="_"))
+load(paste("./output/simsEB","ind", ntips, ntraits, ".rds", sep="_"))
+
+## Get the parameter estimates from the OU simulations, as well as the mean AIC weights.
+#parsdf <- get.parsOU(oufits)
+#OUmeanAICw <- get.meanAICws(oufits)
+
+#save(OUmeanAICw, file="./output/OUmeanAICw.rds")
+#save(parsdf, file="./output/OUsimParameterEstimates.rds")
+
+load("./output/OUmeanAICw.rds")
+load("./output/OUsimParameterEstimates.rds")
+
+## Multivariate BM
+bm.ind <- build.sim.data.table(bmres, trait.seq)
+
+## Boxplots for AIC weights for models for uncorrelated mvBM
+fig.box.aicw(bm.ind)
+
+## Boxplots for AIC weights for models for uncorrelated mvOU
+ou.ind <- build.sim.data.table(oures, trait.seq)
+fig.box.aicw(ou.ind)
+
+## Boxplots for AIC weights for models for uncorrelated mvEB
+eb.ind <- build.sim.data.table(ebres, trait.seq)
+fig.box.aicw(eb.ind)
+
+## do a bit of processing
+parsdf$trait <- as.character(parsdf$trait)
+parsdf$trait <- sapply(parsdf$trait, function(x) sub(".", "", x, fixed=TRUE))
+parsdf$trait <- factor(parsdf$trait)
+pars.tmp <- melt(parsdf)
+colnames(pars.tmp) <- colnames(OUmeanAICw)
+
+## combine the dataframes
+est <- rep("AICw", nrow(OUmeanAICw))
+OUmeanAICw <- cbind(OUmeanAICw, est)
+est <- rep("Par", nrow(pars.tmp))
+pars.tmp <- cbind(pars.tmp, est)
+oudf <- rbind(OUmeanAICw, pars.tmp)
+
+## prune down dataset to raw and phylo pca only
+oudf <- subset(oudf, type %in% c("raw", "ppc"))
+oudf$type <- factor(oudf$type)
+oudf$type <- factor(oudf$type, levels=c("raw", "ppc"), labels=c("Original data", "Phylogenetic PCA"))
+
+## prune down dataset to exclude only BM, OU, EB, alpha
+oudf <- subset(oudf, simmodel %in% c("BM", "EB", "OUfixedRoot", "alpha"))
+oudf$simmodel <- factor(oudf$simmodel)
+oudf$simmodel <- factor(oudf$simmodel, levels=c("BM", "OUfixedRoot", "EB", "alpha"),
+                        labels=c("BM", "OU", "EB", "alpha"))
+
+oudf$trait <- factor(oudf$trait, levels=unique(oudf$trait), labels=c(1:20))
+
+
+## Figure showing detailed model fit results and paramter estimates when simulated under uncorrelated mvOU and fit to each of the different models.
+fig.model.support.alpha(oudf)
+
+## # Empirical analyses of morphological dataset for Felids
+
+## Bininda-Edmunds 2012 BMC Felidae supertree.
+## Getting only the first dated phylo in the file that has the best estimate for branch lengths.
+phy <- read.nexus("./data/1741-7007-10-12-s5.nex")[[1]]
+
+## Get data:
+data <- read.csv("./data/data.csv", header = TRUE, sep = "\t")
+rownames(data) <- data[,1]
+
+## Drop from the tree the species we do not have data for:
+phy.fel <- drop.tip(phy, tip = phy$tip.label[which(!phy$tip.label %in% data[,1])])
+phy.fel$edge.length <- phy.fel$edge.length/max(branching.times(phy.fel))
+
+## Model Selection Analysis
+mm <- match(phy.fel$tip.label, data[,1])
+dt <- log(data[mm,2:8])
+felidPC <- princomp(dt, cor=TRUE)
+felidPPC <- phyl.pca(phy.fel, dt, mode="corr")
+
+felidae.dat <- list(tree=phy.fel, raw=dt, pc=felidPC$scores, ppc= felidPPC$S, pcall=felidPC, ppcall=felidPPC)
+felidaeFit <- fitPCs(felidae.dat, 1:ncol(dt), models=c("BM", "OUfixedRoot", "EB"))
+
+felidae.ind <- build.sim.data.table(felidaeFit, 1:7)
+
+## Model support across morphological datasets showing model support weights for the felid dataset.
+fig.felidae.aicw(felidae.ind)
+
+## Contrasts & disparity
+nsims=1; ntraits=ncol(dt)
+felidCont <- get.contrasts(list(felidae.dat), "contrasts")
+felidDisp <- get.dtt(list(felidae.dat), "disparity")
+
+## Node height and disparity through time plots for the felid dataset.
+fig.felidae.contrasts(felidCont)
+fig.felidae.dtt(felidDisp)
+
+## # Empirical analyses of climate data from the carnivora
+## Daniel's gbif processing script. Not working yet on my machine (package dependencies).
+#source("./R/process-data.R")
+#save(bioclim.dat, file="./output/bioclim.dat.rds")
+
+#load("./output/results_fitted.RData")
+#load("./output/climate.data.RData")
+load("./output/bioclim.dat.rds")
+
+nsims=1; ntraits = ncol(bio.mean)
+bioclimCont <- get.contrasts(list(bioclim.dat), "contrasts")
+bioclimDtt <- get.dtt(list(bioclim.dat), "disparity")
+
+## Contrasts plot and disparity through time plot for bioclim data.
+fig.nh.3panel(bioclimCont)
+fig.dtt.3panel(bioclimDtt)
+
+
+
+
+
+
+
