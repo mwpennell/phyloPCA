@@ -139,41 +139,5 @@ ou.table <- sapply(all.aicw, function(x) sapply(x, function(y) y[2]))
 eb.table <- sapply(all.aicw, function(x) sapply(x, function(y) y[3]))
 rownames(bm.table) <- rownames(ou.table) <- rownames(eb.table) <- c("raw","pc","ppc")
 
-## Plots:
-pdf("Carnivora_2-5_bioclim.pdf")
-par(mfrow = c(3,3))
-for(i in 1:3){
-    plot(index, bm.table[i,], main = paste(models[1],rownames(bm.table)[i],sep="_")
-         , ylim = c(0.0,1.0), ylab = "AICw", xlab = "PCs")
-    plot(index, ou.table[i,], main = paste(models[2],rownames(ou.table)[i],sep="_")
-         , ylim = c(0.0,1.0), ylab = "AICw", xlab = "PCs")
-    plot(index, eb.table[i,], main = paste(models[3],rownames(eb.table)[i],sep="_")
-         , ylim = c(0.0,1.0), ylab = "AICw", xlab = "PCs")
-}
-dev.off()
-
-### --- ### --- ### --- ### --- ### --- ### --- ### --- ### --- ###
-## Some graphs to visualize the data:
-
-par(mfrow = c(3,4))
-for(i in 1:12){
-    r <- bio.mean[,i]
-    names(r) <- rownames(bio.mean)
-    phenogram(phy.car, r)
-}
-dev.copy2pdf()
-
-par(mfrow = c(3,4))
-for(i in 1:12){
-    phenogram(phy.car, pc$scores[,i])
-}
-dev.copy2pdf()
-
-par(mfrow = c(3,4))
-for(i in 1:12){
-    phenogram(phy.car, ppc$S[,i])
-}
-dev.copy2pdf()
-
 ## Save results:
 save.image("results_fitted.RData")
