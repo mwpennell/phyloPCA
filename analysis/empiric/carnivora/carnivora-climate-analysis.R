@@ -11,7 +11,7 @@ library(plyr)
 library(phytools)
 library(phylolm)
 
-load("climate.data.RData")
+load("../../datasets/climate.data.RData")
 
 phy <- read.nexus("1741-7007-10-12-s5.nex")[[1]]
 sp.total <- phy$tip.label
@@ -140,4 +140,4 @@ eb.table <- sapply(all.aicw, function(x) sapply(x, function(y) y[3]))
 rownames(bm.table) <- rownames(ou.table) <- rownames(eb.table) <- c("raw","pc","ppc")
 
 ## Save results:
-save.image("results_fitted.RData")
+## save.image("../../datasets/results_fitted.RData")

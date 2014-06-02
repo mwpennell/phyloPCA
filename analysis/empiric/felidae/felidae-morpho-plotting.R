@@ -7,7 +7,7 @@ library(geiger)
 col <- c("#771155", "#AA4488", "#CC99BB", "#114477", "#4477AA", "#77AADD", "#117777", "#44AAAA", "#77CCCC", "#117744", "#44AA77", "#88CCAA", "#777711", "#AAAA44", "#DDDD77", "#774411", "#AA7744", "#DDAA77", "#771122", "#AA4455", "#DD7788")
 
 ## read in data
-load("results_fitted.RData")
+load("../../datasets/felidae_results.RData")
 
 ## Figure 1 NH for 3 models (uncorrelated)
 fig.nh.3panel <- function(df){
@@ -70,9 +70,9 @@ get.contrasts <- function(data, tree, type){
   return(df)
 }
 
-emp.rawcont <- get.contrasts(bio.mean, phy.car, "Original data")
-emp.pccont <- get.contrasts(pc$scores, phy.car, "PCA")
-emp.ppccont <- get.contrasts(ppc$S, phy.car, "Phylogenetic PCA")
+emp.rawcont <- get.contrasts(dt, phy.fel, "Original data")
+emp.pccont <- get.contrasts(pc$scores, phy.fel, "PCA")
+emp.ppccont <- get.contrasts(ppc$S, phy.fel, "Phylogenetic PCA")
 
 emp.df <- rbind(emp.rawcont, emp.pccont, emp.ppccont)
 
@@ -87,11 +87,11 @@ get.dtt <- function(data, tree){
     return(list(dtt=dtt, disp=disp))
 }
 
-emp.rawdtt <- get.dtt(bio.mean, phy.car)
-emp.pcdtt <- get.dtt(pc$scores, phy.car)
-emp.ppcdtt <- get.dtt(ppc$S, phy.car)
+emp.rawdtt <- get.dtt(dt, phy.fel)
+emp.pcdtt <- get.dtt(pc$scores, phy.fel)
+emp.ppcdtt <- get.dtt(ppc$S, phy.fel)
 
-times <- unlist(lapply(1:ntraits, function(x) unlist(emp.rawdtt$dtt[[1]]$times)))
+times <- unlist(lapply(1:dim(dt)[2], function(x) unlist(emp.rawdtt$dtt[[1]]$times)))
 
 dttraw <- lapply(1:length(emp.rawdtt$dtt), function(x) emp.rawdtt$dtt[[x]]$dtt)
 dttpc <- lapply(1:length(emp.pcdtt$dtt), function(x) emp.pcdtt$dtt[[x]]$dtt)
@@ -107,7 +107,6 @@ dispmelt <- melt(dispdf, id=c('type', 'times'))
 
 ## Node heigth figure:
 p <- fig.nh.3panel(emp.df)
-
 ## Disparity figure:
 q <- fig.dtt.3panel(dispmelt)
 
@@ -121,7 +120,7 @@ g_legend <- function(a.gplot){
 legend <- g_legend(p)
 lwidth <- sum(legend$width)
 
-pdf("carnivora-nh-dtt.pdf", height = 10, width = 10)
+pdf("felidae-nh-dtt.pdf", height = 10, width = 10)
 grid.arrange(arrangeGrob(p + theme(legend.position="none"), q + theme(legend.position="none")),
                          legend, widths=unit.c(unit(1, "npc") - lwidth, lwidth), nrow=1)
 dev.off()
@@ -142,11 +141,10 @@ eb$type <- row.names(eb)
 eb$model <- "EB"
 
 emp.fit <- rbind(bm, ou, eb)
-names(emp.fit) <- c(1:19,"type","model")
+names(emp.fit) <- c(1:7,"type","model")
 emp.fit$type <- factor(emp.fit$type, levels = c("raw","pc","ppc"),
                        labels = c("Original data","PCA","Phylogenetic PCA"))
 melt.fit <- melt(emp.fit, id=c('type','model'))
-head(melt.fit)
 
 p <- ggplot(melt.fit, aes(x = variable,y = value))
 p <- p + geom_point()
@@ -158,64 +156,10 @@ p <- p + theme(strip.background=element_rect(fill="white"),
                panel.grid.major=element_blank(),
                panel.grid.minor=element_blank(),
                legend.position="none")
-p <- p + scale_x_discrete(breaks=c(seq(1, 19, by = 3)))
+p <- p + scale_x_discrete(breaks=c(seq(1, 7, by = 1)))
 p <- p + xlab("Trait/PC axis")
 p <- p + ylab("AICw")
 
-pdf("carnivora-2.5-bio.clim.pdf", height = 10, width = 10)
-p
-dev.off()
-
-## Heat map of the correlation among variables:
-cr <- cor(bio.mean)
-heat <- melt(cr)
-head(heat)
-
-h <- ggplot(heat, aes(x = Var2, y=Var1))
-h <- h + geom_tile(aes(fill = value))
-h <- h + scale_fill_gradient2(low = "blue", mid = "white", high = "red")
-h <- h + theme(strip.background=element_rect(fill="white"),
-               plot.background=element_blank(),
-               panel.grid.major=element_blank(),
-               panel.grid.minor=element_blank(),
-               axis.text.x=element_text(angle = -45, hjust = 0, vjust = 1))
-h <- h + xlab("")
-h <- h + ylab("")
-
-pdf("carnivora-cor.pdf", width = 10, height = 10)
-h
-dev.off()
-
-## Plot with the value of the alpha parameter:
-alpha.raw <- vector()
-alpha.pc <- vector()
-alpha.ppc <- vector()
-
-for(i in 1:19){
-    alpha.raw[i] <- rawfits[[2]][[i]]$optpar
-    alpha.pc[i] <- pcfits[[2]][[i]]$optpar
-    alpha.ppc[i] <- ppcfits[[2]][[i]]$optpar
-}
-
-alpha <- data.frame(alpha.raw, alpha.pc, alpha.ppc, trait=1:19)
-names(alpha) <- c("Original data", "PCA", "Phylogenetic PCA", 'trait')
-alpha.m <- melt(alpha, id = 'trait')
-alpha.m
-
-p <- ggplot(alpha.m, aes(x = trait,y = value))
-p <- p + geom_point()
-p <- p + facet_grid(.~variable)
-p <- p + scale_fill_manual(values="black")
-p <- p + theme_bw()
-p <- p + theme(strip.background=element_rect(fill="white"),
-               plot.background=element_blank(),
-               panel.grid.major=element_blank(),
-               panel.grid.minor=element_blank(),
-               legend.position="none")
-p <- p + scale_x_discrete(breaks=c(seq(1, 19, by = 3)))
-p <- p + xlab("Trait/PC axis")
-p <- p + ylab("alpha paramter")
-
-pdf("carnivora_alpha.pdf", width = 10, height = 5)
+pdf("felidae-models.pdf", height = 10, width = 10)
 p
 dev.off()

@@ -4,10 +4,10 @@ library(phylolm)
 
 ## Bininda-Edmunds 2012 BMC Felidae supertree.
 ## Getting only the first dated phylo in the file that has the best estimate for branch lengths.
-phy <- read.nexus("./1741-7007-10-12-s5.nex")[[1]]
+phy <- read.nexus("../../datasets/1741-7007-10-12-s5.nex")[[1]]
 
 ## Get data:
-data <- read.csv("./data.csv", header = TRUE, sep = "\t")
+data <- read.csv("../../datasets/data.csv", header = TRUE, sep = "\t")
 rownames(data) <- data[,1]
 
 ## Drop from the tree the species we do not have data for:
@@ -46,17 +46,4 @@ eb.table <- sapply(all.aicw, function(x) sapply(x, function(y) y[3]))
 rownames(bm.table) <- rownames(ou.table) <- rownames(eb.table) <- c("raw","pc","ppc")
 
 ## Save results:
-save.image("felidae_results.RData")
-
-## Plots:
-pdf("Felidae_pcs.pdf")
-par(mfrow = c(3,3))
-for(i in 1:3){
-    plot(1:dim(dt)[2], bm.table[i,], main = paste(models[1],rownames(bm.table)[i],sep="_")
-         , ylim = c(0.0,1.0), ylab = "AICw", xlab = "PCs")
-    plot(1:dim(dt)[2], ou.table[i,], main = paste(models[2],rownames(ou.table)[i],sep="_")
-         , ylim = c(0.0,1.0), ylab = "AICw", xlab = "PCs")
-    plot(1:dim(dt)[2], eb.table[i,], main = paste(models[3],rownames(eb.table)[i],sep="_")
-         , ylim = c(0.0,1.0), ylab = "AICw", xlab = "PCs")
-}
-dev.off()
+##save.image("felidae_results.RData")
