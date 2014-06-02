@@ -40,16 +40,13 @@ all.aicw <- lapply(1:dim(dt)[2], function(x) lapply(1:3, function(y) aicw(c(bm.a
 
 
 ## Make result tables:
-#bm.table <- do.call(rbind, bm.aicw)
-#colnames(bm.table) <- c("raw","pc","ppc")
-#ou.table <- do.call(rbind, ou.aicw)
-#colnames(ou.table) <- c("raw","pc","ppc")
-#eb.table <- do.call(rbind, eb.aicw)
-#colnames(eb.table) <- c("raw","pc","ppc")
 bm.table <- sapply(all.aicw, function(x) sapply(x, function(y) y[1]))
 ou.table <- sapply(all.aicw, function(x) sapply(x, function(y) y[2]))
 eb.table <- sapply(all.aicw, function(x) sapply(x, function(y) y[3]))
 rownames(bm.table) <- rownames(ou.table) <- rownames(eb.table) <- c("raw","pc","ppc")
+
+## Save results:
+save.image("felidae_results.RData")
 
 ## Plots:
 pdf("Felidae_pcs.pdf")
