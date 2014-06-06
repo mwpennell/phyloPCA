@@ -11,6 +11,7 @@ require(MASS)
 require(nlme)
 require(reshape2)
 require(ggplot2)
+require(plyr)
 
 ## Read in functions
 source("./R/analysis-helper.R")
@@ -160,10 +161,10 @@ fig.model.support.alpha(oudf)
 
 ## Bininda-Edmunds 2012 BMC Felidae supertree.
 ## Getting only the first dated phylo in the file that has the best estimate for branch lengths.
-phy <- read.nexus("./data/1741-7007-10-12-s5.nex")[[1]]
+phy <- read.nexus("./datasets/1741-7007-10-12-s5.nex")[[1]]
 
 ## Get data:
-data <- read.csv("./data/data.csv", header = TRUE, sep = "\t")
+data <- read.csv("./datasets/data.csv", header = TRUE, sep = "\t")
 rownames(data) <- data[,1]
 
 ## Drop from the tree the species we do not have data for:
@@ -202,13 +203,36 @@ fig.felidae.dtt(felidDisp)
 #load("./output/climate.data.RData")
 load("./output/bioclim.dat.rds")
 
-nsims=1; ntraits = ncol(bio.mean)
+nsims=1; ntraits = ncol(bioclim.dat$raw)
 bioclimCont <- get.contrasts(list(bioclim.dat), "contrasts")
 bioclimDtt <- get.dtt(list(bioclim.dat), "disparity")
 
 ## Contrasts plot and disparity through time plot for bioclim data.
 fig.nh.3panel(bioclimCont)
 fig.dtt.3panel(bioclimDtt)
+
+## # Matrix Rank Simulations
+nsims = 25
+ntraits = 20
+
+# This sequence gives a reasonably smooth visualization across sets of eigenvalues where the proportion of variance explained by PC1 varies evenly between 1/20 and 1.
+seqa <- c(-5, -1.5, -1, -0.75, -.5, -0.2, 0, 0.15, seq(0.3,2.1, 0.1), 2.25, 2.5, 5)
+rank.seq <- exp(seqa)
+#plot(seqa, sapply(rank.seq, function(x) 1/sum(ev^x)), xlim=c(-5, 5), ylim=c(0, 1))
+#abline(h=sapply(rank.seq, function(x) 1/sum(ev^x)))
+
+varEV1 <- sapply(1:length(rank.seq), function(x) 1/(sum(ev^rank.seq[x])))
+#rankdat <- lapply(rank.seq, function(y) lapply(1:nsims, function(x) sim.tree.pcs.mv(ntips, ntraits, sig2dist=ev.rank, p=y)))
+#rankcont <- lapply(1:length(rank.seq), function(x) get.contrasts(rankdat[[x]], x))
+#rankcont <- do.call(rbind, rankcont)
+#rankslopes <- ddply(rankcont, .(type, rep, simmodel, variable), summarize, slope=lmslope(value, times))
+#save(rankslopes, file="./output/rankslopes.rds")
+
+load("./output/rankslopes.rds")
+
+fig.rankslopes(rankslopes)
+## Felid leading eigenvalue explains 97.4% of the total variance, placing it at the extreme right end of the plot.
+eigen(var(dt))$values[1]/(sum(eigen(var(dt))$values))
 
 
 

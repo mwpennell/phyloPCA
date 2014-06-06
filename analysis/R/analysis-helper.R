@@ -1,0 +1,493 @@
+## # Global parameters
+## set colors
+col <- c("#771155", "#AA4488", "#CC99BB", "#114477", "#4477AA", "#77AADD", "#117777", "#44AAAA", "#77CCCC", "#117744", "#44AA77", "#88CCAA", "#777711", "#AAAA44", "#DDDD77", "#774411", "#AA7744", "#DDAA77", "#771122", "#AA4455", "#DD7788")
+
+## # Simulation functions
+
+## Function for simulating positive definite covariance matrices
+Posdef <- function (n, ev = rexp(n, 1/100)) {
+  Z <- matrix(ncol=n, rnorm(n^2))
+  decomp <- qr(Z)
+  Q <- qr.Q(decomp) 
+  R <- qr.R(decomp)
+  d <- diag(R)
+  ph <- d / abs(d)
+  O <- Q %*% diag(ph)
+  Z <- t(O) %*% diag(ev) %*% O
+  return(Z)
+}
+
+## Function for generating matrices of different rank
+#base vector of eigenvalues that represent the mean relative values for a random set of 20 values drawn from an exponential distribution with rate 1/100
+ev <-  rev(c(0.01, 0.03, 0.04, 0.06, 0.08, 0.10, 0.12, 0.14, 0.16, 0.19, 0.21, 0.24, 0.28, 0.32, 0.37, 0.42, 0.49, 0.58, 0.72, 1.00))
+ev.rank <- function(n, p){
+  ev^p
+}
+
+## Function for simulating correlated multivariate Brownian motion
+sim.tree.pcs.mv <- function(ntips, traits, sig2dist=rexp, lambda=0.1, mu=0, ...){
+  tree <- pbtree(b=lambda, d=mu, n=ntips)
+  tree$edge.length <- tree$edge.length/max(branching.times(tree))
+  Sigma <- vcv.phylo(tree)
+  #rates <- c(1,10,100,1000)#sig2dist(traits)#, ...)
+  #R <- matrix(0, ncol=traits, nrow=traits)
+  #corr.n <- (traits*traits-traits)/2
+  #diag(R) <- 1
+  #corr.R <- c(0.8, 0.8, -0.5, 0.8, -0.5, -0.5)#rep(0.5, corr.n)#runif(length(R[lower.tri(R)]), 0, 1)
+  #R[lower.tri(R)] <- corr.R
+  #R[upper.tri(R)] <- (t(R))[upper.tri(R)]
+  #R <- (sqrt(rates) %*% t(sqrt(rates))) * R
+  R <- Posdef(traits, ev=sig2dist(traits, ...))
+  simdat <- t(matrix(mvrnorm(1, rep(0, traits*ntips), R %x% Sigma), nrow=traits, ncol=ntips, byrow=TRUE))
+  pc <- princomp(simdat)
+  ppc <- phyl.pca(tree,simdat)
+  row.names(simdat) <- tree$tip.label
+  rownames(pc$scores) <- tree$tip.label
+  rownames(ppc$S) <- tree$tip.label
+  return(list(tree=tree, raw=simdat, pc=pc$scores, ppc=ppc$S, pcall=pc, ppcall=ppc, R=R))
+}
+
+## Function for simulating uncorrelated Brownian motion data
+sim.tree.pcs.ind <- function(ntips, traits, sig2dist=rexp, lambda=0.1, mu=0, ...){
+  tree <- pbtree(b=lambda, d=mu, n=ntips)
+  tree$edge.length <- tree$edge.length/max(branching.times(tree))
+  #outree <- rescale(tree,alpha=log(2),model="OU")
+  X <- cbind(sapply(1:traits,function(x) fastBM(tree, sig2=sig2dist(1, ...), nsim=1)))
+  pc <- princomp(X)
+  ppc <- phyl.pca(tree,X)
+  return(list(tree=tree, raw=X, pc=pc$scores, ppc=ppc$S, pcall=pc, ppcall=ppc))
+}
+
+## Function for simulating uncorrelated Ornstein-Uhlenbeck data
+sim.tree.pcs.ind.ou <- function(ntips, traits, alpha, sig2, lambda=0.1, mu=0, ...){
+  tree <- pbtree(b=lambda, d=mu, n=ntips)
+  tree$edge.length <- tree$edge.length/max(branching.times(tree))
+  tr <- rescale(tree, model="OU", alpha)
+  #outree <- rescale(tree,alpha=log(2),model="OU")
+  X <- sapply(1:traits, function(x) fastBM(tr, sig2=sig2, nsim=1))
+  pc <- princomp(X)
+  ppc <- phyl.pca(tree,X)
+  return(list(tree=tree, raw=X, pc=pc$scores, ppc=ppc$S, pcall=pc, ppcall=ppc))
+}
+
+## Function for simulating uncorrelated Early-Burst data
+sim.tree.pcs.ind.eb <- function(ntips, traits, a, sig2, lambda=0.1, mu=0, ...){
+  tree <- pbtree(b=lambda, d=mu, n=ntips)
+  tree$edge.length <- tree$edge.length/max(branching.times(tree))
+  tr <- rescale(tree, model="EB", a)
+  #outree <- rescale(tree,alpha=log(2),model="OU")
+  X <- sapply(1:traits, function(x) fastBM(tr,sig2=sig2, nsim=1))
+  pc <- princomp(X)
+  ppc <- phyl.pca(tree,X)
+  return(list(tree=tree, raw=X, pc=pc$scores, ppc=ppc$S, pcall=pc, ppcall=ppc))
+}
+
+## # Analysis functions
+## Function for fitting models to raw, pc and ppca datasets
+fitPCs <- function(simdat, trait.seq=1, models = c("BM", "OUfixedRoot", "EB")){
+  transforms <- c("raw", "pc", "ppc")
+  lower.bounds <- c(NULL, 10^-12, NULL)
+  rawfits <- foreach(i=trait.seq) %dopar% suppressWarnings(lapply(1:length(models), function(x) phylolm(simdat$raw[,i]~1, phy=simdat$tree, model=models[x])))
+  pcfits <-  foreach(i=trait.seq) %dopar% suppressWarnings(lapply(1:length(models), function(x) phylolm(simdat$pc[,i]~1, phy=simdat$tree, model=models[x])))
+  ppcfits <-  foreach(i=trait.seq) %dopar% suppressWarnings(lapply(1:length(models), function(x) phylolm(simdat$ppc[,i]~1, phy=simdat$tree, model=models[x])))
+  raw.aicw <- lapply(1:length(trait.seq), function(y) aicw(sapply(rawfits[[y]], function(x) x$aic))$w)
+  pc.aicw <- lapply(1:length(trait.seq), function(y) aicw(sapply(pcfits[[y]], function(x) x$aic))$w)
+  ppc.aicw <- lapply(1:length(trait.seq), function(y) aicw(sapply(ppcfits[[y]], function(x) x$aic))$w)
+  aicw.table <- lapply(1:length(trait.seq), function(y) matrix(c(raw.aicw[[y]], pc.aicw[[y]], ppc.aicw[[y]]), nrow=1))
+  aicw.table <- lapply(1:length(trait.seq), function(y){ colnames(aicw.table[[y]]) <- as.vector(t(outer(transforms, models, paste, sep="_"))); aicw.table[[y]]})
+  aicw.table <- do.call(rbind, aicw.table)
+  aicw.table <- as.data.frame(aicw.table)
+  aicw.table <- data.frame("trait"=factor(paste("trait", trait.seq, sep=""),levels=paste("trait", trait.seq, sep="")), aicw.table)
+  return(aicw.table)
+}
+
+## Special version of fitPCs that saves more output, like parameter estimates, for the OU model
+fitPCOU <- function(simdat, trait.seq=1, models = c("BM", "OUfixedRoot", "EB")){
+  transforms <- c("raw", "pc", "ppc")
+  lower.bounds <- c(NULL, 10^-12, NULL)
+  rawfits <- foreach(i=trait.seq) %dopar% suppressWarnings(lapply(1:length(models), function(x) phylolm(simdat$raw[,i]~1, phy=simdat$tree, model=models[x])))
+  pcfits <-  foreach(i=trait.seq) %dopar% suppressWarnings(lapply(1:length(models), function(x) phylolm(simdat$pc[,i]~1, phy=simdat$tree, model=models[x])))
+  ppcfits <-  foreach(i=trait.seq) %dopar% suppressWarnings(lapply(1:length(models), function(x) phylolm(simdat$ppc[,i]~1, phy=simdat$tree, model=models[x])))
+  raw.aicw <- lapply(1:length(trait.seq), function(y) aicw(sapply(rawfits[[y]], function(x) x$aic))$w)
+  pc.aicw <- lapply(1:length(trait.seq), function(y) aicw(sapply(pcfits[[y]], function(x) x$aic))$w)
+  ppc.aicw <- lapply(1:length(trait.seq), function(y) aicw(sapply(ppcfits[[y]], function(x) x$aic))$w)
+  aicw.table <- lapply(1:length(trait.seq), function(y) matrix(c(raw.aicw[[y]], pc.aicw[[y]], ppc.aicw[[y]]), nrow=1))
+  aicw.table <- lapply(1:length(trait.seq), function(y){ colnames(aicw.table[[y]]) <- as.vector(t(outer(transforms, models, paste, sep="_"))); aicw.table[[y]]})
+  aicw.table <- do.call(rbind, aicw.table)
+  aicw.table <- as.data.frame(aicw.table)
+  aicw.table <- data.frame("trait"=factor(paste("trait", trait.seq, sep=""),levels=paste("trait", trait.seq, sep="")), aicw.table)
+  alpha <-  sapply(list(rawfits, pcfits, ppcfits), function(x) sapply(1:length(trait.seq), function (y) sapply(x[[y]][2], function(z) z$optpar)))
+  sig2 <- sapply(list(rawfits, pcfits, ppcfits), function(x) sapply(1:length(trait.seq), function (y) sapply(x[[y]][2], function(z) z$sigma2)))
+  colnames(alpha)<- colnames(sig2) <- c("raw", "pc", "ppc")
+  alpha <- data.frame(trait=paste("trait", trait.seq, sep="."), as.data.frame(alpha))
+  sig2 <- data.frame(trait=paste("trait", trait.seq, sep="."), as.data.frame(sig2))
+  return(list(alpha=alpha, sig2=sig2, aicw.table=aicw.table))
+}
+
+
+## # Utility & processing functions
+## Get contrasts from a simulated dataset
+get.contrasts <- function(dat, simmodel, melt=TRUE){
+  btimes <- lapply(1:length(dat), function(x) 1 - branching.times(dat[[x]]$tree))
+  picraw <- lapply(1:length(dat), function(x) sapply(1:ncol(dat[[x]]$raw), function(y) pic(dat[[x]]$raw[,y], dat[[x]]$tree)))
+  picpc <- lapply(1:length(dat), function(x) sapply(1:ncol(dat[[x]]$pc), function(y) pic(dat[[x]]$pc[,y], dat[[x]]$tree)))
+  picppc <- lapply(1:length(dat), function(x) sapply(1:ncol(dat[[x]]$ppc), function(y) pic(dat[[x]]$ppc[,y], dat[[x]]$tree)))
+  rawdf <- lapply(1:length(dat), function(x) data.frame(type="raw", times=btimes[[x]], trait=picraw[[x]]))
+  pcdf <- lapply(1:length(dat), function(x) data.frame(type="pc", times=btimes[[x]], trait=picpc[[x]]))
+  ppcdf <- lapply(1:length(dat), function(x) data.frame(type="ppc", times=btimes[[x]], trait=picppc[[x]]))
+  df <- lapply(1:length(dat), function(x) rbind(rawdf[[x]], pcdf[[x]], ppcdf[[x]]))
+  df <- lapply(1:length(dat), function(x) data.frame(df[[x]], rep=x))
+  contdat <- do.call(rbind, df)
+  contmelt <- melt(contdat, id=c("type", "times", "rep"))
+  contmelt$value <- abs(contmelt$value)
+  contmelt$simmodel <- simmodel
+  return(contmelt)
+}
+
+## Get slopes of the node-height test
+lmslope <- function(y, x){
+    ff <- lm(y~x)
+    ff$coef[2]
+  }
+
+## Get the disparity through time from a simulated dataset
+get.dtt <- function(dat, simmodel){
+  raw.bytrait <- lapply(1:ntraits, function(x) lapply(1:length(dat), function(y) dat[[y]]$raw[,x]))
+  pc.bytrait <- lapply(1:ntraits, function(x) lapply(1:length(dat), function(y) dat[[y]]$pc[,x]))
+  ppc.bytrait <- lapply(1:ntraits, function(x) lapply(1:length(dat), function(y) dat[[y]]$ppc[,x]))
+  dttraw <- lapply(1:ntraits, function(y) lapply(1:length(dat), function(x) dtt(dat[[x]]$tree, setNames(raw.bytrait[[y]][[x]], dat[[x]]$tree$tip.label), plot=FALSE)))
+  dispraw <- lapply(1:ntraits, function(x) unlist(lapply(1:length(dat), function(y) dttraw[[x]][[y]]$dtt)))
+  times <- unlist(lapply(1:ntraits, function(x) unlist(lapply(1:length(dat), function(y) dttraw[[x]][[y]]$times))))
+  
+  dttpc <- lapply(1:ntraits, function(y) lapply(1:length(dat), function(x) dtt(dat[[x]]$tree, setNames(pc.bytrait[[y]][[x]], dat[[x]]$tree$tip.label), , plot=FALSE)))
+  disppc <- lapply(1:ntraits, function(x) unlist(lapply(1:length(dat), function(y) dttpc[[x]][[y]]$dtt)))
+  dttppc <- lapply(1:ntraits, function(y) lapply(1:length(dat), function(x) dtt(dat[[x]]$tree, setNames(ppc.bytrait[[y]][[x]], dat[[x]]$tree$tip.label), plot=FALSE)))
+  dispppc <- lapply(1:ntraits, function(x) unlist(lapply(1:length(dat), function(y) dttppc[[x]][[y]]$dtt)))
+  disp <- list(do.call(cbind, dispraw), do.call(cbind, disppc), do.call(cbind, dispppc))
+  types <- c("raw", "pc", "ppc")
+  dispdf <- lapply(1:3, function(x) data.frame(type=types[x], times=times, trait=disp[[x]]))
+  dispdf <- do.call(rbind, dispdf)
+  dispmelt <- melt(dispdf, id=c('type', 'times'))
+  dispmelt$simmodel <- simmodel
+  return(dispmelt)
+}
+
+## Get the parameter estimates for the OU simulated datasets
+get.parsOU <- function(res){
+  alphares <- lapply(res, function(x) x[['alpha']])
+  alphares <- do.call(rbind, alphares)
+  sig2res <- lapply(res, function(x) x[['sig2']])
+  sig2res <- do.call(rbind, sig2res)
+  sig2melt <- melt(sig2res, id.vars="trait")
+  alphamelt <- melt(alphares, id.vars="trait")
+  parsdf <- alphamelt
+  colnames(parsdf)[3] <- "alpha"
+  parsdf$sig2 <- sig2melt$value
+  parsdf$halflife <- log(2)/parsdf$alpha
+  #head(parsdf)
+  #parsmelt <- melt(parsdf, id.vars=c("trait", "variable"))
+  #colnames(parsmelt)[3] = "parameter"
+  #parsmelt$traitno <- trait.seq
+  return(parsdf)
+}
+
+## Get the average AIC weights for the OU fit results
+get.meanAICws <- function(res){
+  aicws <- lapply(res, function(x) x$aicw.table)
+  aicws <- do.call(rbind, aicws)
+  meanaicws <- apply(aicws[2:ncol(aicws)], 2, function(x) tapply(x, aicws[,1], mean))
+  meanaicws <- as.data.frame(meanaicws)
+  meanaicws$trait <- rownames(meanaicws)
+  meanaicws <- melt(meanaicws, id.vars="trait")
+  meanaicws$type <- factor(sapply(strsplit(as.character(meanaicws$variable), split="_"), function(x) x[[1]]))
+  meanaicws$simmodel <- factor(sapply(strsplit(as.character(meanaicws$variable), split="_"), function(x) x[[2]]))
+  meanaicws <- meanaicws[,-2]
+  meanaicws <- meanaicws[,c(1,3,4,2)]
+}
+
+## little function for changing trait names
+tr.nm <- function(x){
+  sapply(x, function(y) {paste("trait", y, sep=".")})
+}
+
+## function to restructure sim data
+build.sim.data.table <- function(x, trait.set){
+  get.no <- function(vec){
+    do.call(rbind, strsplit(as.character(vec), split="trait"))[,2]
+  }
+  ## subset by desired trait set
+  trait.nos <- get.no(x$trait)
+  trait.names <- levels(x$trait)[get.no(levels(x$trait)) %in% as.character(trait.set)]
+  subx <- subset(x, trait.nos %in% as.character(trait.set))
+  subx$trait <- factor(subx$trait)
+  
+  ## creat data frame
+  df <- melt(subx)
+  
+  ## add extra row to sort datasets
+  type <- rep(NA, nrow(df))
+  df <- cbind(df, type)
+  
+  ## break column names up
+  df$variable <- as.character(df$variable)
+  
+  for (i in 1:nrow(df)){
+    tmp <- strsplit(df[i,"variable"], split="_")
+    df[i,"variable"] <- tmp[[1]][1]
+    df[i,"type"] <- tmp[[1]][2]
+  }
+  
+  ## recreate as factors
+  df$trait <- factor(df$trait, levels=levels(df$trait), labels=trait.set)
+  df$variable <- factor(df$variable, levels=c("raw", "pc", "ppc"),
+                        labels=c("Original data", "PCA", "Phylogenetic PCA"))
+  df$type <- factor(df$type, levels=c("BM", "OUfixedRoot", "EB"),
+                    labels=c("BM", "OU", "EB"))
+  df
+}
+
+## # Figure plotting functions
+fig.box.aicw <- function(df){
+  
+  p <- ggplot(df, aes(factor(trait), value))
+  p <- p + geom_boxplot(aes(fill=factor(trait)))
+  p <- p + facet_grid(type~variable)
+  p <- p + scale_fill_manual(values=col[as.numeric(levels(df$trait))])
+  p <- p + theme_bw()
+  p <- p + theme(strip.background=element_rect(fill="white"),
+                 plot.background=element_blank(),
+                 panel.grid.major=element_blank(),
+                 panel.grid.minor=element_blank(),
+                 legend.position="none")
+  p <- p + xlab("Trait/PC axis")
+  p <- p + ylab("AICw")
+  p <- p 
+  p
+}
+
+## Figure 1 NH for 3 models (uncorrelated)
+fig.nh.3panel <- function(df){
+  .e <- environment()
+  
+  df$type <- factor(df$type, levels=c("raw", "pc", "ppc"),
+                    labels=c("Original data", "PCA", "Phylogenetic PCA"))
+  
+  df$simmodel <- factor(df$simmodel, levels=c("BM", "OU", "EB"))
+  
+  ll <- length(levels(df$variable))
+  df$variable <- factor(df$variable, levels=tr.nm(seq_len(ll)), labels=seq_len(ll))
+  
+  p <- ggplot(df, aes(times, value, colour=factor(variable)), environment=.e)
+  p <- p + stat_smooth(method="lm",se=FALSE)
+  p <- p + facet_grid(simmodel~type, scales="free_y")
+  p <- p + scale_color_manual(values=col, name="Trait/PC axis")
+  p <- p + theme_bw()
+  p <- p + theme(strip.background=element_rect(fill="white"),
+                 plot.background=element_blank(),
+                 panel.grid.major=element_blank(),
+                 panel.grid.minor=element_blank(),
+                 axis.text.y=element_blank(),
+                 axis.ticks.y=element_blank(),
+                 axis.text.x=element_blank(),
+                 axis.ticks.x=element_blank())
+  p <- p + xlab("Time")
+  p <- p + ylab("Contrasts")   
+  p
+  
+}
+
+## Figure 2 DTT for 3 models (uncorrelated)
+fig.dtt.3panel <- function(df){
+  .e <- environment()
+  
+  df$type <- factor(df$type, levels=c("raw", "pc", "ppc"),
+                    labels=c("Original data", "PCA", "Phylogenetic PCA"))
+  
+  df$simmodel <- factor(df$simmodel, levels=c("BM", "OU", "EB"))
+  
+  ll <- length(levels(df$variable))
+  df$variable <- factor(df$variable, levels=tr.nm(seq_len(ll)), labels=seq_len(ll))
+  
+  p <- ggplot(df, aes(times, value, colour=factor(variable)), environment=.e)
+  p <- p + stat_smooth(se=FALSE)
+  p <- p + facet_grid(simmodel~type, scales="free_y")
+  p <- p + scale_color_manual(values=col, name="Trait/PC axis")
+  p <- p + theme_bw()
+  p <- p + theme(strip.background=element_rect(fill="white"),
+                 plot.background=element_blank(),
+                 panel.grid.major=element_blank(),
+                 panel.grid.minor=element_blank(),
+                 axis.text.y=element_blank(),
+                 axis.ticks.y=element_blank(),
+                 axis.text.x=element_blank(),
+                 axis.ticks.x=element_blank())
+  p <- p + xlab("Time")
+  p <- p + ylab("Disparity")   
+  p
+  
+}
+
+## Supporting function to remove strips
+strip.remover <- function(ggp, what="x") {
+  require(gridExtra)
+  
+  zeroGrob <- function() {
+    g0 <- grob(name="NULL")
+    class(g0) <- c("zeroGrob",class(g0))
+    g0
+  }
+  
+  g <- ggplotGrob(ggp)
+  
+  g$grobs <- lapply(g$grob, function(gr) {
+    if (any(grepl(paste0("strip.text.", what),names(gr$children)))) {
+      gr$children[[grep("strip.background",names(gr$children))]] <- zeroGrob()
+      gr$children[[grep("strip.text",names(gr$children))]] <- zeroGrob()
+    }
+    return(gr)
+  }
+  )
+  
+  class(g) = c("arrange", "ggplot",class(g)) 
+  g
+}
+
+## Supporting function to place legend properly
+g.legend<-function(a.gplot){
+  tmp <- ggplot_gtable(ggplot_build(a.gplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)}
+
+fig.model.support.alpha <- function(df){
+  .e <- environment()
+  
+  p <- q <- ggplot(df, aes(trait, value, fill=simmodel), environment = .e)
+  p <- p +  geom_bar(data=subset(df, est == "AICw"), stat="identity", position="stack")
+  p <- p + scale_y_continuous(name="AICw")
+  p <- p + scale_fill_manual(values=col[c(2,11,14)], name="Model")
+  p <- p + facet_grid(.~type)
+  p <- p + theme_bw()
+  p <- p + theme(strip.background=element_rect(fill="white"),
+                 plot.background=element_blank(),
+                 panel.grid.major=element_blank(),
+                 panel.grid.minor=element_blank(),
+                 axis.ticks.y=element_blank(),
+                 axis.text.y=element_text(color="white", size=3.75),
+                 axis.title.x=element_blank())
+  legend <- g.legend(p)
+  lwidth <- sum(legend$width)
+  
+  
+  
+  q <- q + geom_hline(aes(yintercept=2), color=col[5], size=2)
+  q <- q + geom_boxplot(data=subset(df, est=="Par" & simmodel=="alpha"),fill=col[11], color="black", outlier.size = 1)
+  q <- q + facet_grid(.~type)
+  q <- q + theme_bw()
+  q <- q + theme(strip.background=element_rect(fill="white"),
+                 plot.background=element_blank(),
+                 panel.grid.major=element_blank(),
+                 panel.grid.minor=element_blank(),
+                 legend.position="none")
+  q <- q + ylim(c(0,20))
+  q <- q + ylab(expression(alpha))
+  q <- q + xlab("Trait/PC axis")
+  q <- strip.remover(q, "x")
+  
+  grid.arrange(arrangeGrob(p + theme(legend.position="none"),legend,q,
+                           widths=unit.c(unit(1, "npc") - lwidth,lwidth), nrow=2))
+  
+}
+
+fig.felidae.aicw <- function(df){
+  .e <- environment()
+  p <- q <- ggplot(df, aes(trait, value, fill=type), environment = .e)
+  p <- p +  geom_bar(data=df, stat="identity", position="stack")
+  p <- p + scale_y_continuous(name="AICw")
+  p <- p + scale_fill_manual(values=col[c(2,11,14)], name="Model")
+  p <- p + facet_grid(.~variable)
+  p  
+}
+
+fig.felidae.contrasts <- function(df){
+  .e <- environment()
+  df$type <- factor(df$type, levels=c("raw", "pc", "ppc"),
+                    labels=c("Original data", "PCA", "Phylogenetic PCA"))
+  ll <- length(levels(df$variable))
+  df$variable <- factor(df$variable, levels=tr.nm(seq_len(ll)), labels=seq_len(ll))
+  
+  p <- ggplot(df, aes(times, value, colour=factor(variable)), environment=.e)
+  p <- p + stat_smooth(method="lm",se=FALSE)
+  p <- p + facet_grid(.~type, scales="free_y")
+  p <- p + scale_color_manual(values=col, name="Trait/PC axis")
+  p <- p + theme_bw()
+  p <- p + theme(strip.background=element_rect(fill="white"),
+                 plot.background=element_blank(),
+                 panel.grid.major=element_blank(),
+                 panel.grid.minor=element_blank(),
+                 axis.text.y=element_blank(),
+                 axis.ticks.y=element_blank(),
+                 axis.text.x=element_blank(),
+                 axis.ticks.x=element_blank())
+  p <- p + xlab("Time")
+  p <- p + ylab("Contrasts")   
+  p
+  
+}
+
+fig.felidae.dtt <- function(df){
+  .e <- environment()
+  
+  df$type <- factor(df$type, levels=c("raw", "pc", "ppc"),
+                    labels=c("Original data", "PCA", "Phylogenetic PCA"))
+  
+  ll <- length(levels(df$variable))
+  df$variable <- factor(df$variable, levels=tr.nm(seq_len(ll)), labels=seq_len(ll))
+  
+  p <- ggplot(df, aes(times, value, colour=factor(variable)), environment=.e)
+  p <- p + stat_smooth(se=FALSE)
+  p <- p + facet_grid(.~type, scales="free_y")
+  p <- p + scale_color_manual(values=col, name="Trait/PC axis")
+  p <- p + theme_bw()
+  p <- p + theme(strip.background=element_rect(fill="white"),
+                 plot.background=element_blank(),
+                 panel.grid.major=element_blank(),
+                 panel.grid.minor=element_blank(),
+                 axis.text.y=element_blank(),
+                 axis.ticks.y=element_blank(),
+                 axis.text.x=element_blank(),
+                 axis.ticks.x=element_blank())
+  p <- p + xlab("Time")
+  p <- p + ylab("Disparity")   
+  p
+  
+}
+
+fig.rankslopes <- function(df){
+  .e <- environment()
+  df$type <- factor(df$type, levels=c("raw", "pc", "ppc"),
+                    labels=c("Original data", "PCA", "Phylogenetic PCA"))
+  ll <- length(levels(df$variable))
+  df$variable <- factor(df$variable, levels=tr.nm(seq_len(ll)), labels=seq_len(ll))
+  df$simmodel <- as.numeric(as.character(factor(df$simmodel, levels=1:length(varEV1), labels=varEV1)))
+  p <- ggplot(df, aes(simmodel, slope, colour=factor(variable)), environment=.e)
+  p <- p + geom_point(aes(fill=factor(variable)), alpha=0.05)
+  p <- p + geom_abline(intercept=0, slope=0, colour="black", linetype="dashed")
+  p <- p + stat_smooth(se=FALSE)
+  p <- p + facet_grid(.~type, scales="free_y")
+  p <- p + scale_color_manual(values=col, name="Trait/PC axis")
+  p <- p + theme_bw()
+  p <- p + theme(strip.background=element_rect(fill="white"),
+                 plot.background=element_blank(),
+                 panel.grid.major=element_blank(),
+                 panel.grid.minor=element_blank(),
+                 axis.text.y=element_blank(),
+                 axis.ticks.y=element_blank(),
+                 axis.text.x=element_blank(),
+                 axis.ticks.x=element_blank())
+  p <- p + xlab("Proportion of variance explained by leading eigenvector")
+  p <- p + ylab("Node-height test slope")   
+  p
+}
+
+
