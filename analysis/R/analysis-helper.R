@@ -365,7 +365,7 @@ fig.model.support.alpha <- function(df){
   p <- q <- ggplot(df, aes(trait, value, fill=simmodel), environment = .e)
   p <- p +  geom_bar(data=subset(df, est == "AICw"), stat="identity", position="stack")
   p <- p + scale_y_continuous(name="AICw")
-  p <- p + scale_fill_manual(values=col[c(2,11,14)], name="Model")
+  p <- p + scale_fill_manual(values=col[c(6,21,12)], name="Model")
   p <- p + facet_grid(.~type)
   p <- p + theme_bw()
   p <- p + theme(strip.background=element_rect(fill="white"),
@@ -380,8 +380,8 @@ fig.model.support.alpha <- function(df){
   
   
   
-  q <- q + geom_hline(aes(yintercept=2), color=col[5], size=2)
-  q <- q + geom_boxplot(data=subset(df, est=="Par" & simmodel=="alpha"),fill=col[11], color="black", outlier.size = 1)
+  q <- q + geom_hline(aes(yintercept=2),linetype="dashed")
+  q <- q + geom_boxplot(data=subset(df, est=="Par" & simmodel=="alpha"),fill=col[21], color="black", outlier.size = 1)
   q <- q + facet_grid(.~type)
   q <- q + theme_bw()
   q <- q + theme(strip.background=element_rect(fill="white"),
@@ -389,7 +389,7 @@ fig.model.support.alpha <- function(df){
                  panel.grid.major=element_blank(),
                  panel.grid.minor=element_blank(),
                  legend.position="none")
-  q <- q + ylim(c(0,20))
+  q <- q + ylim(c(0,15))
   q <- q + ylab(expression(alpha))
   q <- q + xlab("Trait/PC axis")
   q <- strip.remover(q, "x")
@@ -404,7 +404,7 @@ fig.felidae.aicw <- function(df){
   p <- q <- ggplot(df, aes(trait, value, fill=type), environment = .e)
   p <- p +  geom_bar(data=df, stat="identity", position="stack")
   p <- p + scale_y_continuous(name="AICw")
-  p <- p + scale_fill_manual(values=col[c(2,11,14)], name="Model")
+  p <- p + scale_fill_manual(values=col[c(6,21,12)], name="Model")
   p <- p + facet_grid(.~variable)
   p  
 }
@@ -471,7 +471,6 @@ fig.rankslopes <- function(df){
   df$variable <- factor(df$variable, levels=tr.nm(seq_len(ll)), labels=seq_len(ll))
   df$simmodel <- as.numeric(as.character(factor(df$simmodel, levels=1:length(varEV1), labels=varEV1)))
   p <- ggplot(df, aes(simmodel, slope, colour=factor(variable)), environment=.e)
-  p <- p + geom_point(aes(fill=factor(variable)), alpha=0.05)
   p <- p + geom_abline(intercept=0, slope=0, colour="black", linetype="dashed")
   p <- p + stat_smooth(se=FALSE)
   p <- p + facet_grid(.~type, scales="free_y")
@@ -480,11 +479,7 @@ fig.rankslopes <- function(df){
   p <- p + theme(strip.background=element_rect(fill="white"),
                  plot.background=element_blank(),
                  panel.grid.major=element_blank(),
-                 panel.grid.minor=element_blank(),
-                 axis.text.y=element_blank(),
-                 axis.ticks.y=element_blank(),
-                 axis.text.x=element_blank(),
-                 axis.ticks.x=element_blank())
+                 panel.grid.minor=element_blank())
   p <- p + xlab("Proportion of variance explained by leading eigenvector")
   p <- p + ylab("Node-height test slope")   
   p
