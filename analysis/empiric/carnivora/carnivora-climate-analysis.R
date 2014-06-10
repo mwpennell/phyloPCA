@@ -13,7 +13,7 @@ library(phylolm)
 
 load("../../datasets/climate.data.RData")
 
-phy <- read.nexus("1741-7007-10-12-s5.nex")[[1]]
+phy <- read.nexus("../../datasets/1741-7007-10-12-s5.nex")[[1]]
 sp.total <- phy$tip.label
 ## Take out the outgroup species.
 sp <- sp.total[which(!sp.total %in% c("Equus_caballus","Bos_taurus","Artibeus_jamaicensis"
@@ -106,8 +106,36 @@ bio.mean <- bio.mean[,-1]
 ## Find PCs and Phylogenetic PCs.
 phy.car <- multi2di(phy.car)
 
-pc <- princomp(bio.mean)
+pc <- princomp(bio.mean, cor = TRUE)
 ppc <- phyl.pca(phy.car, bio.mean)
+
+## Plots showing the correlation of variables with the PC1 and PC2:
+pdf("pca_sqr_load.pdf", width = 20, height = 10)
+par(mfrow = c(2,1))
+barplot(pc$loadings[,1]^2, cex.names = 0.7, main = "sqr_loadings PC1") ## Tseas explain most of the variation:
+barplot(pc$loadings[,2]^2, cex.names = 0.7, main = "sqr_loadings PC2") ## aP explain most of the variation:
+dev.off()
+
+pc$loadings[,1]^2 ## Tseas 0.964
+pc$loadings[,2]^2 ## aP 0.705
+
+## THE OUTPUT OF THE pPCA IS DIFFERENT;
+colSums(ppc$Evec^2)
+ppc$Evec ## This are the loadings.
+
+## Note that PC1 does not sum to 1 like in the standard PCA.
+pdf("ppca_sqr_load.pdf", width = 20, height = 10)
+par(mfrow = c(2,1))
+barplot(ppc$Evec[,1]^2, cex.names = 0.7, main = "sqr_loadings pPC1") ## Tseas explain most of the variation:
+barplot(ppc$Evec[,2]^2, cex.names = 0.7, main = "sqr_loadings pPC2") ## aP explain most of the variation:
+dev.off()
+
+barplot(ppc$Evec[,1]^2, cex.names = 0.7) ## Tseas explain most of the variation:
+pc$loadings[,1]^2 ## 0.964
+
+## Check the percentage of the variance explained by each PC:
+## We can check this by looking to the eigenvalues:
+barplot(diag(ppc$Eval))
 
 #################################################################################
 
