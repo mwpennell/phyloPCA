@@ -6,24 +6,26 @@ library(ggplot2)
 library(reshape2)
 library(gridExtra)
 
-tr <- read.nexus("../datasets/fish_finaltree_underscore.nex")
-dt <- read.csv("../datasets/fish_dataset.csv")
+tr <- read.nexus("../../datasets/fish_finaltree_underscore.nex")
+dt <- read.csv("../../datasets/fish_dataset.csv")
 
 dt$species <- gsub(" ", "_", dt$species)
 tr$tip.label <- gsub("'", "", tr$tip.label)
 
+## Keep only the data for Cyprinodon species:
+sp.split <- sapply(dt$species, FUN = function(x) strsplit(x, split = "_"))
+cyp <- sapply(1:length(sp.split), FUN = function(x) sp.split[[x]][1])
+id <- which(cyp == "Cyprinodon")
+dt <- dt[id,]
+
+## Fix some species names:
 index <- which(tr$tip.label %in% dt$species)
-length(which(tr$tip.label %in% dt$species))
+which(!dt$species %in% tr$tip.label[index])
+dt$species[9] <- "Cyprinodon_bozo"
+dt$species[10] <- "Cyprinodon_bulldog"
+dt$species[25] <- "Cyprinodon_normal_Crescent_Pond"
 
-## Cannot use the data for these species.
-dt$species[which(!dt$species %in% tr$tip.label[index])]
-## [1] "Cyprinodon_sp._'durophage'_San_Salvador_Island"  
-## [2] "Cyprinodon_sp._'scale-eater'_San_Salvador_Island"
-## [3] "Cyprinodon_sp._'detritivore'_San_Salvador_Island"
-
-tr$tip.label
-
-dt <- dt[-which(!dt$species %in% tr$tip.label[index]),]
+## Drop some tips from the tree:
 tr <- drop.tip(phy = tr, tip = tr$tip.label[-index])
 
 mm <- match(tr$tip.label, dt$species)
@@ -51,13 +53,12 @@ pdf("fish-cor.pdf", width = 10, height = 10)
 h
 dev.off()
 
-## Variance explained by PC1:
-plot(pc)
-
 ## Analysis:
-
 pc <- princomp(dt)
 ppc <- phyl.pca(tr, dt[mm,])
+
+## Variance explained by PC1:
+plot(pc)
 
 ## Fitting the models:
 models <- c("BM", "OUfixedRoot", "EB")
@@ -242,6 +243,21 @@ p <- p + ylab("AICw")
 pdf("fish-models.pdf", height = 10, width = 10)
 p
 dev.off()
+
+## The phenograms:
+for(i in 1:5){
+    pdf(paste("pheno.pc.",i,".pdf", sep = ""))
+    phenogram(tr, setNames(pc$scores[,i], tr$tip.label), ftype="off")
+    dev.off()
+    
+    pdf(paste("pheno.dt.",i,".pdf", sep = ""))       
+    phenogram(tr, setNames(dt[,i], tr$tip.label), ftype="off")
+    dev.off()
+    
+    pdf(paste("pheno.ppc.",i,".pdf", sep = ""))
+    phenogram(tr, ppc$S[,i], ftype="off")
+    dev.off()
+}
 
 ## Save results:
 save.image("fish_analysis_plot.RData")
