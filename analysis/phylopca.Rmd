@@ -258,7 +258,7 @@ Sakamoto, M., G. T. Lloyd, and M. J. Benton. 2010. Phylogenetically structured v
 
 Get dataset:
 ``` {r }
-data <- read.csv("./datasets/data.csv", header = TRUE, sep = "\t")
+data <- read.csv("./datasets/felidae_data.csv", header = TRUE, sep = "\t")
 rownames(data) <- data[,1]
 ```
 
@@ -309,8 +309,8 @@ emp.graph(felidCont, felidDisp, "Purples")
 
 Read the dataset and phylogeny.
 ``` {r }
-tr <- read.nexus("./datasets/fish_finaltree_underscore.nex")
-dt <- read.csv("./datasets/fish_dataset.csv")
+tr <- read.nexus("./datasets/cypri_underscore.nex")
+dt <- read.csv("./datasets/cypri_dataset.csv")
 
 dt$species <- gsub(" ", "_", dt$species)
 tr$tip.label <- gsub("'", "", tr$tip.label)
