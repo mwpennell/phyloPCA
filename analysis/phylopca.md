@@ -5,15 +5,87 @@ Load packages
 ```r
 rm(list = ls(all = TRUE))
 require(phytools)
+```
+
+```
+## Loading required package: phytools
+## Loading required package: ape
+## Loading required package: maps
+## Loading required package: rgl
+```
+
+```r
 require(geiger)
+```
+
+```
+## Loading required package: geiger
+```
+
+```r
 require(phylolm)
+```
+
+```
+## Loading required package: phylolm
+```
+
+```r
 require(foreach)
+```
+
+```
+## Loading required package: foreach
+```
+
+```r
 require(doMC)
+```
+
+```
+## Loading required package: doMC
+## Loading required package: iterators
+## Loading required package: parallel
+```
+
+```r
 require(MASS)
+```
+
+```
+## Loading required package: MASS
+```
+
+```r
 require(nlme)
+```
+
+```
+## Loading required package: nlme
+```
+
+```r
 require(reshape2)
+```
+
+```
+## Loading required package: reshape2
+```
+
+```r
 require(ggplot2)
+```
+
+```
+## Loading required package: ggplot2
+```
+
+```r
 require(plyr)
+```
+
+```
+## Loading required package: plyr
 ```
 
 
@@ -145,18 +217,8 @@ fig.dtt.3panel(dispdat)
 ```
 
 ```
-## geom_smooth: method="auto" and size of largest group is >=1000, so using gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the smoothing method.
-## geom_smooth: method="auto" and size of largest group is >=1000, so using gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the smoothing method.
-## geom_smooth: method="auto" and size of largest group is >=1000, so using gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the smoothing method.
-## geom_smooth: method="auto" and size of largest group is >=1000, so using gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the smoothing method.
-## geom_smooth: method="auto" and size of largest group is >=1000, so using gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the smoothing method.
-## geom_smooth: method="auto" and size of largest group is >=1000, so using gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the smoothing method.
-## geom_smooth: method="auto" and size of largest group is >=1000, so using gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the smoothing method.
-## geom_smooth: method="auto" and size of largest group is >=1000, so using gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the smoothing method.
-## geom_smooth: method="auto" and size of largest group is >=1000, so using gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the smoothing method.
+## Error: cannot allocate vector of size 128.0 Mb
 ```
-
-![plot of chunk unnamed-chunk-14](figure/unnamed-chunk-14.png) 
 
 
 Simulate under OU, BM and EB uncorrelated, fit models and calculate AICweights and compare parameter estimates.
@@ -323,26 +385,41 @@ oudf$trait <- factor(oudf$trait, levels = unique(oudf$trait), labels = c(1:20))
 
 
 
-Figure showing detailed model fit results and paramter estimates when simulated under uncorrelated mvOU and fit to each of the different models.
+Figure showing detailed model fit results and parameter estimates when simulated under uncorrelated mvOU and fit to each of the different models.
 
 ```r
 fig.model.support.alpha(oudf)
 ```
 
+```
+## Loading required package: gridExtra
+## Loading required package: grid
+```
+
+```
+## Warning: Removed 1 rows containing non-finite values (stat_boxplot).
+```
+
 ![plot of chunk unnamed-chunk-29](figure/unnamed-chunk-29.png) 
 
 
-# Empirical analyses of morphological dataset for Felids
+## Empirical analyses of morphological dataset for Felids
 
-Bininda-Edmunds 2012 BMC Felidae supertree.
-Getting only the first dated phylo in the file that has the best estimate for branch lengths.
+Reference for the Felids phylogeny, trees available in on-line supplementary file:
+Nyakatura, K., and O. R. Bininda-Emonds. 2012. Updating the evolutionary history of Carnivora (Mammalia): A new species-level supertree complete with divergence time estimates. BMC biology 10:12.
+
+Get only the first dated phylogeny in the file. Tree has best estimate for branch lengths.
 
 ```r
 phy <- read.nexus("./datasets/1741-7007-10-12-s5.nex")[[1]]
 ```
 
 
-Get data:
+Morphological data manually compiled from:
+Slater, G. J., and B. Van Valkenburgh. 2009. Allometry and performance: The evolution of skull form and function in felids. Journal of Evolutionary Biology 22:2278–2287.
+Sakamoto, M., G. T. Lloyd, and M. J. Benton. 2010. Phylogenetically structured variance in felid bite force: The role of phylogeny in the evolution of biting performance. Journal of Evolutionary Biology 23:463–478.
+
+Get dataset:
 
 ```r
 data <- read.csv("./datasets/data.csv", header = TRUE, sep = "\t")
@@ -359,7 +436,7 @@ phy.fel$edge.length <- phy.fel$edge.length/max(branching.times(phy.fel))
 ```
 
 
-Model Selection Analysis
+Model selection analysis:
 
 ```r
 mm <- match(phy.fel$tip.label, data[, 1])
@@ -380,16 +457,37 @@ felidae.ind <- build.sim.data.table(felidaeFit, 1:7)
 ```
 
 
-Model support across morphological datasets showing model support weights for the felid dataset.
+Felid dataset is highly correlated. PC1 explains 96.9% of the variance under PCA 93.7 under pPCA.
 
 ```r
-fig.felidae.aicw(felidae.ind)
+round((felidPC$sdev^2)[1]/sum(felidPC$sdev^2), digits = 3)
 ```
 
-![plot of chunk unnamed-chunk-34](figure/unnamed-chunk-34.png) 
+```
+## Comp.1 
+##  0.969
+```
+
+```r
+round(diag(felidPPC$Eval)[1]/sum(diag(felidPPC$Eval)), digits = 3)
+```
+
+```
+##   PC1 
+## 0.937
+```
 
 
-Contrasts & disparity
+Model support across datasets showing AIC weights:
+
+```r
+fig.emp.aicw(felidae.ind)
+```
+
+![plot of chunk unnamed-chunk-35](figure/unnamed-chunk-35.png) 
+
+
+Analysis of contrasts and disparity:
 
 ```r
 nsims = 1
@@ -405,7 +503,7 @@ Node height and disparity through time plots for the felid dataset.
 fig.felidae.contrasts(felidCont)
 ```
 
-![plot of chunk unnamed-chunk-36](figure/unnamed-chunk-361.png) 
+![plot of chunk unnamed-chunk-37](figure/unnamed-chunk-371.png) 
 
 ```r
 fig.felidae.dtt(felidDisp)
@@ -417,56 +515,154 @@ fig.felidae.dtt(felidDisp)
 ## geom_smooth: method="auto" and size of largest group is <1000, so using loess. Use 'method = x' to change the smoothing method.
 ```
 
-![plot of chunk unnamed-chunk-36](figure/unnamed-chunk-362.png) 
+![plot of chunk unnamed-chunk-37](figure/unnamed-chunk-372.png) 
 
 
-# Empirical analyses of climate data from the carnivora
-Daniel's gbif processing script. Not working yet on my machine (package dependencies).
+## Empirical analyses of morphological dataset for Cyprinodon.
+
+Read the dataset and phylogeny.
 
 ```r
-# source('./R/process-data.R') save(bioclim.dat,
-# file='./output/bioclim.dat.rds')
+tr <- read.nexus("./datasets/fish_finaltree_underscore.nex")
+dt <- read.csv("./datasets/fish_dataset.csv")
 
-# load('./output/results_fitted.RData') load('./output/climate.data.RData')
-load("./output/bioclim.dat.rds")
+dt$species <- gsub(" ", "_", dt$species)
+tr$tip.label <- gsub("'", "", tr$tip.label)
+```
 
+
+Keep only the data for Cyprinodon species.
+
+```r
+sp.split <- sapply(dt$species, FUN = function(x) strsplit(x, split = "_"))
+cyp <- sapply(1:length(sp.split), FUN = function(x) sp.split[[x]][1])
+id <- which(cyp == "Cyprinodon")
+dt <- dt[id, ]
+```
+
+
+Some species names need correction.
+
+```r
+dt$species[which(dt$species == "Cyprinodon_sp._'durophage'_San_Salvador_Island")] <- "Cyprinodon_bozo"
+dt$species[which(dt$species == "Cyprinodon_sp._'scale-eater'_San_Salvador_Island")] <- "Cyprinodon_bulldog"
+dt$species[which(dt$species == "Cyprinodon_sp._'detritivore'_San_Salvador_Island")] <- "Cyprinodon_normal_Crescent_Pond"
+```
+
+
+Check if all species in the dataset are in the phylogeny.
+
+```r
+index <- which(tr$tip.label %in% dt$species)
+sum(dt$species %in% tr$tip.label[index]) == dim(dt)[1]
+```
+
+```
+## [1] TRUE
+```
+
+
+Keep only the species in the dataset in the tree (Drop the non-Cyprinodon).
+
+```r
+tr <- drop.tip(phy = tr, tip = tr$tip.label[-index])
+```
+
+
+Match dataset and tree. Keep only the morphological measurements.
+Data is already size corrected.
+
+```r
+mm <- match(tr$tip.label, dt$species)
+dt <- dt[mm, -c(17:25)]
+rownames(dt) <- dt$species
+dt <- dt[, -1]
+```
+
+
+Repeat analysis done with the Felid:
+
+Model selection:
+
+```r
+cypriPC <- princomp(dt, cor = TRUE)
+cypriPPC <- phyl.pca(tr, dt, mode = "corr")
+
+cypri.dat <- list(tree = tr, raw = dt, pc = cypriPC$scores, ppc = cypriPPC$S, 
+    pcall = cypriPC, ppcall = cypriPPC)
+cypriFit <- fitPCs(cypri.dat, 1:ncol(dt), models = c("BM", "OUfixedRoot", "EB"))
+
+cypri.ind <- build.sim.data.table(cypriFit, 1:15)
+```
+
+```
+## Using trait as id variables
+```
+
+
+Show correlation. PC1 explains 37.8% and pPC1 32.3%.
+
+```r
+round((cypriPC$sdev^2)[1]/sum(cypriPC$sdev^2), digits = 3)
+```
+
+```
+## Comp.1 
+##  0.378
+```
+
+```r
+round(diag(cypriPPC$Eval)[1]/sum(diag(cypriPPC$Eval)), digits = 3)
+```
+
+```
+##   PC1 
+## 0.323
+```
+
+
+Model support across datasets showing AIC weights:
+
+```r
+fig.emp.aicw(cypri.ind)
+```
+
+![plot of chunk unnamed-chunk-46](figure/unnamed-chunk-46.png) 
+
+
+Analysis of contrasts and disparity:
+
+```r
 nsims = 1
-ntraits = ncol(bioclim.dat$raw)
-bioclimCont <- get.contrasts(list(bioclim.dat), "contrasts")
+ntraits = ncol(dt)
+cypriCont <- get.contrasts(list(cypri.dat), "contrasts")
+cypriDisp <- get.dtt(list(cypri.dat), "disparity")
 ```
 
-```
-## Warning: some row.names duplicated: 89,90,91,129,131,132,153,154,157,172,176,177,178,179,184,193 --> row.names NOT used
-## Warning: some row.names duplicated: 89,90,91,129,131,132,153,154,157,172,176,177,178,179,184,193 --> row.names NOT used
-## Warning: some row.names duplicated: 89,90,91,129,131,132,153,154,157,172,176,177,178,179,184,193 --> row.names NOT used
-```
+
+Node height and disparity through time plots.
 
 ```r
-bioclimDtt <- get.dtt(list(bioclim.dat), "disparity")
+fig.felidae.contrasts(cypriCont)
 ```
 
-
-Contrasts plot and disparity through time plot for bioclim data.
+![plot of chunk unnamed-chunk-48](figure/unnamed-chunk-481.png) 
 
 ```r
-fig.nh.3panel(bioclimCont)
-```
-
-![plot of chunk unnamed-chunk-38](figure/unnamed-chunk-381.png) 
-
-```r
-fig.dtt.3panel(bioclimDtt)
+fig.felidae.dtt(cypriDisp)
 ```
 
 ```
-## geom_smooth: method="auto" and size of largest group is >=1000, so using gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the smoothing method.
-## geom_smooth: method="auto" and size of largest group is >=1000, so using gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the smoothing method.
-## geom_smooth: method="auto" and size of largest group is >=1000, so using gam with formula: y ~ s(x, bs = "cs"). Use 'method = x' to change the smoothing method.
+## geom_smooth: method="auto" and size of largest group is <1000, so using loess. Use 'method = x' to change the smoothing method.
+## geom_smooth: method="auto" and size of largest group is <1000, so using loess. Use 'method = x' to change the smoothing method.
+## geom_smooth: method="auto" and size of largest group is <1000, so using loess. Use 'method = x' to change the smoothing method.
 ```
 
-![plot of chunk unnamed-chunk-38](figure/unnamed-chunk-382.png) 
+![plot of chunk unnamed-chunk-48](figure/unnamed-chunk-482.png) 
 
 
+## Need to put this part in the same order of the manuscript.
+## Maybe use the same headings to organize this.
 # Matrix Rank Simulations
 
 ```r
@@ -501,22 +697,5 @@ fig.rankslopes(rankslopes)
 ## geom_smooth: method="auto" and size of largest group is <1000, so using loess. Use 'method = x' to change the smoothing method.
 ```
 
-![plot of chunk unnamed-chunk-39](figure/unnamed-chunk-39.png) 
-
-Felid leading eigenvalue explains 97.4% of the total variance, placing it at the extreme right end of the plot.
-
-```r
-eigen(var(dt))$values[1]/(sum(eigen(var(dt))$values))
-```
-
-```
-## [1] 0.9741
-```
-
-
-
-
-
-
-
+![plot of chunk unnamed-chunk-49](figure/unnamed-chunk-49.png) 
 

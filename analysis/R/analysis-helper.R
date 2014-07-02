@@ -399,70 +399,7 @@ fig.model.support.alpha <- function(df){
   
 }
 
-fig.felidae.aicw <- function(df){
-  .e <- environment()
-  p <- q <- ggplot(df, aes(trait, value, fill=type), environment = .e)
-  p <- p +  geom_bar(data=df, stat="identity", position="stack")
-  p <- p + scale_y_continuous(name="AICw")
-  p <- p + scale_fill_manual(values=col[c(6,21,12)], name="Model")
-  p <- p + facet_grid(.~variable)
-  p  
-}
-
-fig.felidae.contrasts <- function(df){
-  .e <- environment()
-  df$type <- factor(df$type, levels=c("raw", "pc", "ppc"),
-                    labels=c("Original data", "PCA", "Phylogenetic PCA"))
-  ll <- length(levels(df$variable))
-  df$variable <- factor(df$variable, levels=tr.nm(seq_len(ll)), labels=seq_len(ll))
-  
-  p <- ggplot(df, aes(times, value, colour=factor(variable)), environment=.e)
-  p <- p + stat_smooth(method="lm",se=FALSE)
-  p <- p + facet_grid(.~type, scales="free_y")
-  p <- p + scale_color_manual(values=col, name="Trait/PC axis")
-  p <- p + theme_bw()
-  p <- p + theme(strip.background=element_rect(fill="white"),
-                 plot.background=element_blank(),
-                 panel.grid.major=element_blank(),
-                 panel.grid.minor=element_blank(),
-                 axis.text.y=element_blank(),
-                 axis.ticks.y=element_blank(),
-                 axis.text.x=element_blank(),
-                 axis.ticks.x=element_blank())
-  p <- p + xlab("Time")
-  p <- p + ylab("Contrasts")   
-  p
-  
-}
-
-fig.felidae.dtt <- function(df){
-  .e <- environment()
-  
-  df$type <- factor(df$type, levels=c("raw", "pc", "ppc"),
-                    labels=c("Original data", "PCA", "Phylogenetic PCA"))
-  
-  ll <- length(levels(df$variable))
-  df$variable <- factor(df$variable, levels=tr.nm(seq_len(ll)), labels=seq_len(ll))
-  
-  p <- ggplot(df, aes(times, value, colour=factor(variable)), environment=.e)
-  p <- p + stat_smooth(se=FALSE)
-  p <- p + facet_grid(.~type, scales="free_y")
-  p <- p + scale_color_manual(values=col, name="Trait/PC axis")
-  p <- p + theme_bw()
-  p <- p + theme(strip.background=element_rect(fill="white"),
-                 plot.background=element_blank(),
-                 panel.grid.major=element_blank(),
-                 panel.grid.minor=element_blank(),
-                 axis.text.y=element_blank(),
-                 axis.ticks.y=element_blank(),
-                 axis.text.x=element_blank(),
-                 axis.ticks.x=element_blank())
-  p <- p + xlab("Time")
-  p <- p + ylab("Disparity")   
-  p
-  
-}
-
+## Function for the rank slopes -- Simulation of data with different levels of correlation.
 fig.rankslopes <- function(df){
   .e <- environment()
   df$type <- factor(df$type, levels=c("raw", "pc", "ppc"),
@@ -485,4 +422,91 @@ fig.rankslopes <- function(df){
   p
 }
 
+########## Figures for empirical data ##############
 
+## Function for empirical aicw
+fig.emp.aicw <- function(df){
+  .e <- environment()
+  p <- q <- ggplot(df, aes(trait, value, fill=type), environment = .e)
+  p <- p +  geom_bar(data=df, stat="identity", position="stack")
+  p <- p + scale_y_continuous(name="AICw")
+  p <- p + scale_fill_manual(values=col[c(6,21,12)], name="Model")
+  p <- p + facet_grid(.~variable)
+  p  
+}
+
+## Function for disparity tt and node height of empirical datasets.
+emp.graph <- function(dtCont, dtDisp, col = "Reds"){
+    ## col = one of "Blues BuGn BuPu GnBu Greens Greys Oranges
+    ##               OrRd PuBu PuBuGn PuRd Purples RdPu Reds
+    ##               YlGn YlGnBu YlOrBr YlOrRd"
+    
+    c <- fig.contrasts(dtCont, col)
+    d <- fig.dtt(dtDisp, col)
+    r <- grid.arrange(arrangeGrob(c + theme(legend.position="none",
+                                            plot.margin=unit(c(1,1,-0.5,1), "cm")),
+                             d + theme(legend.position="none",
+                                       plot.margin=unit(c(-0.5,1,1,1), "cm"))
+                                  )
+                      )
+    return(r)
+}
+
+## emp.graph dependency:
+fig.contrasts <- function(df, col){
+  .e <- environment()
+  bl <- colorRampPalette(brewer.pal(9, col))
+  pal.bl <- rev(bl(length(unique(df$variable))))
+  df$type <- factor(df$type, levels=c("raw", "pc", "ppc"),
+                    labels=c("Original data", "PCA", "Phylogenetic PCA"))
+  ll <- length(levels(df$variable))
+  df$variable <- factor(df$variable, levels=tr.nm(seq_len(ll)), labels=seq_len(ll))
+  
+  p <- ggplot(df, aes(times, value, colour=factor(variable)), environment=.e)
+  p <- p + stat_smooth(method="lm",se=FALSE)
+  p <- p + facet_grid(.~type, scales="free_y")
+  p <- p + scale_color_manual(values=pal.bl, name="Trait/PC axis")
+  p <- p + theme_bw()
+  p <- p + theme(strip.background=element_rect(fill="white"),
+                 plot.background=element_blank(),
+                 panel.grid.major=element_blank(),
+                 panel.grid.minor=element_blank(),
+                 axis.text.y=element_blank(),
+                 axis.ticks.y=element_blank(),
+                 axis.text.x=element_blank(),
+                 axis.ticks.x=element_blank())
+  p <- p + xlab("")
+  p <- p + ylab("Contrasts")   
+  p
+}
+
+## emp.graph dependency:
+fig.dtt <- function(df, col){
+  .e <- environment()
+  bl <- colorRampPalette(brewer.pal(9, col))
+  pal.bl <- rev(bl(length(unique(df$variable))))
+
+  df$type <- factor(df$type, levels=c("raw", "pc", "ppc"),
+                    labels=c("Original data", "PCA", "Phylogenetic PCA"))
+  
+  ll <- length(levels(df$variable))
+  df$variable <- factor(df$variable, levels=tr.nm(seq_len(ll)), labels=seq_len(ll))
+  
+  p <- ggplot(df, aes(times, value, colour=factor(variable)), environment=.e)
+  p <- p + stat_smooth(se=FALSE)
+  p <- p + facet_grid(.~type, scales="free_y")
+  p <- p + scale_color_manual(values=pal.bl, name="Trait/PC axis")
+  p <- p + theme_bw()
+  p <- p + theme(strip.background=element_blank(), ## Take out the strip labels
+		 strip.text.x = element_blank(), ## Take out the strip labels
+                 plot.background=element_blank(),
+                 panel.grid.major=element_blank(),
+                 panel.grid.minor=element_blank(),
+                 axis.text.y=element_blank(),
+                 axis.ticks.y=element_blank(),
+                 axis.text.x=element_blank(),
+                 axis.ticks.x=element_blank())
+  p <- p + xlab("Time")
+  p <- p + ylab("Disparity")   
+  p
+}
