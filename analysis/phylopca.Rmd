@@ -57,9 +57,7 @@ Data simulated under correlated multivariate Brownian Motion
 fig.box.aicw(bm.cor)
 ```
 
-
-
- # Simulate uncorrelated data under BM, OU and EB and analyze using model selection, node-height test, and disparity through time.
+# Simulate uncorrelated data under BM, OU and EB and analyze using model selection, node-height test, and disparity through time.
 
 Simulate the data
 ``` {r }
@@ -290,7 +288,9 @@ round(diag(felidPPC$Eval)[1] / sum(diag(felidPPC$Eval)),  digits=3)
 
 Model support across datasets showing AIC weights:
 ``` {r }
+## pdf("felidae.aicw.pdf", width=9, height=7)
 fig.emp.aicw(felidae.ind)
+## dev.off()
 ```
 
 Analysis of contrasts and disparity:
@@ -302,7 +302,9 @@ felidDisp <- get.dtt(list(felidae.dat), "disparity")
 
 Node height and disparity through time plots for the felid dataset.
 ``` {r }
+## pdf("felidae.nh-dtt.pdf", width=9,height=7)
 emp.graph(felidCont, felidDisp, "Purples")
+## dev.off()
 ```
 
 # Analisis of dataset for Cyprinodon fishes.
@@ -365,15 +367,23 @@ cypriFit <- fitPCs(cypri.dat, 1:ncol(dt), models=c("BM", "OUfixedRoot", "EB"))
 cypri.ind <- build.sim.data.table(cypriFit, 1:15)
 ```
 
-Show correlation. PC1 explains 37.8% and pPC1 32.3%.
+Show correlation among traits. PC1 explains 37.8% and pPC1 32.3%.
 ``` {r }
 round((cypriPC$sdev^2)[1] / sum(cypriPC$sdev^2), digits=3)
 round(diag(cypriPPC$Eval)[1] / sum(diag(cypriPPC$Eval)),  digits=3)
 ```
 
+Last 4 PCA and pPCA axes:
+``` {r }
+sum( ( (cypriPC$sdev^2) / sum(cypriPC$sdev^2) )[12:15] )
+sum( ( diag(cypriPPC$Eval) / sum(diag(cypriPPC$Eval)) )[12:15] )
+```
+
 Model support across datasets showing AIC weights:
 ``` {r }
+pdf("cypri.aicw.pdf", width=9,height=7)
 fig.emp.aicw(cypri.ind)
+dev.off()
 ```
 
 Analysis of contrasts and disparity:
@@ -385,5 +395,7 @@ cypriDisp <- get.dtt(list(cypri.dat), "disparity")
 
 Node height and disparity through time plots.
 ``` {r }
-emp.graph(cypriCont, cypriDisp, "Blues")
+pdf("cypri.nh-dtt.pdf", width=9,height=7)
+emp.graph(cypriCont, cypriDisp, "Purples")
+dev.off()
 ```
