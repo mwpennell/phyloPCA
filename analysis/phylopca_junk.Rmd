@@ -1,0 +1,23 @@
+This is the 'junk' deleted from the file phylopca.Rmd.
+
+## OBS: This analysis of climate data may be out of the manuscript::
+# Empirical analyses of climate data from the carnivora
+Daniel's gbif processing script. Not working yet on my machine (package dependencies).
+``` {r }
+#source("./R/process-data.R")
+#save(bioclim.dat, file="./output/bioclim.dat.rds")
+
+#load("./output/results_fitted.RData")
+#load("./output/climate.data.RData")
+load("./output/bioclim.dat.rds")
+
+nsims=1; ntraits = ncol(bioclim.dat$raw)
+bioclimCont <- get.contrasts(list(bioclim.dat), "contrasts")
+bioclimDtt <- get.dtt(list(bioclim.dat), "disparity")
+```
+
+Contrasts plot and disparity through time plot for bioclim data.
+``` {r }
+fig.nh.3panel(bioclimCont)
+fig.dtt.3panel(bioclimDtt)
+```
