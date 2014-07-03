@@ -41,7 +41,8 @@ clean-analysis:
 
 ## clean empirical datasets only
 clean-emp-data:
-	rm -rf output/data
+	rm output/data/cyprinodon.rds
+	rm output/data/felidae.rds
 
 
 ## install dependencies

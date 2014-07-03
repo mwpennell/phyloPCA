@@ -9,6 +9,10 @@ rownames(cyp.dat) <- gsub(" ", "_", rownames(cyp.dat))
 cyp.gen <- sapply(cyp.phy$tip.label, function(x) {strsplit(x, split="_")[[1]][1]})
 cyp.phy <- drop.tip(cyp.phy, tip=cyp.phy$tip.label[which(cyp.gen != "Cyprinodon")])
 
+
+## Rescale phylogeny to unit height
+cyp.phy$edge.length <- cyp.phy$edge.length / max(branching.times(cyp.phy))
+
 ## fix a couple of names in dataset
 fix.cyp.names <- function(x){
     if (x == "Cyprinodon_sp._'durophage'_San_Salvador_Island")

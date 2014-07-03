@@ -205,6 +205,11 @@ cols.cyp <- c(cols.bl[1:ntraits], cols.gn[1:ntraits], cols.line)
 ## Supplementary Figure 5 -- Cypridon contrasts and dtt
 fig.nh.dtt.emp(cyp.all, cols.cyp)
 
+## Cyprinodon dataset is much less correlated: PC1 explains 39.8% of the variance with PCA
+round((cyp.pca$sdev^2)[1] / sum(cyp.pca$sdev^2), digits=3)
+## and 32.0% of the variance with pPCA
+round(diag(cyp.ppca$Eval)[1] / sum(diag(cyp.ppca$Eval)), digits=3)
+
 
 
 

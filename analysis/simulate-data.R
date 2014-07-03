@@ -20,6 +20,7 @@ simdat <- foreach(i=1:100) %dopar% sim.tree.pcs.mv(ntips, ntraits,
                       sig2dist=rexp, lambda=1/100)
 res <- foreach(i=1:100) %dopar% fitPCs(simdat[[i]], c(1:20),
                    models=c("BM", "OUfixedRoot", "EB"))
+res <- do.call(rbind, res)
 saveRDS(res, "output/sim-res/bm-cor.rds")
 
 
