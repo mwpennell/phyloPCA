@@ -202,7 +202,7 @@ cyp.cont <- cyp.cont[,which(colnames(cyp.cont) != "rep")]
 cyp.all <- rbind(cyp.cont, cyp.disp)
 cols.cyp <- c(cols.bl[1:ntraits], cols.gn[1:ntraits], cols.line)
 
-## Supplementary Figure 5 -- Cypridon contrasts and dtt
+## Supplementary Figure 7 -- Cypridon contrasts and dtt
 fig.nh.dtt.emp(cyp.all, cols.cyp)
 
 ## Cyprinodon dataset is much less correlated: PC1 explains 39.8% of the variance with PCA
@@ -211,7 +211,64 @@ round((cyp.pca$sdev^2)[1] / sum(cyp.pca$sdev^2), digits=3)
 round(diag(cyp.ppca$Eval)[1] / sum(diag(cyp.ppca$Eval)), digits=3)
 
 
+## ## Produce figure output
 
+if (!interactive()){
+
+    dev.off()
+    ## create figure directory
+    tmp <- dir("output")
+    if (!"figs" %in% tmp)
+        dir.create("output/figs")
+    
+    pdf("output/figs/mv-bm-aic.pdf", height=7, width=9)
+    fig.aicw(bm.cor.df, cols.aic)
+    dev.off()
+
+    pdf("output/figs/uncor-bm-aic.pdf", height=7, width=9)
+    fig.aicw(bm.uncor.df, cols.aic)
+    dev.off()
+
+    pdf("output/figs/uncor-ou-aic.pdf", height=7, width=9)
+    fig.aicw(ou.uncor.df, cols.aic)
+    dev.off()
+
+    pdf("output/figs/uncor-eb-aic.pdf", height=7, width=9)
+    fig.aicw(eb.uncor.df, cols.aic)
+    dev.off()
+
+    pdf("output/figs/nh-2panel.pdf", height=7, width=9)
+    fig.nh.2panel(cont, cols)
+    dev.off()
+
+    pdf("output/figs/dtt-2panel.pdf", height=7, width=9)
+    fig.dtt.2panel(disp, cols)
+    dev.off()
+
+    pdf("output/figs/alpha-est.pdf", height=7, width=9)
+    fig.alpha.est(ppca.ou, col.pt=cols.gn[2], col.line=cols.line)
+    dev.off()
+
+    pdf("output/figs/onion.pdf", height=7, width=9)
+    fig.rankslopes(rank.sim$rankslopes, rank.sim$exp.val, cols)
+    dev.off()
+
+    pdf("output/figs/felidae-aicw.pdf", height=7, width=9)
+    fig.aicw.empirical(fel.df, cols=c(cols.bl[2], cols.gn[2], cols.line))
+    dev.off()
+
+    pdf("output/figs/felidae_nh-dtt.pdf", height=7, width=9)
+    fig.nh.dtt.emp(fel.all, cols.fel)
+    dev.off()
+
+    pdf("output/figs/cypri_aicw.pdf", height=7, width=9)
+    fig.aicw.empirical(cyp.df, cols=c(cols.bl[2], cols.gn[2], cols.line))
+    dev.off()
+
+    pdf("output/figs/cypri_nh-dtt.pdf", height=7, width=9)
+    fig.nh.dtt.emp(cyp.all, cols.cyp)
+    dev.off()
+}
 
 
 
