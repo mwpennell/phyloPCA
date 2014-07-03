@@ -11,6 +11,8 @@ cols.bl <- rev(pal.bl(20))
 cols.gn <- rev(pal.gn(20))
 cols.line <- "#d73027"
 cols <- c(cols.bl, cols.gn, cols.line)
+## subset cols for model support figures
+cols.aic <- c(cols.bl[2], cols.gn[2], cols.line)
 
 
 ## ## Model support for simulated data
@@ -30,7 +32,7 @@ bm.cor <- readRDS("output/bm-cor.rds")
 bm.cor.df <- build.sim.data.step(bm.cor)
 
 ## Figure 1 -- Model support across PC and pPC axes
-fig.aicw(bm.cor.df)
+fig.aicw(bm.cor.df, cols.aic)
 
 
 ## ### Multivariate BM (uncorrelated traits)
@@ -44,7 +46,7 @@ bm.uncor <- readRDS("output/bm-uncor.rds")
 bm.uncor.df <- build.sim.data.step(bm.uncor)
 
 ## Supplementary Figure 1 -- Model support across PC and pPC axes
-fig.aicw(bm.uncor.df)
+fig.aicw(bm.uncor.df, cols.aic)
 
 
 ## ### Multivariate OU (uncorrelated traits)
@@ -58,7 +60,7 @@ ou.uncor <- readRDS("output/ou-uncor.rds")
 ou.uncor.df <- build.sim.data.step(ou.uncor)
 
 ## Figure 3 -- Model support across PC and pPC axes
-fig.aicw(ou.uncor.df)
+fig.aicw(ou.uncor.df, cols.aic)
 
 
 ## ### Multivariate EB (uncorrelated traits)
@@ -72,7 +74,7 @@ eb.uncor <- readRDS("output/eb-uncor.rds")
 eb.uncor.df <- build.sim.data.step(eb.uncor)
 
 ## Supplementary Figure 2 -- Model support across PC and pPC axes
-fig.aicw(eb.uncor.df)
+fig.aicw(eb.uncor.df, cols.aic)
 
 
 
@@ -98,13 +100,13 @@ fig.dtt.2panel(disp, cols)
 
 ## ## Parameter esitmation (OU model only)
 ## For the case of the uncorrelated OU model, we have obtained the estimated alpha parameter for each simulation
-par.alpha <- readRDS("output/OU-param.rds")
+par.ou <- readRDS("output/OU-param.rds")
 
 ## Only looking at the results from the phylogenetic PCA
-ppca.alpha <- subset(par.alpha, variable == "ppc")
+ppca.ou <- subset(par.ou, variable == "ppc")
 
 ## Plot the estimated alpha values for each of the PCs
-fig.alpha.est(ppca.alpha)
+fig.alpha.est(ppca.ou, col.pt=cols.gn[2], col.line=cols.line)
 
 
 ## ## Effect of dimensionality
@@ -113,7 +115,7 @@ fig.alpha.est(ppca.alpha)
 rank.sim <- readRDS("output/rankslopes.rds")
 
 ## Figure 2 -- "Onion" plots showing slope of node height test as a function of the proportion of variance explained by leading eigenvector
-fig.rankslopes(rank.sim)
+fig.rankslopes(rank.sim$rankslopes, rank.sim$exp.val, cols)
 
 
 
@@ -140,15 +142,30 @@ fel.fit <- fitPCs(fel.dat, seq_len(ncol(fel$data)))
 ## Supplementary Figure 4 -- Model support across all PC and pPC axes
 fel.df <- build.emp.data.step(fel.fit)
 
-fig.aicw.empirical(fel.df)
+fig.aicw.empirical(fel.df, cols=c(cols.bl[2], cols.gn[2], cols.line))
+
+
+## Felidae dataset is highly correlated: PC1 explains 96.9% of the variance with PCA
+round((fel.pca$sdev^2)[1] / sum(fel.pca$sdev^2), digits=3)
+## and 93.7% of the variance with pPCA
+round(diag(fel.ppca$Eval)[1] / sum(diag(fel.ppca$Eval)), digits=3)
+
 
 
 ## ### Node height test and Disparity through time
-fel.cont <- get.contrasts(list(fel.dat), "contrats")
+## add dummy variables to use functions built for simulation
+nsims <- 1
+ntraits <- ncol(fel$data)
+fel.cont <- get.contrasts(list(fel.dat), "contrasts")
 fel.disp <- get.dtt(list(fel.dat), "disparity")
 
+## Prepare data for plotting
+fel.cont <- fel.cont[,which(colnames(fel.cont) != "rep")]
+fel.all <- rbind(fel.cont, fel.disp)
+cols.fel <- c(cols.bl[1:ntraits], cols.gn[1:ntraits], cols.line)
+
 ## Supplementary Figure 5 -- Felidae contrasts and dtt
-fig.nh.dtt(fel.cont, fel.disp)
+fig.nh.dtt.emp(fel.all, cols.fel)
 
 
 
@@ -172,15 +189,23 @@ cyp.fit <- fitPCs(cyp.dat, seq_len(ncol(cyp$data)))
 ## Supplementary Figure 6 -- Model support across all PC and pPC axes
 cyp.df <- build.emp.data.step(cyp.fit)
 
-fig.aicw.empirical(cyp.df)
+fig.aicw.empirical(cyp.df, cols=c(cols.bl[2], cols.gn[2], cols.line))
 
 
 ## ### Node height test and Disparity through time
-cyp.cont <- get.contrasts(list(cyp.dat), "contrats")
+ntraits <- ncol(cyp$data)
+cyp.cont <- get.contrasts(list(cyp.dat), "contrasts")
 cyp.disp <- get.dtt(list(cyp.dat), "disparity")
 
-## Supplementary Figure 7 -- Cyprinodon contrasts and dtt
-fig.nh.dtt(cyp.cont, cyp.disp)
+## Prepare data for plotting
+cyp.cont <- cyp.cont[,which(colnames(cyp.cont) != "rep")]
+cyp.all <- rbind(cyp.cont, cyp.disp)
+cols.cyp <- c(cols.bl[1:ntraits], cols.gn[1:ntraits], cols.line)
+
+## Supplementary Figure 5 -- Cypridon contrasts and dtt
+fig.nh.dtt.emp(cyp.all, cols.cyp)
+
+
 
 
 
