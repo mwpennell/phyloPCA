@@ -35,4 +35,9 @@ cyp.dat <- cyp.dat[,c(1:16)]
 cyp <- treedata(cyp.phy, cyp.dat)
 
 ## write to file
+## create directory if necessary
+tmp <- dir("output")
+if (!"data" %in% tmp)
+    dir.create("output/data")
+
 saveRDS(cyp, "output/data/cyprinodon.rds")

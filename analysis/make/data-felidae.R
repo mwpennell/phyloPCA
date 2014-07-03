@@ -13,4 +13,9 @@ fel.dat <- log(fel.dat)
 fel <- treedata(fel.phy, fel.dat)
 
 ## write to file
+## create directory if necessary
+tmp <- dir("output")
+if (!"data" %in% tmp)
+    dir.create("output/data")
+
 saveRDS(fel, "output/data/felidae.rds")
