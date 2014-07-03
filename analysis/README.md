@@ -1,4 +1,4 @@
-# Statistical and conceptual challenges in the comparative analysis of principal components -- analysis
+## Statistical and conceptual challenges in the comparative analysis of principal components -- Analysis
 
 The purpose of this project was to investigate the effects of different ways of reducing the dimensionality of phylogenetic comparative data on evolutionary inferences. There are two components to this project: a simulation study and an analysis of two empirical datasets.
 
@@ -30,7 +30,7 @@ All of these dependencies can be installed using [make](http://www.gnu.org/softw
 make deps
 ```
 
-## Analysis and figures
+### Analysis and figures
 Typing
 ```
 make analysis
@@ -44,7 +44,7 @@ To regenerate all simulations and results from scratch, type
 make sim-res
 ```
 
-## Empirical datasets
+### Empirical datasets
 
 To examine the effect of data transformations on real comparative data. The first is morphological measurements of Felidae ("cats"). The data was compiled from [Slater and Van Valkenburgh 2009](http://www.psjournals.org/doi/abs/10.1666/07061.1) and [Sakamoto, et al. 2010](http://onlinelibrary.wiley.com/doi/10.1111/j.1420-9101.2009.01922.x/full). For this example we used the Carnivora phylogeny from  [Nyakatura and Bininda-Emonds 2012](http://www.biomedcentral.com/1741-7007/10/12). The second dataset was from Cyrinodon fishes ("pupfishes") from a study by [Martin and Wainwright 2011](http://onlinelibrary.wiley.com/doi/10.1111/j.1558-5646.2011.01294.x/full).
 
