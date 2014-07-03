@@ -3,7 +3,7 @@
 
 pkgs.cran <- c("ape", "phytools", "geiger", "phylolm", "foreach",
                "doMC", "MASS", "nlme", "ggplot2", "reshape2", "RColorBrewer",
-               "scales", "lattice", "knitr", "markdown")
+               "plyr", "scales", "lattice", "knitr", "markdown")
 
 pkgs.github <- c("richfitz/sowsear"="0.1-1")
 

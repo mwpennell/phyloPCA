@@ -10,6 +10,11 @@ output/data/cyprinodon.rds: output/data/cyprinodon.rds
 	Rscript make/data-cyprinodon.R
 
 
+## produce new simulation results
+sim-res:
+	Rscript simulate-data.R
+
+
 ## produce analysis
 analysis: phylo-pc.html
 
@@ -20,15 +25,20 @@ phylo-pc.md: phylo-pc.Rmd
 	Rscript -e "library(knitr); knit('$<')"
 
 phylo-pc.html: phylo-pc.md
-	Rscript -e "library(markdown);\
-		opts <- setdiff(markdownHTMLOptions(TRUE), 'base_64_images');\
-		markdownToHTML('$<', '$@', options=opts)"
+	Rscript -e "library(markdown); markdownToHTML('$<', '$@')"
 
 ## cleaning simulation results
 clean-outputs:
 	rm -rf output/sim-res
 	rm -rf output/figs
 	rm -rf output/data
+
+## cleaning knitted analyses
+clean-analysis:
+	rm phylo-pc.Rmd
+	rm phylo-pc.md
+	rm phylo-pc.html
+
 
 ## install dependencies
 deps:

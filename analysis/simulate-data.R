@@ -18,7 +18,7 @@ ntraits <- 20
 
 simdat <- foreach(i=1:100) %dopar% sim.tree.pcs.mv(ntips, ntraits,
                       sig2dist=rexp, lambda=1/100)
-res <- foreach(i=1:100) %dopar% fitPCs(simdat[[i]], trait.seq,
+res <- foreach(i=1:100) %dopar% fitPCs(simdat[[i]], c(1:20),
                    models=c("BM", "OUfixedRoot", "EB"))
 saveRDS(res, "output/sim-res/bm-cor.rds")
 
@@ -74,7 +74,7 @@ saveRDS(ebres, "output/sim-res/eb-uncor.rds")
 
 ## For OU simulations, extract the parameter estimates
 parsdf <- get.parsOU(oufits)
-saveRDS(pars.df, "output/sim-res/OU-param.rds")
+saveRDS(parsdf, "output/sim-res/OU-param.rds")
 
 
 

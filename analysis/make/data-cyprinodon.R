@@ -25,6 +25,9 @@ fix.cyp.names <- function(x){
 
 rownames(cyp.dat) <- sapply(rownames(cyp.dat), function(x) fix.cyp.names(x))
 
+## remove PC socres
+cyp.dat <- cyp.dat[,c(1:16)]
+
 cyp <- treedata(cyp.phy, cyp.dat)
 
 ## write to file

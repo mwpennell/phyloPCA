@@ -8,6 +8,8 @@ require(foreach)
 require(doMC)
 require(MASS)
 require(nlme)
+require(reshape2)
+require(plyr)
 
 ## Function for simulating positive definite covariance matrices
 Posdef <- function (n, ev = rexp(n, 1/100)) {
