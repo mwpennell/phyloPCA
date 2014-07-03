@@ -1,21 +1,5 @@
-## Little script for building data
-## This is only intended to be run once.
-## Purpose of the script is to have a record of how datasets were modified
-
-library(geiger)
-## Felidae
-fel.phy <- read.nexus("datasets/1741-7007-10-12-s5.nex")[[1]]
-fel.dat <- read.csv("datasets/felidae_data.csv", header=TRUE, sep="\t", row.names=1)
-fel.dat <- fel.dat[,c(1:7)]
-fel.dat <- log(fel.dat)
-
-## match tips
-fel <- treedata(fel.phy, fel.dat)
-
-## write to file
-saveRDS(fel, "output/data/felidae.rds")
-
 ## Cyprinodon
+library(geiger)
 cyp.phy <- read.nexus("datasets/cypri_underscore.nex")
 cyp.phy$tip.label <- gsub("'", "", cyp.phy$tip.label)
 cyp.dat <- read.csv("datasets/cypri_dataset.csv", row.names=1)
@@ -45,4 +29,3 @@ cyp <- treedata(cyp.phy, cyp.dat)
 
 ## write to file
 saveRDS(cyp, "output/data/cyprinodon.rds")
-

@@ -20,7 +20,7 @@ simdat <- foreach(i=1:100) %dopar% sim.tree.pcs.mv(ntips, ntraits,
                       sig2dist=rexp, lambda=1/100)
 res <- foreach(i=1:100) %dopar% fitPCs(simdat[[i]], trait.seq,
                    models=c("BM", "OUfixedRoot", "EB"))
-saveRDS(res, "output/bm-cor.rds")
+saveRDS(res, "output/sim-res/bm-cor.rds")
 
 
 
@@ -39,7 +39,7 @@ ebcont <- get.contrasts(ebdat[1:50], "EB")
 
 ## Combine all and save
 contrasts <- rbind(bmcont, oucont, ebcont)
-saveRDS(contrasts, file="output/cont-height.rds")
+saveRDS(contrasts, file="output/sim-res/cont-height.rds")
 
 ## Calculate the disparity through time for each simulated dataset
 bmdtt <- get.dtt(bmdat[1:50], "BM") 
@@ -47,7 +47,7 @@ oudtt <- get.dtt(oudat[1:50], "OU")
 ebdtt <- get.dtt(ebdat[1:50], "EB")
 
 dispdat <- do.call(rbind, list(bmdtt, oudtt, ebdtt))
-saveRDS(dispdat, file="output/disp-time.rds")
+saveRDS(dispdat, file="output/sim-res/disp-time.rds")
 
 
 
@@ -66,15 +66,15 @@ ebres <- do.call(rbind, ebfits)
 bmres <- do.call(rbind, bmfits)
 
 ## Save output
-saveRDS(bmres, "output/bm-uncor.rds")
-saveRDS(oures, "output/ou-uncor.rds")
-saveRDS(ebres, "output/eb-uncor.rds")
+saveRDS(bmres, "output/sim-res/bm-uncor.rds")
+saveRDS(oures, "output/sim-res/ou-uncor.rds")
+saveRDS(ebres, "output/sim-res/eb-uncor.rds")
 
 
 
 ## For OU simulations, extract the parameter estimates
 parsdf <- get.parsOU(oufits)
-saveRDS(pars.df, "output/OU-param.rds")
+saveRDS(pars.df, "output/sim-res/OU-param.rds")
 
 
 
@@ -106,7 +106,7 @@ rankcont <- do.call(rbind, rankcont)
 rankslopes <- ddply(rankcont, .(type, rep, simmodel, variable), summarize, slope=lmslope(value, times))
 ## store the values of varEV1 so that these can be used for plotting
 ranks <- list(rankslopes=rankslopes, exp.val=varEV1)
-saveRDS(ranks, file="output/rankslopes.rds")
+saveRDS(ranks, file="output/sim-res/rankslopes.rds")
 
 
 

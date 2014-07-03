@@ -24,7 +24,7 @@ cols.aic <- c(cols.bl[2], cols.gn[2], cols.line)
 ## Multivariate BM was simulated on a pure-birth tree and rescaled to unit height. To obtain a variance-covariance matrix for the traits, we drew eigenvalues from an exponential distribution with rate 1/100.
 
 ## Read in data
-bm.cor <- readRDS("output/bm-cor.rds")
+bm.cor <- readRDS("output/sim-res/bm-cor.rds")
 
 ## Build matrix for plotting
 
@@ -40,7 +40,7 @@ fig.aicw(bm.cor.df, cols.aic)
 ## Simulated in the same way as the correlated traits scenario (above) but setting all eigenvalues to be equal.
 
 ## Read in data
-bm.uncor <- readRDS("output/bm-uncor.rds")
+bm.uncor <- readRDS("output/sim-res/bm-uncor.rds")
 
 ## Build matrix for plotting, using the difference in AICw between OU and EB as a summary statistic.
 bm.uncor.df <- build.sim.data.step(bm.uncor)
@@ -54,7 +54,7 @@ fig.aicw(bm.uncor.df, cols.aic)
 ## All traits are evolved independently
 
 ## Read in data
-ou.uncor <- readRDS("output/ou-uncor.rds")
+ou.uncor <- readRDS("output/sim-res/ou-uncor.rds")
 
 ## Build matrix for plotting, using the difference in AICw between OU and EB as a summary statistic.
 ou.uncor.df <- build.sim.data.step(ou.uncor)
@@ -68,7 +68,7 @@ fig.aicw(ou.uncor.df, cols.aic)
 ## All traits are evolved independently
 
 ## Read in data
-eb.uncor <- readRDS("output/eb-uncor.rds")
+eb.uncor <- readRDS("output/sim-res/eb-uncor.rds")
 
 ## Build matrix for plotting, using the difference in AICw between OU and EB as a summary statistic
 eb.uncor.df <- build.sim.data.step(eb.uncor)
@@ -81,7 +81,7 @@ fig.aicw(eb.uncor.df, cols.aic)
 ## ## Node Height test
 
 ## Read in data containing size of contrasts and the height above the root that each contrast was calculated
-cont <- readRDS("output/cont-height.rds")
+cont <- readRDS("output/sim-res/cont-height.rds")
 
 ## Figure 4 -- plot average slope of node-height state for all PC and pPC axes
 fig.nh.2panel(cont, cols)
@@ -91,7 +91,7 @@ fig.nh.2panel(cont, cols)
 ## ## Disparity through time
 
 ## Read in data containing disparity (sensu Harmon et al. 2003) and time at which it was calculated
-disp <- readRDS("output/disp-time.rds")
+disp <- readRDS("output/sim-res/disp-time.rds")
 
 ## Figure 5 -- plot average loess function for all PC and pPC axes
 fig.dtt.2panel(disp, cols)
@@ -100,7 +100,7 @@ fig.dtt.2panel(disp, cols)
 
 ## ## Parameter esitmation (OU model only)
 ## For the case of the uncorrelated OU model, we have obtained the estimated alpha parameter for each simulation
-par.ou <- readRDS("output/OU-param.rds")
+par.ou <- readRDS("output/sim-res/OU-param.rds")
 
 ## Only looking at the results from the phylogenetic PCA
 ppca.ou <- subset(par.ou, variable == "ppc")
@@ -112,7 +112,7 @@ fig.alpha.est(ppca.ou, col.pt=cols.gn[2], col.line=cols.line)
 ## ## Effect of dimensionality
 ## We conducted an additional set of simulations to investigate the effect of matrix dimensionality on the patterns we found in the other simulations
 
-rank.sim <- readRDS("output/rankslopes.rds")
+rank.sim <- readRDS("output/sim-res/rankslopes.rds")
 
 ## Figure 2 -- "Onion" plots showing slope of node height test as a function of the proportion of variance explained by leading eigenvector
 fig.rankslopes(rank.sim$rankslopes, rank.sim$exp.val, cols)
@@ -124,7 +124,7 @@ fig.rankslopes(rank.sim$rankslopes, rank.sim$exp.val, cols)
 
 ## ## Felidae
 ## Read in data
-fel <- readRDS("datasets/felidae.rds")
+fel <- readRDS("output/data/felidae.rds")
 
 ## Compute principal components using the correlation approach as units of measurement differ between traits
 fel.pca <- princomp(fel$data, cor=TRUE)
@@ -171,7 +171,7 @@ fig.nh.dtt.emp(fel.all, cols.fel)
 
 ## ## Cyprinodon
 ## Read in data
-cyp <- readRDS("datasets/cyprinodon.rds")
+cyp <- readRDS("output/data/cyprinodon.rds")
 
 ## Compute principal components using the correlation approach as units of measurement differ between traits
 cyp.pca <- princomp(cyp$data, cor=TRUE)
