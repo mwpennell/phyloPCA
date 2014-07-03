@@ -39,6 +39,10 @@ clean-analysis:
 	rm phylo-pc.md
 	rm phylo-pc.html
 
+## clean empirical datasets only
+clean-emp-data:
+	rm -rf output/data
+
 
 ## install dependencies
 deps:

@@ -50,6 +50,7 @@ To examine the effect of data transformations on real comparative data. The firs
 
 We did some processing of the data prior to analyses. The resulting datasets are stored in `output/data`. To re-run the processing steps, type
 ```
+make clean-emp-data
 make emp-data
 ```
 
