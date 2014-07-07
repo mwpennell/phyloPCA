@@ -1,4 +1,4 @@
-\documentclass[a4paper,12pt]{article}
+\documentclass[a4paper,11pt]{article}
 \usepackage[osf]{mathpazo}
 \usepackage{ms}
 \usepackage{amsmath,amsfonts,amssymb}
@@ -37,23 +37,22 @@ Josef C. Uyeda$^{1,*}$, Daniel S. Caetano$^1$, and Matthew W. Pennell$^1$
 \addtolength{\parskip}{.3em}
 \vfill
 
-\section{Abstract}
-\begin{enumerate}
-\item The macroevolutionary trajectory of any trait is almost certainly influenced by evolutionary processes acting on correlated characters. However, even when data is available for multiple traits, most current approaches for modeling trait evolution along a phylogeny only consider a single trait. Therefore, in order to apply standard univariate comparative methods, some sort of reduction in dimensionality is necessary.
+%\section{Abstract}
+%\begin{enumerate}
+%\item The macroevolutionary trajectory of any trait is almost certainly influenced by evolutionary processes acting on correlated characters. However, even when data is available for multiple traits, most current approaches for modeling trait evolution along a phylogeny only consider a single trait. Therefore, in order to apply standard univariate comparative methods, some sort of reduction in dimensionality is necessary.
 
-\item A common procedure for reducing the dimensionality of a multi--trait dataset is to perform Principal Components Analysis (PCA) on the traits and then analyze each PC axis as a univariate character. Two alternative approaches are widely used to obtain PC scores for species: standard PCA and ``phylogenetically corrected'' PCA. 
+%\item A common procedure for reducing the dimensionality of a multi--trait dataset is to perform Principal Components Analysis (PCA) on the traits and then analyze each PC axis as a univariate character. Two alternative approaches are widely used to obtain PC scores for species: standard PCA and ``phylogenetically corrected'' PCA. 
 
-\item We demonstrate that failing to include phylogenetic relationships when calculating PC scores can positively mislead inferences. For example, when data are simulated under multivariate Brownian motion (BM), the first several PC scores will be biased toward rapid evolution early in a clade's history, with slowdowns in trait evolution toward the present day.
+%\item We demonstrate that failing to include phylogenetic relationships when calculating PC scores can positively mislead inferences. For example, when data are simulated under multivariate Brownian motion (BM), the first several PC scores will be biased toward rapid evolution early in a clade's history, with slowdowns in trait evolution toward the present day.
 
-\item When performing phylogenetic PCA (pPCA), it is usually assumed that the traits have evolved under a multivariate BM model. It is unknown whether this assumption is reasonable if the actual traits have evolved under more complex scenarios. Using simulations, we find that for many common models of evolution, calculating PC scores based on a BM model is a reasonable approximation for model selection, though predictable distortions in trait distributions occur across PC scores when the generating model is not BM.
+%\item When performing phylogenetic PCA (pPCA), it is usually assumed that the traits have evolved under a multivariate BM model. It is unknown whether this assumption is reasonable if the actual traits have evolved under more complex scenarios. Using simulations, we find that for many common models of evolution, calculating PC scores based on a BM model is a reasonable approximation for model selection, though predictable distortions in trait distributions occur across PC scores when the generating model is not BM.
 
-\item \emph{Synthesis:} We argue that using pPCA in macroevolutionary studies can confound the interpretability of the traits under study and divorce analyses from desired evolutionary inferences. While pPC axes may be statistically independent of one another and ranked by their relative contributions to overall variance, this should never be confused with evolutionary independence or evolutionary importance, respectively. Fully multivariate approaches for modeling multivariate data, or dimensionality-reducing methods that preserve interpretability, are likely to be more informative to biological inference. However, further statistical and conceptual innovations will be necessary for these to be more broadly applicable.
-\end{enumerate} 
+%\item \emph{Synthesis:} We argue that using pPCA in macroevolutionary studies can confound the interpretability of the traits under study and divorce analyses from desired evolutionary inferences. While pPC axes may be statistically independent of one another and ranked by their relative contributions to overall variance, this should never be confused with evolutionary independence or evolutionary importance, respectively. Fully multivariate approaches for modeling multivariate data, or dimensionality-reducing methods that preserve interpretability, are likely to be more informative to biological inference. However, further statistical and conceptual innovations will be necessary for these to be more broadly applicable.
+%\end{enumerate} 
 
 \newpage
 
-\section{Introduction}
-Quantitative geneticists long ago recognized the value and importance of studying evolution in a multivariate framework. Due to linkage, pleiotropy, coordinated selection and mutational covariance, the evolutionary response in any phenotypic trait can only be properly understood in the context of other traits. This fact is also of course well--recognized by comparative biologists. However, unlike in quantitative genetics, most of the statistical and conceptual tools for analyzing phylogenetic comparative data \citep[recently reviewed in][]{PennellHarmon} are designed for analyzing a single trait. Even classical approaches for testing for correlated evolution across a phylogeny \citep[e.g.,][]{Felsenstein1985, Grafen1989, HarveyPagel1991} model each trait as having evolved under a process that is independent of the state of the other \citep{HansenOrzack2005}. As a result of these limitations, it is often desirable to decompose a multivariate dataset into sets of statistically independent set of traits, such that each set can be analyzed with the univariate methods.
+\noindent Quantitative geneticists long ago recognized the value and importance of studying evolution in a multivariate framework. Due to linkage, pleiotropy, coordinated selection and mutational covariance, the evolutionary response in any phenotypic trait can only be properly understood in the context of other traits. This fact is also of course well--recognized by comparative biologists. However, unlike in quantitative genetics, most of the statistical and conceptual tools for analyzing phylogenetic comparative data \citep[recently reviewed in][]{PennellHarmon} are designed for analyzing a single trait. Even classical approaches for testing for correlated evolution across a phylogeny \citep[e.g.,][]{Felsenstein1985, Grafen1989, HarveyPagel1991} model each trait as having evolved under a process that is independent of the state of the other \citep{HansenOrzack2005}. As a result of these limitations, it is often desirable to decompose a multivariate dataset into sets of statistically independent set of traits, such that each set can be analyzed with the univariate methods.
 
 The most common method for reducing the dimensionality of the dataset is to perform Principal Components Analyses (PCA) prior to analyzing the data using phylogenetic comparative methods. The first PC axis is the eigenvector in the direction of greatest variance, the second PC axis, the second greatest variance, and so on. However, standard methods for calculating PC scores assume that the samples are independent of one another, which is hardly ever the case for comparative data. As a result of shared common ancestry, relatives are likely to share many traits and trait combinations. This fact is, of course, now almost universally recognized and conducting comparative analyses without considering the phylogenetic relationships of species is anathema to most evolutionary biologists.
 
@@ -190,10 +189,10 @@ We also hope that our paper provokes discussion about how we should go about ana
 
 \section{Acknowledgements}
 
-We would like to thank our advisor, Luke Harmon, for encouraging us to pursue this project and for providing insightful comments on the work and manuscript. We thank Chris Martin for providing us with the Cyprinodon dataset. MWP was supported by a NSERC postgraduate fellowship. 
+We would like to thank our advisor, Luke Harmon, for encouraging us to pursue this project and for providing insightful comments on the work and manuscript. We thank Chris Martin for providing us with the \emph{Cyprinodon} dataset. MWP was supported by a NSERC postgraduate fellowship. 
 
 \newpage
-\bibliographystyle{jecol}
+\bibliographystyle{sysbio}
 \bibliography{phylopca.bib}
 
 \begin{figure}[p]
