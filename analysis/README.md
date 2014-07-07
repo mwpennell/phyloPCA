@@ -68,13 +68,13 @@ Contains two files `plotting-helper.R` and `simulate-helper.R` which contain fun
 
 ### `/datasets`
 
-Contains the raw (unprocessed) `.nexus` and `.csv` files for the empirical datasets
+Contains the raw (unprocessed) .nexus and .csv files for the empirical datasets
 
 ### `/make` 
 
 Contains functions which are called by `make` to process the data and install the dependencies
 
-### `output`
+### `/output`
 
 Contains three subfolders:
 
@@ -82,7 +82,7 @@ Contains three subfolders:
 
 `/figs` the figures produced by `phylo-pc.R`
 
-`sim-res` the cached results from the simulations. These can be regenerated with `make sim-data`
+`/sim-res` the cached results from the simulations. These can be regenerated with `make sim-data`
  
 
 
