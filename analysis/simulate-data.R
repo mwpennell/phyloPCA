@@ -77,8 +77,13 @@ saveRDS(ebres, "output/sim-res/eb-uncor.rds")
 parsdf <- get.parsOU(oufits)
 saveRDS(parsdf, "output/sim-res/OU-param.rds")
 
-
-
+## Simulate ACDC model
+nsims=100
+ntraits=20
+ntips=50
+acdcdat <- lapply(1:nsims, function(x) sim.tree.pcs.ind.acdc(ntips, ntraits, asd=5, sig2=1, cor=TRUE))
+acdcres <- prepare.acdc(acdcdat)
+saveRDS(acdcres, "output/sim-res/acdc.rds")
 
 ## Rank simulations
 nsims <- 25

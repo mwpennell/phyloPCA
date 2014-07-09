@@ -198,3 +198,35 @@ get.meanAICws <- function(res){
   meanaicws <- meanaicws[,c(1,3,4,2)]
 }
 
+
+## Function for simulating uncorrelated ACDC data
+sim.tree.pcs.ind.acdc <- function(ntips, traits, asd, sig2, lambda=0.1, mu=0, cor=TRUE, ...){
+  tree <- pbtree(b=lambda, d=mu, n=ntips)
+  tree$edge.length <- tree$edge.length/max(branching.times(tree))
+  a <- rnorm(traits, 0, asd)
+  trees <- lapply(a, function(x) geiger:::rescale.phylo(tree, model="EB", x))
+  #outree <- rescale(tree,alpha=log(2),model="OU")
+  X <- sapply(1:traits, function(x) fastBM(trees[[x]],sig2=sig2, nsim=1))
+  if(cor){
+    pc <- princomp(X, cor=TRUE)
+    ppc <- phyl.pca(tree,X, mode="corr")
+  } else {
+    pc <- princomp(X)
+    ppc <- phyl.pca(tree,X)  
+  }
+  return(list(tree=tree, raw=X, pc=pc$scores, ppc=ppc$S, pcall=pc, ppcall=ppc, a=a))
+}
+
+## Prepare ACDC dataset for plotting
+prepare.acdc <- function(dat){
+  aLL <- lapply(dat, function(x) cbind(x$a, x$pcall$loadings, x$ppcall$L))
+  aLL.slopes <- lapply(aLL, function(x) sapply(2:ncol(x), function(y) lm(abs(x[,y]) ~ x[,1])$coeff[2]))
+  aLL.slopes <- do.call(rbind, aLL.slopes)
+  colnames(aLL.slopes) <- c(paste("PC", 1:20, sep=""), paste("PPC", 1:20, sep=""))
+  aLL <- do.call(rbind, aLL)
+  colnames(aLL) <- c("a", paste("PC", 1:20, sep=""), paste("PPC", 1:20, sep=""))
+  aLL <- as.data.frame(aLL)
+  aLL.melt <- melt(aLL, id.vars="a")
+  return(list(melt=aLL.melt, slopes=aLL.slopes))
+}
+

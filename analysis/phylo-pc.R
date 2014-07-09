@@ -109,6 +109,16 @@ ppca.ou <- subset(par.ou, variable == "ppc")
 fig.alpha.est(ppca.ou, col.pt=cols.gn[2], col.line=cols.line)
 
 
+
+## Effect of mixing different models - ACDC models with parameter drawn from normal distribution
+## Replace with better plotting function
+acdcres <- readRDS("output/sim-res/acdc.rds")
+
+par(mfrow=c(1,2))
+boxplot(acdcres$slopes[,1:20], xlab="PC", ylab="Slope of linear fit of absolute loadings ~ ACDC parameter")
+boxplot(acdcres$slopes[,21:40], xlab="PPC")
+
+
 ## ## Effect of dimensionality
 ## We conducted an additional set of simulations to investigate the effect of matrix dimensionality on the patterns we found in the other simulations
 
