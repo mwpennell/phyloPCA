@@ -152,7 +152,7 @@ fel.fit <- fitPCs(fel.dat, seq_len(ncol(fel$data)))
 ## Supplementary Figure 4 -- Model support across all PC and pPC axes
 fel.df <- build.emp.data.step(fel.fit)
 
-fig.aicw.empirical(fel.df, cols=c(cols.bl[2], cols.gn[2], cols.line))
+fig.aicw.empirical(fel.df)
 
 
 ## Felidae dataset is highly correlated: PC1 explains 96.9% of the variance with PCA
@@ -199,7 +199,7 @@ cyp.fit <- fitPCs(cyp.dat, seq_len(ncol(cyp$data)))
 ## Supplementary Figure 6 -- Model support across all PC and pPC axes
 cyp.df <- build.emp.data.step(cyp.fit)
 
-fig.aicw.empirical(cyp.df, cols=c(cols.bl[2], cols.gn[2], cols.line))
+fig.aicw.empirical(cyp.df)
 
 
 ## ### Node height test and Disparity through time
@@ -279,21 +279,3 @@ if (!interactive()){
     fig.nh.dtt.emp(cyp.all, cols.cyp)
     dev.off()
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

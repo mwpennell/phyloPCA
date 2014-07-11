@@ -1,0 +1,46 @@
+This is BibTeX, Version 0.99d (TeX Live 2012/Debian)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: phylopca-ms.aux
+The style file: jecol.bst
+Database file #1: phylopca.bib.bib
+You've used 71 entries,
+            2890 wiz_defined-function locations,
+            1049 strings with 17153 characters,
+and the built_in function-call counts, 55223 in all, are:
+= -- 4927
+> -- 2084
+< -- 2
++ -- 792
+- -- 703
+* -- 4585
+:= -- 8612
+add.period$ -- 146
+call.type$ -- 71
+change.case$ -- 544
+chr.to.int$ -- 71
+cite$ -- 71
+duplicate$ -- 4130
+empty$ -- 4407
+format.name$ -- 851
+if$ -- 10944
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 609
+newline$ -- 291
+num.names$ -- 286
+pop$ -- 1159
+preamble$ -- 1
+purify$ -- 475
+quote$ -- 0
+skip$ -- 979
+stack$ -- 0
+substring$ -- 4971
+swap$ -- 1553
+text.length$ -- 2
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 627
+warning$ -- 0
+while$ -- 473
+width$ -- 0
+write$ -- 855

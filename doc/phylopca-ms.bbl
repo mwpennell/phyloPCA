@@ -1,0 +1,391 @@
+\begin{thebibliography}{71}
+\providecommand{\natexlab}[1]{#1}
+
+\bibitem[{Adams(2014)}]{Adams2014}
+Adams, D.C. (2014) Quantifying and comparing phylogenetic evolutionary rates
+  for shape and other high-dimensional phenotypic data.
+\newblock \emph{Systematic Biology}, \textbf{63}, 166--177.
+
+\bibitem[{Arnold \emph{et~al.}(2008)Arnold, Bürger, Hohenlohe, Ajie \&
+  Jones}]{Arnoldetal2008}
+Arnold, S.J., Bürger, R., Hohenlohe, P.A., Ajie, B.C. \& Jones, A.G. (2008)
+  Understanding the evolution and stability of the {G}-matrix.
+\newblock \emph{Evolution}, \textbf{62}, 2451--2461.
+
+\bibitem[{Bartoszek \emph{et~al.}(2012)Bartoszek, Pienaar, Mostad, Andersson \&
+  Hansen}]{Bartoszek2012}
+Bartoszek, K., Pienaar, J., Mostad, P., Andersson, S. \& Hansen, T.F. (2012) A
+  phylogenetic comparative method for studying multivariate adaptation.
+\newblock \emph{Journal of Theoretical Biology}, \textbf{314}, 204--215.
+
+\bibitem[{Bergmann \& Irschick(2012)}]{BergmannIrshick2012}
+Bergmann, P.J. \& Irschick, D.J. (2012) Vertebral evolution and the
+  diversification of squamate reptiles.
+\newblock \emph{Evolution}, \textbf{66}, 1044--1058.
+
+\bibitem[{Blomberg, Garland \& Ives(2003)}]{Blomberg2003}
+Blomberg, S.P., Garland, T. \& Ives, A.R. (2003) Testing for phylogenetic
+  signal in comparative data: Behavioral traits are more labile.
+\newblock \emph{Evolution}, \textbf{57}, 717--745.
+
+\bibitem[{Bookstein(1997)}]{Bookstein1997}
+Bookstein, F.L. (1997) \emph{Morphometric Tools for Landmark Data: Geometry and
+  Biology.}
+\newblock Cambridge University Press.
+
+\bibitem[{Bookstein(2012)}]{Bookstein2012}
+Bookstein, F.L. (2012) Random walk as a null model for high-dimensional
+  morphometrics of fossil series: geometrical considerations.
+\newblock \emph{Paleobiology}, \textbf{39}, 52--74.
+
+\bibitem[{Butler \& King(2004)}]{ButlerKing2004}
+Butler, M.A. \& King, A.A. (2004) Phylogenetic comparative analysis: A modeling
+  approach for adaptive evolution.
+\newblock \emph{The American Naturalist}, \textbf{164}, 683--695.
+
+\bibitem[{Cadima \& Jolliffe(2001)}]{Cadima2001}
+Cadima, J.F. \& Jolliffe, I.T. (2001) Variable selection and the interpretation
+  of principal subspaces.
+\newblock \emph{Journal of Agricultural, Biological, and Environmental
+  Statistics}, \textbf{6}, 62--79.
+
+\bibitem[{Cavalli-Sforza, Menozzi \& Piazza(1994)}]{Cavalli}
+Cavalli-Sforza, L.L., Menozzi, P. \& Piazza, A. (1994) \emph{The History and
+  Geography of Human Genes}.
+\newblock Princeton University Press.
+
+\bibitem[{Dornburg \emph{et~al.}(2011)Dornburg, Sidlauskas, Santini, Sorenson,
+  Near \& Alfaro}]{Dornburg2011}
+Dornburg, A., Sidlauskas, B., Santini, F., Sorenson, L., Near, T.J. \& Alfaro,
+  M.E. (2011) The influence of an innovative locomotor strategy on the
+  phenotypic diversification of triggerfish (family: Ballistidae).
+\newblock \emph{Evolution}, \textbf{65}, 1912--1926.
+
+\bibitem[{Edwards \& Cavalli-Sforza(1964)}]{Edwards1964}
+Edwards, A.W.F. \& Cavalli-Sforza, L.L. (1964) Reconstruction of evolutionary
+  trees.
+\newblock W.~Heywood \& J.~McNeill, eds., \emph{Phenetic and phylogenetic
+  classification}, pp. 67--76. Systematics Association, London.
+
+\bibitem[{Estes \& Arnold(2007)}]{EstesArnold2007}
+Estes, S. \& Arnold, S.J. (2007) Resolving the paradox of stasis: Models with
+  stabilizing selection explain evolutionary divergence on all timescales.
+\newblock \emph{The American Naturalist}, \textbf{169}, 227--244.
+
+\bibitem[{Felsenstein(1985)}]{Felsenstein1985}
+Felsenstein, J. (1985) Phylogenies and the comparative method.
+\newblock \emph{The American Naturalist}, \textbf{125}, 1--15.
+
+\bibitem[{Freckleton \& Harvey(2006)}]{FreckletonHarvey2006}
+Freckleton, R.P. \& Harvey, P.H. (2006) Detecting non-brownian trait evolution
+  in adaptive radiations.
+\newblock \emph{PLoS Biol}, \textbf{4}, e373.
+
+\bibitem[{Grafen(1989)}]{Grafen1989}
+Grafen, A. (1989) The phylogenetic regression.
+\newblock \emph{Philosophical Transactions of the Royal Society of London
+  Series B, Biological Sciences}, \textbf{326}, 119--157.
+
+\bibitem[{Guillaume \& Whitlock(2007)}]{Guillaume2007}
+Guillaume, F. \& Whitlock, M.C. (2007) Effects of migration on the genetic
+  covariance matrix.
+\newblock \emph{Evolution}, \textbf{61}, 2398--2409.
+
+\bibitem[{Hansen \& Houle(2008)}]{HansenHoule2008}
+Hansen, T.F. \& Houle, D. (2008) Measuring and comparing evolvability and
+  constraint in multivariate characters.
+\newblock \emph{Journal of Evolutionary Biology}, \textbf{21}, 1201--1219.
+
+\bibitem[{Hansen(1997)}]{Hansen1997}
+Hansen, T.F. (1997) Stabilizing selection and the comparative analysis of
+  adaptation.
+\newblock \emph{Evolution}, \textbf{51}, 1341--1351.
+
+\bibitem[{Hansen \& Bartoszek(2012)}]{Hansen2012SysBio}
+Hansen, T.F. \& Bartoszek, K. (2012) Interpreting the evolutionary regression:
+  The interplay between observational and biological errors in phylogenetic
+  comparative studies.
+\newblock \emph{Systematic Biology}, \textbf{61}, 413--425.
+
+\bibitem[{Hansen \& Martins(1996)}]{HansenMartins1996}
+Hansen, T.F. \& Martins, E.P. (1996) Translating between microevolutionary
+  process and macroevolutionary patterns: The correlation structure of
+  interspecific data.
+\newblock \emph{Evolution}, \textbf{50}, 1404--1417.
+
+\bibitem[{Hansen \& Orzack(2005)}]{HansenOrzack2005}
+Hansen, T.F. \& Orzack, S.H. (2005) Assessing current adaptation and
+  phylogenetic inertia as explanations of trait evolution: the need for
+  controlled comparisons.
+\newblock \emph{Evolution}, \textbf{59}, 2063--2072.
+
+\bibitem[{Hansen, Pienaar \& Orzack(2008)}]{Hansen2008}
+Hansen, T.F., Pienaar, J. \& Orzack, S.H. (2008) A comparative method for
+  stuyding adaptation to a randomly evolving environment.
+\newblock \emph{Evolution}, \textbf{62}, 1965--1977.
+
+\bibitem[{Harmon \emph{et~al.}(2010)Harmon, Losos, Jonathan~Davies, Gillespie,
+  Gittleman, Bryan~Jennings, Kozak, McPeek, Moreno-Roark, Near, Purvis,
+  Ricklefs, Schluter, Schulte~II, Seehausen, Sidlauskas, Torres-Carvajal, Weir
+  \& Mooers}]{Harmon2010}
+Harmon, L.J., Losos, J.B., Jonathan~Davies, T., Gillespie, R.G., Gittleman,
+  J.L., Bryan~Jennings, W., Kozak, K.H., McPeek, M.A., Moreno-Roark, F., Near,
+  T.J., Purvis, A., Ricklefs, R.E., Schluter, D., Schulte~II, J.A., Seehausen,
+  O., Sidlauskas, B.L., Torres-Carvajal, O., Weir, J.T. \& Mooers, A.{\O}.
+  (2010) Early bursts of body size and shape evolution are rare in comparative
+  data.
+\newblock \emph{Evolution}, \textbf{64}, 2385--2396.
+
+\bibitem[{Harmon \emph{et~al.}(2003)Harmon, Schulte, Larson \&
+  Losos}]{Harmon2003}
+Harmon, L.J., Schulte, J.A., Larson, A. \& Losos, J.B. (2003) Tempo and mode of
+  evolutionary radiation in iguanian lizards.
+\newblock \emph{Science}, \textbf{301}, 961--964.
+
+\bibitem[{Harvey \& Pagel(1991)}]{HarveyPagel1991}
+Harvey, P.H. \& Pagel, M.D. (1991) \emph{The comparative method in evolutionary
+  biology}.
+\newblock Oxford University Press.
+
+\bibitem[{Hausman(1982)}]{Hausman1982}
+Hausman, R. (1982) Constrained multivariate analysis.
+\newblock \emph{Optimisation in Statistics}, pp. 137--151.
+
+\bibitem[{Hether \& Hohenlohe(2014)}]{Hether2013}
+Hether, T.D. \& Hohenlohe, P.A. (2014) Genetic regulatory network motifs
+  constrain adaptation through curvature in the landscape of mutational
+  (co)variance.
+\newblock \emph{Evolution}, \textbf{68}, 950--964.
+
+\bibitem[{Ho \& An{\'e}(2014)}]{HoandAne2014}
+Ho, L.S.T. \& An{\'e}, C. (2014) A linear-time algorithm for gaussian and
+  non-gaussian trait evolution models.
+\newblock \emph{Systematic biology}, \textbf{63}, 397--408.
+
+\bibitem[{Hohenlohe \& Arnold(2008)}]{Hohenlohe2008}
+Hohenlohe, P.A. \& Arnold, S.J. (2008) Mipod: A hypothesis‐testing framework
+  for microevolutionary inference from patterns of divergence.
+\newblock \emph{The American Naturalist}, \textbf{171}, 366--385.
+
+\bibitem[{Hunt(2012)}]{Hunt2012}
+Hunt, G. (2012) Measuring rates of phenotypic evolution and the inseparability
+  of tempo and mode.
+\newblock \emph{Paleobiology}, \textbf{38}, 351--373.
+
+\bibitem[{Hunt(2013)}]{Hunt2013}
+Hunt, G. (2013) Testing the link between phenotypic evolution and speciation:
+  an integrated palaeontological and phylogenetic analysis.
+\newblock \emph{Methods in Ecology and Evolution}, \textbf{4}, 714--723.
+
+\bibitem[{Jolliffe(2002)}]{Jolliffe2002}
+Jolliffe, I. (2002) \emph{Principal component analysis}.
+\newblock Springer.
+
+\bibitem[{Jones, Arnold \& B\"{u}rger(2007)}]{Jonesetal2007}
+Jones, A.G., Arnold, S.J. \& B\"{u}rger, R. (2007) The mutation matrix and the
+  evolution of evolvability.
+\newblock \emph{Evolution}, \textbf{61}, 727--745.
+
+\bibitem[{Klingenberg \& Marug\'{a}n-Lob\'{o}n(2013)}]{Klingenberg2013}
+Klingenberg, C.P. \& Marug\'{a}n-Lob\'{o}n, J. (2013) Evolutionary covariation
+  in geometric morphometric data: Analyzing integration, modularity, and
+  allometry in a phylogenetic context.
+\newblock \emph{Systematic Biology}, \textbf{62}, 591--610.
+
+\bibitem[{Kozak \& Wiens(2010)}]{KozakWiens2010}
+Kozak, K.H. \& Wiens, J.J. (2010) Accelerated rates of climatic-niche evolution
+  underlie rapid species diversification.
+\newblock \emph{Ecology Letters}, \textbf{13}, 1378--1389.
+
+\bibitem[{Martin \& Wainwright(2011)}]{Martin2011}
+Martin, C.H. \& Wainwright, P.C. (2011) Trophic novelty is linked to
+  exceptional rates of morphological diversification in two adaptive radiations
+  of cyprinodon pupfish.
+\newblock \emph{Evolution}, \textbf{65}, 2197--2212.
+
+\bibitem[{Novembre \& Stephens(2008)}]{Novembre}
+Novembre, J. \& Stephens, M. (2008) Interpreting principal componenet analyses
+  of spatial population genetic variation.
+\newblock \emph{Nature Genetics}, \textbf{40}, 646--649.
+
+\bibitem[{Nyakatura \& Bininda-Emonds(2012)}]{Nyakatura_2012}
+Nyakatura, K. \& Bininda-Emonds, O.R. (2012) Updating the evolutionary history
+  of carnivora (mammalia): a new species-level supertree complete with
+  divergence time estimates.
+\newblock \emph{{BMC} biology}, \textbf{10}, 12.
+
+\bibitem[{Pagel(1997)}]{Pagel1997}
+Pagel, M. (1997) Inferring evolutionary processes from phylogenies.
+\newblock \emph{Zoologica Scripta}, \textbf{26}, 331--348.
+
+\bibitem[{Pagel(1999)}]{Pagel1999}
+Pagel, M. (1999) Inferring the historical patterns of biological evolution.
+\newblock \emph{Nature}, \textbf{401}, 877--884.
+
+\bibitem[{Pennell \emph{et~al.}(in press)Pennell, Eastman, Slater, Brown,
+  Uyeda, FitzJohn, Alfaro \& Harmon}]{geiger2}
+Pennell, M.W., Eastman, J.M., Slater, G.J., Brown, J.W., Uyeda, J.C., FitzJohn,
+  R.G., Alfaro, M.E. \& Harmon, L.J. (in press) geiger v2.0: an expanded suite
+  of methods for fitting macroevolutionary models to phylogenetic trees.
+\newblock \emph{Bioinformatics}.
+\newblock DOI: 10.1093/bioinformatics/btu181.
+
+\bibitem[{Pennell \emph{et~al.}(2014)Pennell, FitzJohn, Cornwell \&
+  Harmon}]{Pennell-adequacy}
+Pennell, M.W., FitzJohn, R.G., Cornwell, W.K. \& Harmon, L.J. (2014) Model
+  adequacy and the macroevolution of angiosperm functional traits.
+\newblock \emph{BioRxiv}. DOI: http://dx.doi.org/10.1101/004002.
+
+\bibitem[{Pennell \& Harmon(2013)}]{PennellHarmon}
+Pennell, M.W. \& Harmon, L.J. (2013) An integrative view of phylogenetic
+  comparative methods: connections to population genetics, community ecology,
+  and paleobiology.
+\newblock \emph{Annals of the New York Academy of Sciences}, \textbf{1289},
+  90--105.
+
+\bibitem[{Pennell, Harmon \& Uyeda(2014)}]{PennellPE}
+Pennell, M.W., Harmon, L.J. \& Uyeda, J.C. (2014) Is there room for punctuated
+  equilibrium in macroevolution?
+\newblock \emph{Trends in Ecology \& Evolution}, \textbf{29}, 23--32.
+
+\bibitem[{Pennell, Sarver \& Harmon(2012)}]{Pennell2012}
+Pennell, M.W., Sarver, B.A.J. \& Harmon, L.J. (2012) Trees of unusual size:
+  Biased inference of early bursts from large molecular phylogenies.
+\newblock \emph{PLoS ONE}, \textbf{7}, e43348.
+
+\bibitem[{Pienaar \emph{et~al.}(2013)Pienaar, Ilany, Geffen \&
+  Yom-Tov}]{Pienaar2013}
+Pienaar, J., Ilany, A., Geffen, E. \& Yom-Tov, Y. (2013) Macroevolution of
+  life-history traits in passerine birds: adaptation and phylogenetic inertia.
+\newblock \emph{Ecology Letters}, \textbf{16}, 571--576.
+
+\bibitem[{Podani \& Mikl\'{o}s(2002)}]{Podani2002}
+Podani, J. \& Mikl\'{o}s, I. (2002) Resemblance coefficients and the horseshoe
+  effect in pricipal coordinates analysis.
+\newblock \emph{Ecology}, \textbf{83}, 3331--3343.
+
+\bibitem[{Polly \emph{et~al.}(2013)Polly, Lawing, Fabre \& Goswami}]{Polly2013}
+Polly, D.P., Lawing, A.M., Fabre, A. \& Goswami, A. (2013) Phylogenetic
+  prinicpal components analysis and geometric morphometrics.
+\newblock \emph{Hystrix}, \textbf{24}, 33--41.
+
+\bibitem[{Price \emph{et~al.}(2014)Price, Hooper, Buchanan, Johansson, Tietze,
+  Alstr\"{o}m, Olsson, Ghosh-Harihar, Ishtiaq, Gupta, Harr, Singh \&
+  Mohan}]{Price2014}
+Price, T.D., Hooper, D.M., Buchanan, C.D., Johansson, U.S., Tietze, D.T.,
+  Alstr\"{o}m, P., Olsson, U., Ghosh-Harihar, M., Ishtiaq, F., Gupta, Martens,
+  J., Harr, B., Singh, P. \& Mohan, D. (2014) Niche filling slows the
+  diversification of himalayan songbirds.
+\newblock \emph{Nature}.
+\newblock DOI:10.1038/nature13272.
+
+\bibitem[{{R Development Core Team}(2013)}]{R}
+{R Development Core Team} (2013) \emph{R: A Language and Environment for
+  Statistical Computing}.
+\newblock R Foundation for Statistical Computing, Vienna, Austria.
+\newblock {ISBN} 3-900051-07-0.
+
+\bibitem[{Revell(2009)}]{Revell2008}
+Revell, L.J. (2009) Size-correction and principal components for interspecific
+  comparative studies.
+\newblock \emph{Evolution}, \textbf{63}, 3258--3268.
+
+\bibitem[{Revell(2012)}]{phytools}
+Revell, L.J. (2012) phytools: an r package for phylogenetic comparative biology
+  (and other things).
+\newblock \emph{Methods in Ecology and Evolution}, \textbf{3}, 217--223.
+
+\bibitem[{Revell \& Collar(2009)}]{RevellCollar2009}
+Revell, L.J. \& Collar, D.C. (2009) Phylogenetic analysis of the evolutionary
+  correlation using likelihood.
+\newblock \emph{Evolution}, \textbf{64}, 1090--1100.
+
+\bibitem[{Revell \& Harmon(2008)}]{RevellHarmon2008}
+Revell, L.J. \& Harmon, L.J. (2008) Testing quantitative genetic hypotheses
+  about the evolutionary rate matrix for continuous characters.
+\newblock \emph{Evolutionary Ecology Research}, \textbf{10}, 311--331.
+
+\bibitem[{Richman(1986)}]{Richman1986}
+Richman, M.B. (1986) Rotation of principal components.
+\newblock \emph{Journal of Climatology}, \textbf{6}, 293--335.
+
+\bibitem[{Rohlf \& Slice(1990)}]{RohlfSlice}
+Rohlf, F.J. \& Slice, D. (1990) Extensions of the procrustes method for the
+  optimal superimposition of landmarks.
+\newblock \emph{Systematic Zoology}, \textbf{39}, 40--59.
+
+\bibitem[{Sakamoto, Lloyd \& Benton(2010)}]{sakamoto_2010}
+Sakamoto, M., Lloyd, G.T. \& Benton, M.J. (2010) Phylogenetically structured
+  variance in felid bite force: the role of phylogeny in the evolution of
+  biting performance.
+\newblock \emph{Journal of Evolutionary Biology}, \textbf{23}, 463--478.
+
+\bibitem[{Schluter(1996)}]{Schluter1996}
+Schluter, D. (1996) Adaptive radiation along genetic lines of least resistance.
+\newblock \emph{Evolution}, \textbf{50}, 1766--1774.
+
+\bibitem[{Schnitzler \emph{et~al.}(2012)Schnitzler, Graham, Dormann, Schiffers
+  \& Peter~Linder}]{Schnitzler2012}
+Schnitzler, J., Graham, C.H., Dormann, C.F., Schiffers, K. \& Peter~Linder, H.
+  (2012) Climatic niche evolution and species diversification in the cape
+  flora, south africa.
+\newblock \emph{Journal of Biogeography}, \textbf{39}, 2201--2211.
+
+\bibitem[{Sidlauskas(2008)}]{Sidlauskas2008}
+Sidlauskas, B. (2008) Continuous and arrested morphological diversification in
+  sister clades of characiform fishes: a phylomorphospace approach.
+\newblock \emph{Evolution}, \textbf{62}, 3135--3156.
+
+\bibitem[{Slater \& Van~Valkenburgh(2009)}]{slater_2009}
+Slater, G.J. \& Van~Valkenburgh, B. (2009) Allometry and performance: the
+  evolution of skull form and function in felids.
+\newblock \emph{Journal of Evolutionary Biology}, \textbf{22}, 2278--2287.
+
+\bibitem[{Slater \& Pennell(2014)}]{SlaterPennell}
+Slater, G.J. \& Pennell, M.W. (2014) Robust regression and posterior predictive
+  simulation increase power to detect early bursts of trait evolution.
+\newblock \emph{Systematic Biology}, \textbf{63}, 293--308.
+
+\bibitem[{Somers(1986)}]{Somers1986}
+Somers, K.M. (1986) Multivariate allometry and removal of size with principal
+  components analysis.
+\newblock \emph{Systematic Biology}, \textbf{35}, 359--368.
+
+\bibitem[{Somers(1989)}]{Somers1989}
+Somers, K.M. (1989) Allometry, isometry and shape in principal components
+  analysis.
+\newblock \emph{Systematic Biology}, \textbf{38}, 169--173.
+
+\bibitem[{Stadler(2011)}]{treesim}
+Stadler, T. (2011) Simulating trees with a fixed number of extant species.
+\newblock \emph{Systematic Biology}, \textbf{60}, 676--684.
+
+\bibitem[{Thomas \& Freckleton(2012)}]{motmot}
+Thomas, G.H. \& Freckleton, R.P. (2012) Motmot: models of trait macroevolution
+  on trees.
+\newblock \emph{Methods in Ecology and Evolution}, \textbf{3}, 145--151.
+
+\bibitem[{Vines(2000)}]{Vines2000}
+Vines, S. (2000) Simple principal components.
+\newblock \emph{Journal of the Royal Statistical Society: Series C (Applied
+  Statistics)}, \textbf{49}, 441--451.
+
+\bibitem[{Voje \emph{et~al.}(2013)Voje, Mazzarella, Hansen, \O{}stbye,
+  Klepaker, Bass, Herland, B\ae{}rum, Gregersen \& V\o{}llestad}]{Voje2013}
+Voje, K.L., Mazzarella, A.B., Hansen, T.F., \O{}stbye, K., Klepaker, T., Bass,
+  A., Herland, A., B\ae{}rum, K.M., Gregersen, F. \& V\o{}llestad, L.A. (2013)
+  Adaptation and constraint in a stickleback radiation.
+\newblock \emph{Journal of Evolutionary Biology}, \textbf{26}, 2396--2414.
+
+\bibitem[{Weir \& Mursleen(2013)}]{Weir2012}
+Weir, J.T. \& Mursleen, S. (2013) Diversity-dependent cladogenesis and trait
+  evolution in the adaptive radiation of the auks (aves: Alcidae).
+\newblock \emph{Evolution}, \textbf{67}, 403--416.
+
+\bibitem[{Zou, Hastie \& Tibshirani(2006)}]{Zou2006}
+Zou, H., Hastie, T. \& Tibshirani, R. (2006) Sparse principal component
+  analysis.
+\newblock \emph{Journal of computational and graphical statistics},
+  \textbf{15}, 265--286.
+
+\end{thebibliography}

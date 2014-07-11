@@ -125,36 +125,23 @@ build.emp.data.step <- function(x){
 
 
 ## Function for making plots of model suppport for the empirical datasets
-fig.aicw.empirical <- function(x,cols){
-
-    ll <- length(x$m.raw)
-    par(mar=c(5,4,2,2))
-    plot(x$m.pca, type="s", lwd=1.5, las=1, xlab="PC axis", ylab="",
-     col=cols[1], ylim=c(-1,1), axes=FALSE)
-    ## add additional line edge to last point
-    segments(ll, x$m.pca[ll], ll+1, x$m.pca[20], col=cols[1], lwd=1.5)
-    lines(x$q1.pca, lwd=1, type="s", col=alpha(cols[1], 0.5))
-
-    lines(x$m.ppc, type="s", col=cols[2], lwd=1.5)
-    ## add additional line edge to last point
-    segments(ll, x$m.ppc[ll], ll+1, x$m.ppc[20], col=cols[2], lwd=1.5)
- 
-    abline(h=mean(x$m.raw), lwd=1.5, col=cols[3])
-    axis(side=1, at=c(1:20))
-    axis(side=2, at=c(-1, 1), labels=c("",""), las=1)
-    legend("bottomright", c("PCA", "Phylogenetic PCA"),
-       lwd=1.5, col=cols[1:2], bty="n", cex=1)
-    parsave <- par(new=TRUE, mar=c(0,0,0,0))
-    plot(NA, xlim=c(0,1), ylim=c(0,1), type="n", xlab="", ylab="", col="white")
-    arrows(0.01, 0.65, 0.01, 0.9, length=0.1)
-    arrows(0.01, 0.45, 0.01, 0.2, length=0.1)
-    text(-0.01, 0.55, "BM", srt=90)
-    text(-0.01, 0.775, "Support for OU", srt=90)
-    text(-0.01, 0.325, "Support for EB", srt=90)
+fig.aicw.empirical <- function(df){
+  .e <- environment()
+  p <- q <- ggplot(df, aes(trait, value, fill=type), environment = .e)
+  p <- p +  geom_bar(data=df, stat="identity", position="stack")
+  p <- p + scale_y_continuous(name="AICw")
+  p <- p + scale_fill_manual(values=col[c(6,21,12)], name="Model")
+  p <- p + facet_grid(.~variable)
+  p <- p + theme_bw()
+  p <- p + theme(strip.background=element_rect(fill="white"),
+                 plot.background=element_blank(),
+                 panel.grid.major=element_blank(),
+                 panel.grid.minor=element_blank(),
+                 axis.text.x=element_blank(),
+                 axis.ticks.x=element_blank())
+  p <- p + xlab("Trait/PC axis")
+  p  
 }
-
-
-
 
 
 
