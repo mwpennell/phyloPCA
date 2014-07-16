@@ -150,10 +150,9 @@ fel.dat <- list(tree=fel$phy, raw=fel$data, pc=fel.pca$scores, ppc=fel.ppca$S,
 fel.fit <- fitPCs(fel.dat, seq_len(ncol(fel$data)))
 
 ## Supplementary Figure 4 -- Model support across all PC and pPC axes
-fel.df <- build.emp.data.step(fel.fit)
+fel.df <- build.emp.data.stack(fel.fit)
 
 fig.aicw.empirical(fel.df)
-
 
 ## Felidae dataset is highly correlated: PC1 explains 96.9% of the variance with PCA
 round((fel.pca$sdev^2)[1] / sum(fel.pca$sdev^2), digits=3)
@@ -161,22 +160,44 @@ round((fel.pca$sdev^2)[1] / sum(fel.pca$sdev^2), digits=3)
 round(diag(fel.ppca$Eval)[1] / sum(diag(fel.ppca$Eval)), digits=3)
 
 
+## ## Anolis (Mahler et al. 2010)
+anoles <- readRDS("output/data/anoles.rds")
+
+## Compute principal components using the correlation approach as units of measurement differ between traits
+anoles.pca <- princomp(anoles$dat, cor=TRUE)
+anoles.ppca <- phyl.pca(anoles$phy, anoles$dat, mode="corr")
+
+## Prepare dataset for model fitting
+anoles.dat <- list(tree=anoles$phy, raw=anoles$dat, pc=anoles.pca$scores, ppc=anoles.ppca$S,
+                   pcall=anoles.pca, ppcall=anoles.ppca)
+
+## ### Fit models and compute AICw across all traits
+anoles.fit <- fitPCs(anoles.dat, seq_len(ncol(anoles$dat)))
+
+## Supplementary Figure 4 -- Model support across all PC and pPC axes
+anoles.df <- build.emp.data.stack(anoles.fit)
+
+fig.aicw.empirical(anoles.df)
+
+## Anolis dataset is also highly correlated: PC1 explains 92.6% of the variance with PCA
+round((anoles.pca$sdev^2)[1] / sum(anoles.pca$sdev^2), digits=3)
+## and 90.0% of the variance with pPCA
+round(diag(anoles.ppca$Eval)[1] / sum(diag(anoles.ppca$Eval)), digits=3)
 
 ## ### Node height test and Disparity through time
 ## add dummy variables to use functions built for simulation
 nsims <- 1
-ntraits <- ncol(fel$data)
-fel.cont <- get.contrasts(list(fel.dat), "contrasts")
-fel.disp <- get.dtt(list(fel.dat), "disparity")
+ntraits <- ncol(anoles$dat)
+anoles.cont <- get.contrasts(list(anoles.dat), "contrasts")
+anoles.disp <- get.dtt(list(anoles.dat), "disparity")
 
 ## Prepare data for plotting
-fel.cont <- fel.cont[,which(colnames(fel.cont) != "rep")]
-fel.all <- rbind(fel.cont, fel.disp)
-cols.fel <- c(cols.bl[1:ntraits], cols.gn[1:ntraits], cols.line)
+anoles.cont <- anoles.cont[,which(colnames(anoles.cont) != "rep")]
+anoles.all <- rbind(anoles.cont, anoles.disp)
+cols.anoles <- c(cols.bl[1:ntraits], cols.gn[1:ntraits], cols.line)
 
-## Supplementary Figure 5 -- Felidae contrasts and dtt
-fig.nh.dtt.emp(fel.all, cols.fel)
-
+## Supplementary Figure 5 -- anolesidae contrasts and dtt
+fig.nh.dtt.emp(anoles.all, cols.anoles)
 
 
 ## ## Cyprinodon
@@ -277,5 +298,21 @@ if (!interactive()){
 
     pdf("output/figs/cypri_nh-dtt.pdf", height=7, width=9)
     fig.nh.dtt.emp(cyp.all, cols.cyp)
+    dev.off()
+    
+    pdf("output/figs/acdc_slopes.pdf", height=7, width=9)
+    par(mfrow=c(1,2))
+    boxplot(acdcres$slopes[,1:20], xlab="PC", ylab="Slope of linear fit of absolute loadings ~ ACDC parameter")
+    abline(h=0, lty=2)
+    boxplot(acdcres$slopes[,21:40], xlab="PPC")
+    abline(h=0, lty=2)
+    dev.off()
+      
+    pdf("output/figs/anoles_aicw.pdf", height=7, width=9)
+    fig.aicw.empirical(anoles.df)
+    dev.off()
+    
+    pdf("output/figs/anoles_nh-dtt.pdf", height=7, width=9)
+    fig.nh.dtt.emp(anoles.all, cols.anoles)
     dev.off()
 }

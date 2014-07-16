@@ -42,6 +42,9 @@ build.sim.data.step <- function(x){
 }
 
 
+
+
+
 ## Function for making plots of model suppport
 fig.aicw <- function(x,cols){
 
@@ -123,14 +126,28 @@ build.emp.data.step <- function(x){
 
 }
 
+## Function for building table for AICw figures for empirical data
+build.emp.data.stack <- function(x){
+  x$trait <- as.character(x$trait)
+  df <- melt(x)
+  ids <- apply(do.call(rbind, strsplit(as.character(df[,2]), "_")), 2, factor)
+  ids[ids[,2]=="OUfixedRoot",2] <- "OU"
+  df <- data.frame(df[,1], ids, df[,3])
+  colnames(df) <- c("trait", "variable", "type", "value")
+  df[,1] <- factor(df[,1], levels = paste("trait", 1:length(unique(df[,1])), sep=""))
+  return(df)
+}
 
 ## Function for making plots of model suppport for the empirical datasets
 fig.aicw.empirical <- function(df){
   .e <- environment()
+  df$variable <- as.character(df$variable)
+  df$variable[df$variable=="pc"] <- "PCA"; df$variable[df$variable=="ppc"] <- "Phylogenetic PCA"; df$variable[df$variable=="raw"] <- "Original Data"
+  df$variable <- factor(df$variable, levels=c("Original Data", "PCA", "phylogenetic PCA"))
   p <- q <- ggplot(df, aes(trait, value, fill=type), environment = .e)
   p <- p +  geom_bar(data=df, stat="identity", position="stack")
   p <- p + scale_y_continuous(name="AICw")
-  p <- p + scale_fill_manual(values=col[c(6,21,12)], name="Model")
+  #p <- p + scale_fill_manual(values=col[c(6,21,12)], name="Model")
   p <- p + facet_grid(.~variable)
   p <- p + theme_bw()
   p <- p + theme(strip.background=element_rect(fill="white"),
