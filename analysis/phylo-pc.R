@@ -156,6 +156,21 @@ round((fel.pca$sdev^2)[1] / sum(fel.pca$sdev^2), digits=3)
 ## and 93.7% of the variance with pPCA
 round(diag(fel.ppca$Eval)[1] / sum(diag(fel.ppca$Eval)), digits=3)
 
+## ### Node height test and Disparity through time
+## add dummy variables to use functions built for simulation
+nsims <- 1
+ntraits <- ncol(fel$dat)
+fel.cont <- get.contrasts(list(fel.dat), "contrasts")
+fel.disp <- get.dtt(list(fel.dat), "disparity")
+
+## Prepare data for plotting
+fel.cont <- fel.cont[,which(colnames(fel.cont) != "rep")]
+fel.all <- rbind(fel.cont, fel.disp)
+cols.fel <- c(cols.bl[1:ntraits], cols.gn[1:ntraits], cols.line)
+
+## Supplementary Figure 5 -- felidae contrasts and dtt
+fig.nh.dtt.emp(fel.all, cols.fel)
+
 
 ## ## Anolis (Mahler et al. 2010)
 anoles <- readRDS("output/data/anoles.rds")
@@ -193,7 +208,7 @@ anoles.cont <- anoles.cont[,which(colnames(anoles.cont) != "rep")]
 anoles.all <- rbind(anoles.cont, anoles.disp)
 cols.anoles <- c(cols.bl[1:ntraits], cols.gn[1:ntraits], cols.line)
 
-## Supplementary Figure 5 -- anolesidae contrasts and dtt
+## Supplementary Figure 5 -- anoles contrasts and dtt
 fig.nh.dtt.emp(anoles.all, cols.anoles)
 
 
