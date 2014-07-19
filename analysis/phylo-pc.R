@@ -114,10 +114,7 @@ fig.alpha.est(ppca.ou, col.pt=cols.gn[2], col.line=cols.line)
 ## Replace with better plotting function
 acdcres <- readRDS("output/sim-res/acdc.rds")
 
-par(mfrow=c(1,2))
-boxplot(acdcres$slopes[,1:20], xlab="PC", ylab="Slope of linear fit of absolute loadings ~ ACDC parameter")
-boxplot(acdcres$slopes[,21:40], xlab="PPC")
-
+fig.acdc(acdcres, cols.aic)
 
 ## ## Effect of dimensionality
 ## We conducted an additional set of simulations to investigate the effect of matrix dimensionality on the patterns we found in the other simulations
@@ -152,7 +149,7 @@ fel.fit <- fitPCs(fel.dat, seq_len(ncol(fel$data)))
 ## Supplementary Figure 4 -- Model support across all PC and pPC axes
 fel.df <- build.emp.data.stack(fel.fit)
 
-fig.aicw.empirical(fel.df)
+fig.aicw.empirical(fel.df, cols.aic[c(1,3,2)])
 
 ## Felidae dataset is highly correlated: PC1 explains 96.9% of the variance with PCA
 round((fel.pca$sdev^2)[1] / sum(fel.pca$sdev^2), digits=3)
@@ -177,7 +174,7 @@ anoles.fit <- fitPCs(anoles.dat, seq_len(ncol(anoles$dat)))
 ## Supplementary Figure 4 -- Model support across all PC and pPC axes
 anoles.df <- build.emp.data.stack(anoles.fit)
 
-fig.aicw.empirical(anoles.df)
+fig.aicw.empirical(anoles.df, cols.aic[c(1,3,2)])
 
 ## Anolis dataset is also highly correlated: PC1 explains 92.6% of the variance with PCA
 round((anoles.pca$sdev^2)[1] / sum(anoles.pca$sdev^2), digits=3)
@@ -202,44 +199,44 @@ fig.nh.dtt.emp(anoles.all, cols.anoles)
 
 ## ## Cyprinodon
 ## Read in data
-cyp <- readRDS("output/data/cyprinodon.rds")
+#cyp <- readRDS("output/data/cyprinodon.rds")
 
 ## Compute principal components using the correlation approach as units of measurement differ between traits
-cyp.pca <- princomp(cyp$data, cor=TRUE)
+#cyp.pca <- princomp(cyp$data, cor=TRUE)
 
 ## Compute phylogenetic principal components again, using the corrleation approach
-cyp.ppca <- phyl.pca(cyp$phy, cyp$data, mode="corr")
+#cyp.ppca <- phyl.pca(cyp$phy, cyp$data, mode="corr")
 
 ## Prepare dataset for model fitting
-cyp.dat <- list(tree=cyp$phy, raw=cyp$data, pc=cyp.pca$scores, ppc=cyp.ppca$S,
-                pcall=cyp.pca, ppcall=cyp.ppca)
+#cyp.dat <- list(tree=cyp$phy, raw=cyp$data, pc=cyp.pca$scores, ppc=cyp.ppca$S,
+#                pcall=cyp.pca, ppcall=cyp.ppca)
 
 ## ### Fit models and compute AICw across all traits
-cyp.fit <- fitPCs(cyp.dat, seq_len(ncol(cyp$data)))
+#cyp.fit <- fitPCs(cyp.dat, seq_len(ncol(cyp$data)))
 
 ## Supplementary Figure 6 -- Model support across all PC and pPC axes
-cyp.df <- build.emp.data.step(cyp.fit)
+#cyp.df <- build.emp.data.step(cyp.fit)
 
-fig.aicw.empirical(cyp.df)
+#fig.aicw.empirical(cyp.df, cols.aic[c(1,3,2)])
 
 
 ## ### Node height test and Disparity through time
-ntraits <- ncol(cyp$data)
-cyp.cont <- get.contrasts(list(cyp.dat), "contrasts")
-cyp.disp <- get.dtt(list(cyp.dat), "disparity")
+#ntraits <- ncol(cyp$data)
+#cyp.cont <- get.contrasts(list(cyp.dat), "contrasts")
+#cyp.disp <- get.dtt(list(cyp.dat), "disparity")
 
 ## Prepare data for plotting
-cyp.cont <- cyp.cont[,which(colnames(cyp.cont) != "rep")]
-cyp.all <- rbind(cyp.cont, cyp.disp)
-cols.cyp <- c(cols.bl[1:ntraits], cols.gn[1:ntraits], cols.line)
+#cyp.cont <- cyp.cont[,which(colnames(cyp.cont) != "rep")]
+#cyp.all <- rbind(cyp.cont, cyp.disp)
+#cols.cyp <- c(cols.bl[1:ntraits], cols.gn[1:ntraits], cols.line)
 
 ## Supplementary Figure 7 -- Cypridon contrasts and dtt
-fig.nh.dtt.emp(cyp.all, cols.cyp)
+#fig.nh.dtt.emp(cyp.all, cols.cyp)
 
 ## Cyprinodon dataset is much less correlated: PC1 explains 39.8% of the variance with PCA
-round((cyp.pca$sdev^2)[1] / sum(cyp.pca$sdev^2), digits=3)
+#round((cyp.pca$sdev^2)[1] / sum(cyp.pca$sdev^2), digits=3)
 ## and 32.0% of the variance with pPCA
-round(diag(cyp.ppca$Eval)[1] / sum(diag(cyp.ppca$Eval)), digits=3)
+#round(diag(cyp.ppca$Eval)[1] / sum(diag(cyp.ppca$Eval)), digits=3)
 
 
 ## ## Produce figure output
@@ -285,31 +282,27 @@ if (!interactive()){
     dev.off()
 
     pdf("output/figs/felidae-aicw.pdf", height=7, width=9)
-    fig.aicw.empirical(fel.df, cols=c(cols.bl[2], cols.gn[2], cols.line))
+    fig.aicw.empirical(fel.df, cols.aic[c(1,3,2)])
     dev.off()
 
     pdf("output/figs/felidae_nh-dtt.pdf", height=7, width=9)
     fig.nh.dtt.emp(fel.all, cols.fel)
     dev.off()
 
-    pdf("output/figs/cypri_aicw.pdf", height=7, width=9)
-    fig.aicw.empirical(cyp.df, cols=c(cols.bl[2], cols.gn[2], cols.line))
-    dev.off()
+ #   pdf("output/figs/cypri_aicw.pdf", height=7, width=9)
+ #   fig.aicw.empirical(cyp.df, cols.aic[c(1,3,2)])
+ #   dev.off()
 
-    pdf("output/figs/cypri_nh-dtt.pdf", height=7, width=9)
-    fig.nh.dtt.emp(cyp.all, cols.cyp)
-    dev.off()
+ #   pdf("output/figs/cypri_nh-dtt.pdf", height=7, width=9)
+ #   fig.nh.dtt.emp(cyp.all, cols.cyp)
+ #   dev.off()
     
-    pdf("output/figs/acdc_slopes.pdf", height=7, width=9)
-    par(mfrow=c(1,2))
-    boxplot(acdcres$slopes[,1:20], xlab="PC", ylab="Slope of linear fit of absolute loadings ~ ACDC parameter")
-    abline(h=0, lty=2)
-    boxplot(acdcres$slopes[,21:40], xlab="PPC")
-    abline(h=0, lty=2)
+    pdf("output/figs/acdc_slopes.pdf", height=5, width=12)
+    fig.acdc(acdcres, cols.aic)
     dev.off()
       
     pdf("output/figs/anoles_aicw.pdf", height=7, width=9)
-    fig.aicw.empirical(anoles.df)
+    fig.aicw.empirical(anoles.df, cols.aic[c(1,3,2)])
     dev.off()
     
     pdf("output/figs/anoles_nh-dtt.pdf", height=7, width=9)

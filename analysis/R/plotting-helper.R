@@ -139,15 +139,16 @@ build.emp.data.stack <- function(x){
 }
 
 ## Function for making plots of model suppport for the empirical datasets
-fig.aicw.empirical <- function(df){
+fig.aicw.empirical <- function(df, cols){
   .e <- environment()
   df$variable <- as.character(df$variable)
   df$variable[df$variable=="pc"] <- "PCA"; df$variable[df$variable=="ppc"] <- "Phylogenetic PCA"; df$variable[df$variable=="raw"] <- "Original Data"
-  df$variable <- factor(df$variable, levels=c("Original Data", "PCA", "phylogenetic PCA"))
+  df$variable <- factor(df$variable, levels=c("Original Data", "PCA", "Phylogenetic PCA"))
+  df$type <- factor(df$type, levels=c("BM","OU","EB"))
   p <- q <- ggplot(df, aes(trait, value, fill=type), environment = .e)
   p <- p +  geom_bar(data=df, stat="identity", position="stack")
   p <- p + scale_y_continuous(name="AICw")
-  #p <- p + scale_fill_manual(values=col[c(6,21,12)], name="Model")
+  p <- p + scale_fill_manual(values=cols, name="Model")
   p <- p + facet_grid(.~variable)
   p <- p + theme_bw()
   p <- p + theme(strip.background=element_rect(fill="white"),
@@ -473,6 +474,35 @@ fig.alpha.est <- function(df, col.pt, col.line){
     
 
 
+fig.acdc <- function(df, cols){
+    my.theme <- list(
+        box.umbrella = list(col=cols[1]),
+        box.rectangle = list(fill=rep(c(cols[1],cols[1]),2)),
+        box.dot = list(col=cols[1], pch=19, cex=1),
+        plot.symbol = list(cex=1, col=cols[1], pch=1))
+
+    my.theme2 <- list(
+        box.umbrella = list(col=cols[2]),
+        box.rectangle = list(fill=rep(c(cols[2],cols[2]),2)),
+        box.dot = list(col=cols[2], pch=19, cex=1),
+        plot.symbol = list(cex=1, col=cols[2], pch=1))
+
+
+    slopes <- melt(df$slopes)
+    pc <- slopes[seq_len(2000),]
+    ppc <- slopes[c(2001:4000),]
+    pc$Var2 <- factor(pc$Var2, levels=as.character(unique(pc$Var2)),
+                      labels=c(1:20))
+    ppc$Var2 <- factor(ppc$Var2, levels=as.character(unique(ppc$Var2)),
+                      labels=c(1:20))
+
+    p1 <- bwplot(value~Var2, data=pc, xlab="PC axis", ylab="Slope of absolute loadings ~ ACDC parameter", par.settings=my.theme, ylim=c(-0.065, 0.04), panel=function(x,y,...){panel.abline(h=0, lwd=1.5, col=cols[3]);panel.tuftebxp(x=x,y=y,...)})
+    
+    p2 <- bwplot(value~Var2, data=ppc, xlab="pPC axis", yaxt="n", ylab="", ylim=c(-0.065, 0.04),par.settings=my.theme2, panel=function(x,y,...){panel.abline(h=0, lwd=1.5, col=cols[3]);panel.tuftebxp(x=x,y=y,...)})
+
+    grid.arrange(p1,p2,ncol=2)
+               
+}
 
 
 
