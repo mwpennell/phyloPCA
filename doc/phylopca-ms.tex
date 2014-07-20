@@ -104,27 +104,27 @@ Finally, we examined the scenario in which a set of traits each follow a model o
 
 
 \subsection{\emph{Empirical examples}}
-We analyzed two comparative datasets assembled from the literature, allowing us to investigate the effects of principal components analyses on realistically structured data. First, we analyzed phenotypic evolution across the family Felidae (cats) using measurements from two independent sources --- five cranial measurements from \cite{slater_2009} and body mass and skull width from \cite{sakamoto_2010}. For the analysis, we used the supertree compiled by \cite{Nyakatura_2012}. Second, we analyzed 23 morphometric traits in \textit{Anolis} lizards and phylogeny from \cite{Mahler2010}. In both datasets, all measurements were linear measurements on the logarithmic scale. We conducted standard and phylogenetic PCA and examined the effect of each on model--fitting, the slope of the node--height test, and the average disparity through time. All simulations and analyses were conducting using R v3.0.2 \citep{R}. Scripts to reproduce all analyses are available at \texttt{https://github.com/mwpennell/phyloPCA}.
+We analyzed two comparative datasets assembled from the literature, allowing us to investigate the effects of principal components analyses on realistically structured data. First, we analyzed phenotypic evolution across the family Felidae (cats) using measurements from two independent sources --- five cranial measurements from \cite{slater_2009} and body mass and skull width from \cite{sakamoto_2010}. For the analysis, we used the supertree compiled by \cite{Nyakatura_2012}. Second, we analyzed 23 morphometric traits in \textit{Anolis} lizards and phylogeny from \cite{Mahler2010}. In both datasets, all measurements were linear measurements on the logarithmic scale. We conducted standard and phylogenetic PCA and examined the effect of each on model--fitting, the slope of the node height test, and the average disparity through time. All simulations and analyses were conducting using R v3.0.2 \citep{R}. Scripts to reproduce all analyses are available at \texttt{https://github.com/mwpennell/phyloPCA}.
   
 \section{Results}
 \subsection{\emph{Effect of PCA on model selection under multivariate Brownian motion}}
 Standard PCA introduces a systematic bias in the favored model across principal components. In our simulations where the traits evolved under a multivariate BM model, EB models had systematically elevated support as measured by Akaike weights for the first few components, for which it generally exceeded support for the BM model (Figure \ref{corbm}). Fitting models sequentially across PC axes 1--20 revealed a regular pattern of increasing support for BM models moving from the first toward the intermediate components, followed by increasing support for OU models among later components (which generally approached an AICw of 1). This regular pattern across trait axes was not present for either the original datasets, or for phylogenetic principal components, which found strong support for the BM model regardless of which trait was analyzed. We note that the theoretical maximum AICw for the BM model in the three--model comparison is $1/(2e^{-1} + 1) \approx$ 0.576, as BM is a special case of both OU and EB and therefore the $\Delta$AICw for these models cannot be greater than 2.   
 
-Multivariate datasets simulated with high correlations (low effective dimensionality) showed increased support for BM across PC axes. When the leading eigenvalue explained a large proportion of the variance, the slope of the node height test converged toward 0, indicating no systematic distortion of the contrasts through time (Figure \ref{rank}). However, when the eigenvalues of the rate matrix were more even, standard PCA resulted in a negative slope in the node height test among the first few PCs, which in turn provides elevated support for EB models. This pattern is reversed among higher PC axes, which have positive slopes between node-height and absolute contrast size, which provides elevated support for OU models (Figures \ref{rank} and \ref{nhplot}). 
+Multivariate datasets simulated with high correlations (low effective dimensionality) showed increased support for BM across PC axes. When the leading eigenvalue explained a large proportion of the variance, the slope of the node height test converged toward 0, indicating no systematic distortion of the contrasts through time (Figure \ref{rank}). However, when the eigenvalues of the rate matrix were more even, standard PCA resulted in a negative slope in the node height test among the first few PCs, which in turn provides elevated support for EB models. This pattern is reversed among higher PC axes, which have positive slopes between node height and absolute contrast size, which provides elevated support for OU models (Figures \ref{rank} and \ref{nhplot}). 
 
 \subsection{\emph{Effect of using PCA when traits are not Brownian}}
 If the underlying model was either OU or EB rather than BM, then phylogenetic PCA tended to increase support for the true model relative to the original trait variables for the first few component axes (Figures \ref{oufit}, \ref{aicwbm}, and \ref{aicweb}). For example, when each of the original trait variables were simulated under an OU process, support for the OU model increased for pPC1 relative to the original trait variables. Higher principal component axes inferred a regular pattern of decreasing support for the OU model, while the last few PCs have equivocal support for either a BM or OU model (Figure \ref{oufit}). Furthermore, parameter estimation was affected by phylogenetic PCA. The $\alpha$ parameter of the OU model was estimated to be stronger than the value simulated for individual traits for the first few pPC scores and lower for the higher components (Figure \ref{alpha}). 
 
-Examining the outcomes of the node--height tests (Figure \ref{nhplot}) and the disparity through time analyses (Figure \ref{dttplot}) help clarify the results we observed from model comparison and parameter estimation. Under OU models, traits are expected to have the highest contrasts near the tips, whereas under EB models, traits will have the highest contrasts near the root of the tree. Under multivariate BM, standard PCA maximizes the overall variance explained across the entire dataset, thereby tending to select linear combinations of traits that maximize the contrasts at the root of the tree.
+Examining the outcomes of the node height tests (Figure \ref{nhplot}) and the disparity through time analyses (Figure \ref{dttplot}) help clarify the results we observed from model comparison and parameter estimation. Under OU models, traits are expected to have the highest contrasts near the tips, whereas under EB models, traits will have the highest contrasts near the root of the tree. Under multivariate BM, standard PCA maximizes the overall variance explained across the entire dataset, thereby tending to select linear combinations of traits that maximize the contrasts at the root of the tree.
 %% Inverted causation relationship here.
-Thus, the first few PCs are skewed toward resembling EB models, while the last few PCs are skewed toward resembling OU models. By contrast, the effect of pPCA on the node--height relationship depends on the generating model. When traits are evolved under an OU model, the first few pPC axes show an exaggerated pattern of high variance towards the tips. Likewise, when traits are evolved under an EB model, the first few pPC axes show an exaggerated pattern of high variance towards the root of the tree. For traits generated under both OU and EB models, the higher components resemble BM--like patterns. 
+Thus, the first few PCs are skewed toward resembling EB models, while the last few PCs are skewed toward resembling OU models. By contrast, the effect of pPCA on the node height relationship depends on the generating model. When traits are evolved under an OU model, the first few pPC axes show an exaggerated pattern of high variance towards the tips. Likewise, when traits are evolved under an EB model, the first few pPC axes show an exaggerated pattern of high variance towards the root of the tree. For traits generated under both OU and EB models, the higher components resemble BM--like patterns. 
 
 When the data includes traits evolved under different parameters, both PCA and pPCA resulted in the systematic assignment of traits with particular parameter values to each PCA axes. Traits which follow EB models are preferentially given higher loadings under both PCA and pPCA for the first few PCs as well as the last few PCs (Figure \ref{ACDC}). Furthermore, both PCA and pPCA assign fewer PCs with higher loadings to traits that follow EB models, whereas the intermediate PCs have more even loadings slightly skewed toward accelerating rates (i.e., OU--like models). This asymmetry may reflect the fact that EB models are more variable in their outcomes to the phylogeny, owing to the fewer independent branches among which divergence can occur closer to the root of the tree. Our results indicate that both pPCA and PCA can be biased in the selection of PC axes with respect to the generating evolutionary model.
 
 \subsection{\emph{Empirical examples}}
-In the Felid dataset, the seven morphometric traits were extremely highly correlated, with the first PC explaining 96.9\% and 93.7\% of the total variation in the dataset for standard PCA and phylogenetic PCA, respectively. All raw traits and the first PC axis of both standard and phylogenetic PCA support a BM model of evolution (PC and pPC axes have AICw's of 0.574, which is near the theoretical maximum for BM). The last four standard PC axes show strong support for a OU model (AICw $\approx 1$) whereas under phylogenetic PCA the last axes have mixed support favouring BM or OU (Figure \ref{felidae.aicw}). Both the node-height test and the disparity through time plots show this same pattern. The node-height slope of the first axis is approximately zero while the slope of the remaining axes are slightly positive under standard and phylogenetic PCA. The first axis show the same disparity through time pattern of the untransformed data in both standard and phylogenetic PCA. However, the last PC axes show disparity accumulated toward the tips under standard PC, while phylogenetic PCA produced a less clear pattern (Figure \ref{felidae.nh}).
+In the Felid dataset, the seven morphometric traits were extremely highly correlated, with the first PC explaining 96.9\% and 93.7\% of the total variation in the dataset for standard PCA and phylogenetic PCA, respectively. All raw traits and the first PC axis of both standard and phylogenetic PCA support a BM model of evolution (PC and pPC axes have AICw's of 0.574, which is near the theoretical maximum for BM). The last four standard PC axes show strong support for a OU model (AICw $\approx 1$) whereas under phylogenetic PCA the last axes have mixed support favouring BM or OU (Figure \ref{felidae.aicw}). Both the node height test and the disparity through time plots show this same pattern. The node height slope of the first axis is approximately zero while the slope of the remaining axes are slightly positive under standard and phylogenetic PCA. The first axis show the same disparity through time pattern of the untransformed data in both standard and phylogenetic PCA. However, the last PC axes show disparity accumulated toward the tips under standard PC, while phylogenetic PCA produced a less clear pattern (Figure \ref{felidae.nh}).
 
-For the morphometric traits in the \textit{Anolis} dataset, the first PC also explained a large proportion of the variation (92.6\% and 90.0\% for standard and phylogenetic PCA, respectively). Most of the untransformed traits had equivocal support for either a BM or EB model (Figure \ref{anoles_aicw}). While PC1 of both PCA and pPCA mirrored this pattern, the remaining PCs for both PCA and pPCA show a general pattern of decreasing support for an EB model (Figure \ref{anoles_aicw}). Collectively PCs 2-4 had higher support for the EB model than any other PC in both standard PCA ($\text{AICw}_{EB}$: PC2 $=$ 1.0; PC3 $=$ 0.47; PC4 $=$ 0.28) and phylogenetic PCA ($\text{AICw}_{EB}$: pPC2 $=$ 1.0; pPC3 $=$ 0.43, pPC4 $=$ 0.27).  Similarly, these early PC axes tended to have more negative slopes from the node-height test relative to the average trait in the dataset (Figure \ref{anoles_nh}).
+For the morphometric traits in the \textit{Anolis} dataset, the first PC also explained a large proportion of the variation (92.6\% and 90.0\% for standard and phylogenetic PCA, respectively). Most of the untransformed traits had equivocal support for either a BM or EB model (Figure \ref{anoles_aicw}). While PC1 of both PCA and pPCA mirrored this pattern, the remaining PCs for both PCA and pPCA show a general pattern of decreasing support for an EB model (Figure \ref{anoles_aicw}). Collectively PCs 2-4 had higher support for the EB model than any other PC in both standard PCA ($\text{AICw}_{EB}$: PC2 $=$ 1.0; PC3 $=$ 0.47; PC4 $=$ 0.28) and phylogenetic PCA ($\text{AICw}_{EB}$: pPC2 $=$ 1.0; pPC3 $=$ 0.43, pPC4 $=$ 0.27).  Similarly, these early PC axes tended to have more negative slopes from the node height test relative to the average trait in the dataset (Figure \ref{anoles_nh}).
 
 \section{Discussion}
 Different ways of representing the same set of data can change the meaning of measurements and alter the interpretations of subsequent statistical analyses \citep{Houle2011}. PCA is often considered to be a simple linear transformation of a multivariate dataset and the potential consequences of performing phylogenetic comparative analyses on PC scores has received very little attention. In this paper, we sought to highlight the fact that fitting macroevolutionary models to a handful of PC axes may positively mislead inference --- what appears like the signal of an interesting biological process may simply be an artifact stemming from how PCA is computed. By focusing analyses exclusively on the first few PC axes, as is commonly done in comparative studies, researchers are, in effect, taking a biased sample of a multivariate distribution. We demonstrate how these biased samples can influence inference in both PCA and pPCA --- particularly toward inferring decreasing rates of evolution in highly dimensional datasets.
@@ -169,6 +169,7 @@ We would like to thank our advisor, Luke Harmon, for encouraging us to pursue th
 \bibliographystyle{sysbio}
 \bibliography{phylopca.bib}
 
+%% Figure 1.
 \begin{figure}[p]
 \centering
 \includegraphics[scale=0.65]{./fig/mv-bm-aic.pdf}
@@ -176,6 +177,7 @@ We would like to thank our advisor, Luke Harmon, for encouraging us to pursue th
 \label{corbm}
 \end{figure}
 
+%% Figure 2.
 \begin{figure}[p]
 \centering
 \includegraphics[scale=0.65]{./fig/onion.pdf}
@@ -183,6 +185,7 @@ We would like to thank our advisor, Luke Harmon, for encouraging us to pursue th
 \label{rank}
 \end{figure}
 
+%% Figure 3.
 \begin{figure}[p]
 \centering
 \includegraphics[scale=0.65]{./fig/uncor-ou-aic.pdf}
@@ -190,27 +193,31 @@ We would like to thank our advisor, Luke Harmon, for encouraging us to pursue th
 \label{oufit}
 \end{figure}
 
+%% Figure 4.
 \begin{figure}[p]
 \centering
 \includegraphics[scale=0.65]{./fig/nh-2panel.pdf}
-\caption{Relationship between the average phylogenetic independent contrasts and the height of the node across 100 datasets simulated under either a BM (left), OU (middle) or EB (right) model of evolution. Contrasts were calculated for each of the 20 traits corresponding to either PC scores (top row) or pPPC scores (bottom row). Each line represents a best--fit linear model to the aggregated data across all 100 replicate simulations. Red lines are aggregated over all 20 traits on the original data. The plots are oriented so that the left side of each panel corresponds to the root of the phylogeny, with time increasing tipward to the right. The intensity of the colors are proportional to the ranking of the PC or pPC axes, stronger lines represent the first axes. PCA results in a predictable pattern of increasing slope in the contrasts across PCs. By contrast, pPCA only has systematic distortions across pPC axes when the underlying model is not multivariate BM. When this occurs, the first few pPC axes tend to have more extreme slopes than the original data (but in the correct direction).}
+\caption{Relationship between the average phylogenetic independent contrasts and the height of the node across 100 datasets simulated under either a BM (left), OU (middle) or EB (right) model of evolution. Contrasts were calculated for each of the 20 traits corresponding to either PC scores (top row) or pPC scores (bottom row). Each line represents a best--fit linear model to the aggregated data across all 100 replicate simulations. Red lines are aggregated over all 20 traits on the original data. The plots are oriented so that the left side of each panel corresponds to the root of the phylogeny, with time increasing tipward to the right. The intensity of the colors are proportional to the ranking of the PC or pPC axes, stronger lines represent the first axes. PCA results in a predictable pattern of increasing slope in the contrasts across PCs. By contrast, pPCA only has systematic distortions across pPC axes when the underlying model is not multivariate BM. When this occurs, the first few pPC axes tend to have more extreme slopes than the original data (but in the correct direction).}
 \label{nhplot}
 \end{figure}
 
+%% Figure 5.
 \begin{figure}[p]
 \centering
 \includegraphics[scale=0.65]{./fig/dtt-2panel.pdf}
-\caption{Disparity through time plots averaged across the 100 simulated datasets. The datasets were simulated under BM (left), OU (middle) or EB (right). The analyses were then performed on PC scores (top row) and pPPC scores (bottom row). The average disparity through time of all 20 original trait variables is indicated by the red line. We fit a loess curve through the relative disparities for each trait/transformation/model combination. The plots are oriented so that the left side of each panel corresponds to the root of the phylogeny, with time increasing tipward to the right. The intensity of the colors are proportional to the ranking of the PC or pPC axes, stronger lines represent the first axes. As in Fig. \ref{nhplot}, the first few axes from the PCA show a strong pattern of high disparity early in the clades' histories with the higher components showing seemingly higher disparity towards the present. PPCA corrects the distortion if the generating model is multivariate BM. However, if the generating model was not BM, the first few pPC axes tend to show an exaggerated pattern of disparity relative to the original traits.}
+\caption{Disparity through time plots averaged across the 100 simulated datasets. The datasets were simulated under BM (left), OU (middle) or EB (right). The analyses were then performed on PC scores (top row) and pPC scores (bottom row). The average disparity through time of all 20 original trait variables is indicated by the red line. We fit a loess curve through the relative disparities for each trait/transformation/model combination. The plots are oriented so that the left side of each panel corresponds to the root of the phylogeny, with time increasing tipward to the right. The intensity of the colors are proportional to the ranking of the PC or pPC axes, stronger lines represent the first axes. As in Fig. \ref{nhplot}, the first few axes from the PCA show a strong pattern of high disparity early in the clades' histories with the higher components showing seemingly higher disparity towards the present. Phylogenetic PCA corrects the distortion if the generating model is multivariate BM. However, if the generating model was not BM, the first few pPC axes tend to show an exaggerated pattern of disparity relative to the original traits.}
 \label{dttplot}
 \end{figure}
 
+%% Figure 6.
 \begin{figure}[p]
 \centering
 \includegraphics[scale=0.52]{./fig/acdc_slopes.pdf}
-\caption{Relationship between factor loadings and ACDC parameter across PCA (left) and pPCA (right) across 100 simulated 20 trait datasets with ACDC parameters drawn from a Normal distribution with mean = 0 and sd = 5. Boxplots indicate the distribution of the slope of a linear model describing the relationship between the absolute factor loadings for a given PC and the magnitude of the ACDC parameter. A negative slope indicates that traits with decelerating rates of evolution tend to have higher loadings in that particular PC. Conversely, positive slopes indicate that traits with accelerating rates tend to have higher loadings.}
+\caption{Relationship between factor loadings and ACDC parameter ($\alpha$) for PCA (left) and pPCA (right) across 100 simulated datasets. For each simulation a value $\alpha$ were drawn from a Normal distribution with mean = 0 and sd = 5. Boxplots indicate the distribution of the slope of a linear model describing the relationship between the absolute factor loadings for a given PC and the magnitude of the ACDC parameter. A negative slope indicates that traits with decelerating rates of evolution tend to have higher loadings in that particular PC. Conversely, positive slopes indicate that traits with accelerating rates tend to have higher loadings.}
 \label{ACDC}
 \end{figure}
 
+%% Figure 7.
 \begin{figure}[p]
 \centering
 \includegraphics[scale=0.65]{./fig/anoles_aicw.pdf}
@@ -223,6 +230,7 @@ We would like to thank our advisor, Luke Harmon, for encouraging us to pursue th
 \setcounter{figure}{0}    
 \setcounter{table}{0}
 
+%% Figure S1.
 \begin{figure}[p]
 \centering
 \includegraphics[scale=0.65]{./fig/uncor-bm-aic.pdf}
@@ -230,6 +238,7 @@ We would like to thank our advisor, Luke Harmon, for encouraging us to pursue th
 \label{aicwbm}
 \end{figure}
 
+%% Figure S2.
 \begin{figure}[p]
 \centering
 \includegraphics[scale=0.65]{./fig/uncor-eb-aic.pdf}
@@ -237,6 +246,7 @@ We would like to thank our advisor, Luke Harmon, for encouraging us to pursue th
 \label{aicweb}
 \end{figure}
 
+%% Figure S3.
 \begin{figure}[p]
 \centering
 \includegraphics[scale=0.65]{fig/alpha-est.pdf}
@@ -244,6 +254,7 @@ We would like to thank our advisor, Luke Harmon, for encouraging us to pursue th
 \label{alpha}
 \end{figure}
 
+%% Figure S4.
 \begin{figure}[p]
 \centering
 \includegraphics[scale=0.65]{fig/felidae_aicw.pdf}
@@ -251,6 +262,7 @@ We would like to thank our advisor, Luke Harmon, for encouraging us to pursue th
 \label{felidae.aicw}
 \end{figure}
 
+%% Figure S5
 \begin{figure}[p]
 \centering
 \includegraphics[scale=0.65]{fig/felidae_nh-dtt.pdf}
@@ -258,6 +270,7 @@ We would like to thank our advisor, Luke Harmon, for encouraging us to pursue th
 \label{felidae.nh}
 \end{figure}
 
+%% Figure S6.
 \begin{figure}[p]
 \centering
 \includegraphics[scale=0.65]{./fig/anoles_nh-dtt.pdf}
