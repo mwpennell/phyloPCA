@@ -1,6 +1,5 @@
 ## Simulations with a diag alpha matrix of value 2 and a positive definite matrix for sigma like in the original simulations:
 
-library(mvSLOUCH)
 source("R/simulate-helper.R")
 
 ## Simulate correlated data:
@@ -45,11 +44,12 @@ dev.off()
 ## Create data using a continuum of proportion of variance explained by the first PC axis.
 ## Lower values of prop explained by first axis means less correlation, higher values
 ##       means more correlation.
+## NOTE: Here only keeping the less and highly correlated sets,
 
-nsims <- 5
 ntips <- 50
 ntraits <- 20
 
+## Create the vector of exp for the ranks:
 seqa <- c(-5, -1.5, -1, -0.75, -.5, -0.2, 0, 0.15, seq(0.3,2.1, 0.1), 2.25, 2.5, 5)
 rank.seq <- exp(seqa)
 ev <-  rev(c(0.01, 0.03, 0.04, 0.06, 0.08, 0.10, 0.12, 0.14, 0.16, 0.19, 0.21, 0.24, 0.28, 0.32, 0.37, 0.42, 0.49, 0.58, 0.72, 1.00))
@@ -57,13 +57,18 @@ ev.rank <- function(n, p){
   ev^p
 }
 
+## This calculates the variance explained by the first axis:
 varEV1 <- sapply(1:length(rank.seq), function(x) 1/(sum(ev^rank.seq[x])))
-rankdat <- lapply(rank.seq, function(y)
-    lapply(1:nsims, function(x) sim.tree.pcs.mv.ou(ntips, ntraits, alpha=2, cor = "FALSE"
+## Run sim. Here only for the less and highly correlated exps.
+rankdat <- lapply(rank.seq[c(1,30)], function(y)
+    foreach(i=1:50) %dopar% sim.tree.pcs.mv.ou(ntips, ntraits, alpha=2, cor = "TRUE"
                                                  , sig2dist=ev.rank, p=y))
-                  )
-rankcont <- lapply(1:length(rank.seq), function(x) get.contrasts(rankdat[[x]], x))
-rankcont <- do.call(rbind, rankcont)
-rankslopes <- ddply(rankcont, .(type, rep, simmodel, variable), summarize, slope=lmslope(value, times))
-ranks.uncor <- list(rankslopes=rankslopes, exp.val=varEV1)
-saveRDS(ranks, file="output/sim-res/rankslopes.uncor_mvOU.rds")
+
+## Isolate results from the correlated and non-correlated sims.
+saveRDS(rankdat, file="output/sim-res/cor.uncor_mvOU.rds")
+
+## rankcont <- lapply(1:length(rank.seq), function(x) get.contrasts(rankdat[[x]], x))
+## rankcont <- do.call(rbind, rankcont)
+## rankslopes <- ddply(rankcont, .(type, rep, simmodel, variable), summarize, slope=lmslope(value, times))
+## ranks.uncor <- list(rankslopes=rankslopes, exp.val=varEV1)
+## saveRDS(ranks, file="output/sim-res/rankslopes.uncor_mvOU.rds")
