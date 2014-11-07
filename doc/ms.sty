@@ -23,12 +23,33 @@
 \RequirePackage{amsmath}
 
 
+
+
 \RequirePackage{refstyle}
 \renewcommand{\figref}{\Figref}
 \renewcommand{\tabref}{\Tabref}
 
 % Allow \-/ hyphenation of already-hyphen\-/ated words
 \usepackage[shortcuts]{extdash}
+
+% Hyperlinks:
+\usepackage{color}
+\definecolor{navy}{rgb}{0,0,0.4}
+\usepackage[colorlinks,citecolor=navy,linkcolor=navy,urlcolor=navy]{hyperref}
+
+% NOTE: I am a big fan of Minion Pro, especially for small caps.
+% However, installing it is a pain:
+%   https://gist.github.com/richfitz/2324707
+% So this switches between Minion Pro and Palatino, which at least
+% looks substantially nicer than Computer Modern.
+\IfFileExists{MinionPro.sty}{
+\RequirePackage[mathlf,minionint]{MinionPro}
+\RequirePackage[protrusion=true,expansion=false,verbose=silent]{microtype}
+}{
+\RequirePackage[osf]{mathpazo}
+\def\textssc{\textsc}
+\RequirePackage[tracking=smallcaps,protrusion=true,expansion=false,verbose=silent]{microtype}
+}
 
 % Fix for the amsmath equation environments:
 % http://phaseportrait.blogspot.com/2007/08/lineno-and-amsmath-compatibility.html
@@ -61,9 +82,9 @@
 \usepackage{color}
 \definecolor{navy}{rgb}{0,0,0.4}
 
-% \iffinal
-\newcommand{\email}[1]{\texttt{#1}}
-\newcommand{\url}[1]{\texttt{#1}}
+%\iffinal
+%\newcommand{\email}[1]{\texttt{#1}}
+%\newcommand{\url}[1]{\texttt{#1}}
 % \else
 % \usepackage[colorlinks,citecolor=navy,linkcolor=navy,urlcolor=navy]{hyperref}
 % \newcommand{\email}[1]{\href{mailto:#1}{\texttt{#1}}}
@@ -85,8 +106,8 @@
 \parindent=20pt
 \fi
 
-\iffinal
-Titles for Systematic biology:
+%\iffinal
+%Titles for Systematic biology:
 \usepackage{titlesec}
 \titleformat*{\section}{\large\scshape} 
 \titleformat*{\subsection}{\itshape}
@@ -94,7 +115,7 @@ Titles for Systematic biology:
 {\normalfont\itshape} 
 {}{0pt}{}[. ---]
 %\titleformat{\subsubsection}[runin]{\itshape}
-\fi
+%\fi
 \setcounter{secnumdepth}{0}
 
 % Ugly fonts
@@ -111,6 +132,7 @@ Titles for Systematic biology:
 \def\mstype{\gdef\themstype}
 \def\keywords{\gdef\thekeywords}
 \def\version{\gdef\theversion}
+\def\corresponding{\gdef\thecorresponding}
 
 \newcommand{\mstitlepage}{
 %\begin{titlepage}
@@ -119,7 +141,7 @@ Titles for Systematic biology:
 \parindent=0pt
 %\maketitle
 \begin{center}%
-  {\LARGE \mstitle \par}%
+  {\LARGE  \mstitle \par}%
   \vskip 3em%
   {\large
     \lineskip .75em%
@@ -130,7 +152,10 @@ Titles for Systematic biology:
 \end{center}\par
 
 \setlength{\parskip}{0pt} % threequarters
-\theaffiliation
+\begin{center}
+{\itshape \theaffiliation}\\
+Email for correspondence: \url{\thecorresponding}
+\end{center}
 \setlength{\parskip}{.2ex plus1pt} % threequarters
 % \end{titlepage}
 \paragraph{Keywords:} \thekeywords
