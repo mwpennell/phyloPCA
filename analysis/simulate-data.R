@@ -104,7 +104,6 @@ ev.rank <- function(n, p){
   ev^p
 }
 
-
 varEV1 <- sapply(1:length(rank.seq), function(x) 1/(sum(ev^rank.seq[x])))
 rankdat <- lapply(rank.seq, function(y) lapply(1:nsims, function(x) sim.tree.pcs.mv(ntips, ntraits, sig2dist=ev.rank, p=y)))
 rankcont <- lapply(1:length(rank.seq), function(x) get.contrasts(rankdat[[x]], x))
@@ -113,11 +112,3 @@ rankslopes <- ddply(rankcont, .(type, rep, simmodel, variable), summarize, slope
 ## store the values of varEV1 so that these can be used for plotting
 ranks <- list(rankslopes=rankslopes, exp.val=varEV1)
 saveRDS(ranks, file="output/sim-res/rankslopes.rds")
-
-
-
-
-
-
-
-
