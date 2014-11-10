@@ -53,8 +53,8 @@ sim.tree.pcs.ind <- function(ntips, traits, sig2dist=rexp, lambda=0.1, mu=0, ...
 }
 
 ## Function for simulating uncorrelated (independent) Ornstein-Uhlenbeck data
-## This give the same results from 'sim.tree.pcs.mv.ou' using same values for
-##   alpha, sig2 and root = 0, diag = TRUE.
+## This give the same results from 'sim.tree.pcs.mv.ou.uncor' using same values for
+##   alpha, sig2 and root = 0.
 sim.tree.pcs.ind.ou <- function(ntips, traits, alpha, sig2, lambda=0.1, mu=0, ...){
   tree <- pbtree(b=lambda, d=mu, n=ntips)
   tree$edge.length <- tree$edge.length/max(branching.times(tree))
@@ -65,6 +65,30 @@ sim.tree.pcs.ind.ou <- function(ntips, traits, alpha, sig2, lambda=0.1, mu=0, ..
   pc <- princomp(X)
   ppc <- phyl.pca(tree,X)
   return(list(tree=tree, raw=X, pc=pc$scores, ppc=ppc$S, pcall=pc, ppcall=ppc))
+}
+
+## Function for simulating multivariate uncorrelated Ornstein-Uhlenbeck data under mvSLOUCH.
+## Results from this function should be the same as using 'sim.tree.pcs.ind.ou'.
+sim.tree.pcs.mv.ou.uncor <- function(ntips, traits, sig2, lambda=0.1, mu=0, root=0, alpha, ...){
+  ## A single mv optima set to be equal to root (same optima value for every trait).
+  ## Alpha ans sig2 matrices are diag() of alpha. Off-diag equal to 0.
+  tree <- pbtree(b=lambda, d=mu, n=ntips)
+  tree$edge.length <- tree$edge.length/max(branching.times(tree))
+  ouchtree <- ape2ouch(tree, scale=1)
+  ouchtree@nodelabels[1:(ouchtree@nnodes-ouchtree@nterm)] <- as.character(1:(ouchtree@nnodes-ouchtree@nterm))
+  ## Note here both R and A matrices are diag.
+  R <- diag(sig2, nrow=traits)
+  A <- diag(alpha, nrow=traits)
+  Y0 <- rep(root, traits)
+  mPsi <- matrix(rep(root, traits), ncol=1)
+  simdat <- simulOUCHProcPhylTree(ouchtree, list(vY0=Y0, Syy=R, A=A, mPsi=mPsi))
+  simdat <- simdat[-c(1:(ouchtree@nnodes-ouchtree@nterm)),]
+  pc <- princomp(simdat)
+  ppc <- phyl.pca(tree, simdat)
+  row.names(simdat) <- tree$tip.label
+  rownames(pc$scores) <- tree$tip.label
+  rownames(ppc$S) <- tree$tip.label
+  return(list(tree=tree, raw=simdat, pc=pc$scores, ppc=ppc$S, pcall=pc, ppcall=ppc, R=R))
 }
 
 ## Function for simulating multivariate correlated Ornstein-Uhlenbeck data.
