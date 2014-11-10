@@ -74,7 +74,7 @@ sim.tree.pcs.mv.ou.uncor <- function(ntips, traits, sig2, lambda=0.1, mu=0, root
   ## Alpha ans sig2 matrices are diag() of alpha. Off-diag equal to 0.
   tree <- pbtree(b=lambda, d=mu, n=ntips)
   tree$edge.length <- tree$edge.length/max(branching.times(tree))
-  ouchtree <- ape2ouch(tree, scale=1)
+  ouchtree <- ape2ouch(tree, scale=FALSE)
   ouchtree@nodelabels[1:(ouchtree@nnodes-ouchtree@nterm)] <- as.character(1:(ouchtree@nnodes-ouchtree@nterm))
   ## Note here both R and A matrices are diag.
   R <- diag(sig2, nrow=traits)
@@ -98,7 +98,7 @@ sim.tree.pcs.mv.ou <- function(ntips, traits, sig2dist=rexp, lambda=0.1, mu=0, r
   ## diag = FALSE to use a Posdef() R matrix; diag = TRUE to use a diag() R matrix.
   tree <- pbtree(b=lambda, d=mu, n=ntips)
   tree$edge.length <- tree$edge.length/max(branching.times(tree))
-  ouchtree <- ape2ouch(tree, scale=1)
+  ouchtree <- ape2ouch(tree, scale=FALSE)
   ouchtree@nodelabels[1:(ouchtree@nnodes-ouchtree@nterm)] <- as.character(1:(ouchtree@nnodes-ouchtree@nterm))
   R <- Posdef(traits, ev=sig2dist(traits, ...))
   R[lower.tri(R)] <- 0
