@@ -53,11 +53,14 @@ sim.tree.pcs.ind <- function(ntips, traits, sig2dist=rexp, lambda=0.1, mu=0, ...
 }
 
 ## Function for simulating uncorrelated (independent) Ornstein-Uhlenbeck data
+## This give the same results from 'sim.tree.pcs.mv.ou' using same values for
+##   alpha, sig2 and root = 0, diag = TRUE.
 sim.tree.pcs.ind.ou <- function(ntips, traits, alpha, sig2, lambda=0.1, mu=0, ...){
   tree <- pbtree(b=lambda, d=mu, n=ntips)
   tree$edge.length <- tree$edge.length/max(branching.times(tree))
   tr <- rescale(tree, model="OU", alpha)
   #outree <- rescale(tree,alpha=log(2),model="OU")
+  ## Default for fastBM root state is 0.
   X <- sapply(1:traits, function(x) fastBM(tr, sig2=sig2, nsim=1))
   pc <- princomp(X)
   ppc <- phyl.pca(tree,X)
@@ -65,20 +68,19 @@ sim.tree.pcs.ind.ou <- function(ntips, traits, alpha, sig2, lambda=0.1, mu=0, ..
 }
 
 ## Function for simulating multivariate correlated Ornstein-Uhlenbeck data.
-sim.tree.pcs.mv.ou <- function(ntips, traits, sig2dist=rexp, lambda=0.1, mu=0, root=0, alpha, cor, ...){
+sim.tree.pcs.mv.ou <- function(ntips, traits, sig2dist=rexp, lambda=0.1, mu=0, root=0, alpha, diag=FALSE, ...){
   ## A single mv optima set to be equal to root (same optima value for every trait).
   ## Alpha matrix is diag() of alpha. Off-diag equal to 0.
-  ## cor = TRUE to use a Posdef() R matrix; cor = FALSE to use a diag() R matrix.
-  ## Function requires mvSLOUCH.
+  ## diag = FALSE to use a Posdef() R matrix; diag = TRUE to use a diag() R matrix.
   tree <- pbtree(b=lambda, d=mu, n=ntips)
   tree$edge.length <- tree$edge.length/max(branching.times(tree))
   ouchtree <- ape2ouch(tree, scale=1)
   ouchtree@nodelabels[1:(ouchtree@nnodes-ouchtree@nterm)] <- as.character(1:(ouchtree@nnodes-ouchtree@nterm))
   R <- Posdef(traits, ev=sig2dist(traits, ...))
   R[lower.tri(R)] <- 0
-  if(cor == FALSE){
+  if(diag == TRUE){
       R[upper.tri(R)] <- 0
-  }      
+  }
   Y0 <- rep(root, traits)
   mPsi <- matrix(rep(root, traits), ncol=1)
   A <- diag(alpha, nrow=traits)
