@@ -71,7 +71,7 @@ sim.tree.pcs.ind.ou <- function(ntips, traits, alpha, sig2, lambda=0.1, mu=0, ..
 ## Results from this function should be the same as using 'sim.tree.pcs.ind.ou'.
 sim.tree.pcs.mv.ou.uncor <- function(ntips, traits, sig2, lambda=0.1, mu=0, root=0, alpha, ...){
   ## A single mv optima set to be equal to root (same optima value for every trait).
-  ## Alpha ans sig2 matrices are diag() of alpha. Off-diag equal to 0.
+  ## Alpha and sig2 matrices are diag() of alpha. Off-diag equal to 0.
   tree <- pbtree(b=lambda, d=mu, n=ntips)
   tree$edge.length <- tree$edge.length/max(branching.times(tree))
   ouchtree <- ape2ouch(tree, scale=FALSE)
@@ -83,9 +83,11 @@ sim.tree.pcs.mv.ou.uncor <- function(ntips, traits, sig2, lambda=0.1, mu=0, root
   mPsi <- matrix(rep(root, traits), ncol=1)
   simdat <- simulOUCHProcPhylTree(ouchtree, list(vY0=Y0, Syy=R, A=A, mPsi=mPsi))
   simdat <- simdat[-c(1:(ouchtree@nnodes-ouchtree@nterm)),]
+  mm <- match(rownames(simdat), tree$tip.label)
+  simdat <- simdat[mm,]
   pc <- princomp(simdat)
   ppc <- phyl.pca(tree, simdat)
-  row.names(simdat) <- tree$tip.label
+  #row.names(simdat) <- tree$tip.label
   rownames(pc$scores) <- tree$tip.label
   rownames(ppc$S) <- tree$tip.label
   return(list(tree=tree, raw=simdat, pc=pc$scores, ppc=ppc$S, pcall=pc, ppcall=ppc, R=R))
@@ -110,9 +112,11 @@ sim.tree.pcs.mv.ou <- function(ntips, traits, sig2dist=rexp, lambda=0.1, mu=0, r
   A <- diag(alpha, nrow=traits)
   simdat <- simulOUCHProcPhylTree(ouchtree, list(vY0=Y0, Syy=R, A=A, mPsi=mPsi))
   simdat <- simdat[-c(1:(ouchtree@nnodes-ouchtree@nterm)),]
+  mm <- match(rownames(simdat), tree$tip.label)
+  simdat <- simdat[mm,]
   pc <- princomp(simdat)
   ppc <- phyl.pca(tree, simdat)
-  row.names(simdat) <- tree$tip.label
+  #row.names(simdat) <- tree$tip.label
   rownames(pc$scores) <- tree$tip.label
   rownames(ppc$S) <- tree$tip.label
   return(list(tree=tree, raw=simdat, pc=pc$scores, ppc=ppc$S, pcall=pc, ppcall=ppc, R=R))
