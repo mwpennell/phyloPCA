@@ -67,56 +67,21 @@ sim.tree.pcs.ind.ou <- function(ntips, traits, alpha, sig2, lambda=0.1, mu=0, ..
   return(list(tree=tree, raw=X, pc=pc$scores, ppc=ppc$S, pcall=pc, ppcall=ppc))
 }
 
-## Function for simulating multivariate uncorrelated Ornstein-Uhlenbeck data under mvSLOUCH.
-## Results from this function should be the same as using 'sim.tree.pcs.ind.ou'.
-sim.tree.pcs.mv.ou.uncor <- function(ntips, traits, sig2, lambda=0.1, mu=0, root=0, alpha, ...){
-  ## A single mv optima set to be equal to root (same optima value for every trait).
-  ## Alpha and sig2 matrices are diag() of alpha. Off-diag equal to 0.
+## General function for simulating multivariate Ornstein-Uhlenbeck data.
+sim.tree.pcs.mv.ou <- function(ntips, traits, alpha, sig2, lambda=0.1, mu=0, root=0, ...){
+  ## alpha and sig2 need to be square matrices.
   tree <- pbtree(b=lambda, d=mu, n=ntips)
   tree$edge.length <- tree$edge.length/max(branching.times(tree))
   ouchtree <- ape2ouch(tree, scale=FALSE)
   ouchtree@nodelabels[1:(ouchtree@nnodes-ouchtree@nterm)] <- as.character(1:(ouchtree@nnodes-ouchtree@nterm))
-  ## Note here both R and A matrices are diag.
-  R <- diag(sig2, nrow=traits)
-  A <- diag(alpha, nrow=traits)
   Y0 <- rep(root, traits)
   mPsi <- matrix(rep(root, traits), ncol=1)
-  simdat <- simulOUCHProcPhylTree(ouchtree, list(vY0=Y0, Syy=R, A=A, mPsi=mPsi))
+  simdat <- simulOUCHProcPhylTree(ouchtree, list(vY0=Y0, Syy=sig2, A=alpha, mPsi=mPsi))
   simdat <- simdat[-c(1:(ouchtree@nnodes-ouchtree@nterm)),]
   mm <- match(rownames(simdat), tree$tip.label)
   simdat <- simdat[mm,]
   pc <- princomp(simdat)
   ppc <- phyl.pca(tree, simdat)
-  #row.names(simdat) <- tree$tip.label
-  rownames(pc$scores) <- tree$tip.label
-  rownames(ppc$S) <- tree$tip.label
-  return(list(tree=tree, raw=simdat, pc=pc$scores, ppc=ppc$S, pcall=pc, ppcall=ppc, R=R))
-}
-
-## Function for simulating multivariate correlated Ornstein-Uhlenbeck data.
-sim.tree.pcs.mv.ou <- function(ntips, traits, sig2dist=rexp, lambda=0.1, mu=0, root=0, alpha, diag=FALSE, ...){
-  ## A single mv optima set to be equal to root (same optima value for every trait).
-  ## Alpha matrix is diag() of alpha. Off-diag equal to 0.
-  ## diag = FALSE to use a Posdef() R matrix; diag = TRUE to use a diag() R matrix.
-  tree <- pbtree(b=lambda, d=mu, n=ntips)
-  tree$edge.length <- tree$edge.length/max(branching.times(tree))
-  ouchtree <- ape2ouch(tree, scale=FALSE)
-  ouchtree@nodelabels[1:(ouchtree@nnodes-ouchtree@nterm)] <- as.character(1:(ouchtree@nnodes-ouchtree@nterm))
-  R <- Posdef(traits, ev=sig2dist(traits, ...))
-  R[lower.tri(R)] <- 0
-  if(diag == TRUE){
-      R[upper.tri(R)] <- 0
-  }
-  Y0 <- rep(root, traits)
-  mPsi <- matrix(rep(root, traits), ncol=1)
-  A <- diag(alpha, nrow=traits)
-  simdat <- simulOUCHProcPhylTree(ouchtree, list(vY0=Y0, Syy=R, A=A, mPsi=mPsi))
-  simdat <- simdat[-c(1:(ouchtree@nnodes-ouchtree@nterm)),]
-  mm <- match(rownames(simdat), tree$tip.label)
-  simdat <- simdat[mm,]
-  pc <- princomp(simdat)
-  ppc <- phyl.pca(tree, simdat)
-  #row.names(simdat) <- tree$tip.label
   rownames(pc$scores) <- tree$tip.label
   rownames(ppc$S) <- tree$tip.label
   return(list(tree=tree, raw=simdat, pc=pc$scores, ppc=ppc$S, pcall=pc, ppcall=ppc, R=R))
