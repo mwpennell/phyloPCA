@@ -52,6 +52,7 @@ saveRDS(dispdat, file="output/sim-res/disp-time.rds")
 
 
 
+
 ## Simulate under OU, BM and EB uncorrelated, fit models and calculate AICweights and compare parameter estimates.
 registerDoMC(cores=3)
 oufits <- foreach(i=1:100) %dopar% fitPCOU(oudat[[i]], 1:20, models=c("BM", "OUfixedRoot", "EB"))
