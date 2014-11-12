@@ -18,6 +18,7 @@ This project relied on a number of R packages for both the analyses and plotting
 * RColorBrewer
 * scales
 * lattice
+* mvSLOUCH
 
 To aid reproducibility we have also integrated our project with [knitr](http://yihui.name/knitr/). This requires the following R packages
 
