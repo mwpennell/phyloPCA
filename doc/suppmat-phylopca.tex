@@ -18,7 +18,7 @@
 % ...and then we add some metadata
 \titleprefix{Supplemental Material}
 \runninghead{PCA in comparative analyses}
-\title{Comparative analyses of principal components can be misleading}
+\title{Fitting phylogenetic comparative models to principal components can be misleading}
 \author{Josef C. Uyeda, Daniel S. Caetano, \& Matthew W. Pennell}
 \address{Department of Biological Sciences \& Institute for Bioinformatics
 an Evolutionary Studies, University of Idaho}
@@ -59,8 +59,9 @@ Under an OU process, $\rho[Y_i, Y_j]$ is
 \rho[Y_i, Y_j] = \frac{\frac{\sigma^2}{2\alpha}e^{-2 \alpha (T-t_{ij})}(1-e^{-2\alpha t_{ij}})}{\frac{\sigma^2}{2\alpha}(1-e^{-2\alpha T})}
 \end{equation}
 With some algebra, it is straightforward to reduce Equation \ref{eq:rho-ou} to
+%% This is t_{ij} in equation (5), correct?
 \begin{equation}
-\frac{1-e^{2\alpha t}}
+\frac{1-e^{2\alpha t_{ij}}}
 {1-e^{2\alpha T}}
 \end{equation}\bigskip
 
