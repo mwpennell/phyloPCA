@@ -1,6 +1,6 @@
 \documentclass[a4paper,11pt]{article}
 \usepackage{ms}
-\usepackage{amsmath,amsfonts,amssymb}
+%\usepackage{amsmath,amsfonts,amssymb}
 \usepackage{natbib}
 %\usepackage{lineno}
 \usepackage{graphicx}
@@ -79,7 +79,7 @@ where $\boldsymbol{\mu}$ is a vector containing the means of all $m$ traits and 
 \mathbf{S}=(\mathbf{X} - \mathbf{1}\boldsymbol{\mu}^\intercal)\mathbf{V}
 \end{equation}
 
-Phylogenetic PCA differs from this procedure in two important ways \citep{Revell2008,Polly2013} . First the covariance matrix is weighted by the inverse of the expected covariance of trait values between taxa under a given model $\mathbf{\Sigma}$. Under a BM model of trait evolution, $\mathbf{\Sigma}$ is simply proportional to the matrix representation of the phylogenetic tree $\mathbf{C}$, such that $\Sigma_{i,j}$ is the shared path length between lineages $i$ and $j$ \citep{Rohlf2001}. Since only relative branch lengths matter under a multivariate BM process, we can simply set $\mathbf{\Sigma}=\mathbf{C}$ without loss of generality, though we note that the absolute magnitude of the eigenvalues will depend on the scale of the branch lengths. Including the expected covariance between trait values essentially just re-orients the axes according to the phylogeny. Second, the space is centered on the ``phylogenetic means'' $\mathbf{a}$ of the traits rather than their arithmetic means, which can be computed following \citet{RevellHarmon2008}:
+Phylogenetic PCA differs from this procedure in two important ways \citep{Revell2008,Polly2013} . First the covariance matrix is weighted by the inverse of the expected covariance of trait values between taxa under a given model $\mathbf{\Sigma}$. Under a BM model of trait evolution, $\mathbf{\Sigma}$ is simply proportional to the matrix representation of the phylogenetic tree $\mathbf{C}$, such that $\Sigma_{i,j}$ is the shared path length between lineages $i$ and $j$ \citep{Rohlf2001}. Since only relative branch lengths matter under a multivariate BM process, we can simply set $\mathbf{\Sigma}=\mathbf{C}$ without loss of generality, though we note that the absolute magnitude of the eigenvalues will depend on the scale of the branch lengths. Including the expected covariance between trait values essentially just accounts for the expected covariance of the phylogeny. Second, the space is centered on the ``phylogenetic means'' $\mathbf{a}$ of the traits rather than their arithmetic means, which can be computed following \citet{RevellHarmon2008}:
 \begin{equation}\label{eq:phymean}
 \mathbf{a}=[(\mathbf{1}^\intercal \mathbf{\Sigma}^{-1} \mathbf{1})^{-1} 
 \mathbf{1}^\intercal \mathbf{\Sigma}^{-1} \mathbf{X}]^\intercal
