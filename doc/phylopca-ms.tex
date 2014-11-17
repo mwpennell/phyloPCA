@@ -72,25 +72,25 @@ Last, we consider the interpretation of evolutionary models fit to pPC axes and 
 \subsection{Overview of pPCA}
 Before describing our analyses, we briefly review standard and phylogenetic PCA and highlight the differences between the two \citep[see][for a more detailed treatment]{Polly2013}. In conventional PCA, a $m \times m$ covariance matrix $\mathbf{R}$ is computed from a matrix of trait values $\mathbf{X}$ for the $n$ species and $m$ traits
 \begin{equation}\label{eq:rpca}
-\mathbf{R} = (n-1)^{-1}(\mathbf{X} - \mathbf{1}\boldsymbol{\mu}^\intercal)^\intercal (\mathbf{X} - \mathbf{1}\boldsymbol{\mu}^\intercal)
+\mathbf{R} = (n-1)^{-1}(\mathbf{X} - \mathbf{1}\boldsymbol{\mu}) (\mathbf{X} - \mathbf{1}\boldsymbol{\mu})
 \end{equation}
 where $\boldsymbol{\mu}$ is a vector containing the means of all $m$ traits and $\mathbf{1}$ is a column vector of ones. We note that in many applications $\mathbf{X}$ may not represent the raw trait values. In geometric morphometrics for example, size, translation and rotation will often be removed from $\mathbf{X}$ prior to computing $\mathbf{R}$ \citep{RohlfSlice, Bookstein1997}. The eigenvalues $\mathbf{D}$ and eigenvectors $\mathbf{V}$ of $\mathbf{R}$ are then obtained using singular-value decomposition $\mathbf{R}=\mathbf{V}\mathbf{D}\mathbf{V}^{-1}$ or some related technique. The scores $\mathbf{S}$, the trait values of the species along the PC axes, are computed as
 \begin{equation}\label{eq:Spca}
-\mathbf{S}=(\mathbf{X} - \mathbf{1}\boldsymbol{\mu}^\intercal)\mathbf{V}.
+\mathbf{S}=(\mathbf{X} - \mathbf{1}\boldsymbol{\mu})\mathbf{V}
 \end{equation}
 
 Phylogenetic PCA differs from this procedure in two important ways \citep{Revell2008,Polly2013} . First the covariance matrix is inversely weighted by the expected covariance of trait values between taxa under a given model $\mathbf{\Sigma}$. Under a BM model of trait evolution, $\mathbf{\Sigma}$ is simply proportional to the matrix representation of the phylogenetic tree $\mathbf{C}$, such that $\Sigma_{i,j}$ is the shared path length between lineages $i$ and $j$ \citep{Rohlf2001}. We note that as only relative branch lengths matter under a multivariate BM process, we can simply set $\mathbf{\Sigma}=\mathbf{C}$ without loss of generality, though we note that the absolute magnitude of the eigenvalues will depend on the scale of the branch lengths. Including the expected covariance between trait values essentially just re-orients the axes according to the phylogeny. Second, the space is centered on the ``phylogenetic means'' $\mathbf{a}$ of the traits rather than their arithmetic means, which can be computed following \citet{RevellHarmon2008}:
 \begin{equation}\label{eq:phymean}
 \mathbf{a}=[(\mathbf{1}^\intercal \mathbf{\Sigma}^{-1} \mathbf{1})^{-1} 
-\mathbf{1}^\intercal \mathbf{\Sigma}^{-1} \mathbf{X}]^\intercal.
+\mathbf{1}^\intercal \mathbf{\Sigma}^{-1} \mathbf{X}]
 \end{equation}
 In pPCA, Equation \ref{eq:rpca} is therefore modified as
 \begin{equation}\label{eq:rppca}
-\mathbf{R} = (n-1)^{-1}(\mathbf{X} - \mathbf{1a}^\intercal)^\intercal \mathbf{\Sigma}^{-1} (\mathbf{X} - \mathbf{1a}^\intercal)
+\mathbf{R} = (n-1)^{-1}(\mathbf{X} - \mathbf{1a})^\intercal \mathbf{\Sigma}^{-1} (\mathbf{X} - \mathbf{1a})
 \end{equation}
 Similarly, $\mathbf{S}$ can be calculated for pPCA using Equation \ref{eq:Spca} but substituting the phylogenetic means for the arithmetic means
 \begin{equation}\label{eq:Sppca}
-\mathbf{S}=(\mathbf{X} - \mathbf{1a}^\intercal)\mathbf{V}
+\mathbf{S}=(\mathbf{X} - \mathbf{1a})\mathbf{V}
 \end{equation}
 where again, $\mathbf{V}$ is a matrix containing the eigenvectors of $\mathbf{R}$, in this case obtained from Equation \ref{eq:rppca}.
 
