@@ -43,9 +43,11 @@ ebcont <- foreach(i=1:half) %dopar% get.contrasts(ebdat[i], "EB")
 oucont.ind <- foreach(i=1:half) %dopar% get.contrasts(oudat.ind[i], "OU")
 oucont.cor <- foreach(i=1:half) %dopar% get.contrasts(oudat.cor[i], "OU")
 
-## Combine all uncorrelated simulations and save.
-contrasts <- rbind(bmcont, oucont.ind, ebcont)
-saveRDS(contrasts, file="output/sim-res/cont-height.rds")
+## Combine all simulations and save (for uncor and cor OU):
+contrasts.ou.ind <- rbind(bmcont, oucont.ind, ebcont)
+saveRDS(contrasts.ou.ind, file="output/sim-res/cont-height-ou.ind.rds")
+contrasts.ou.cor <- rbind(bmcont, oucont.cor, ebcont)
+saveRDS(contrasts.ou.cor, file="output/sim-res/cont-height-ou.cor.rds")
 
 ## Calculate the disparity through time for half of the simulated datasets.
 bmdtt <- foreach(i=1:half) %dopar% get.dtt(bmdat[i], "BM")
