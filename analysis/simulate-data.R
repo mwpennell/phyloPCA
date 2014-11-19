@@ -48,13 +48,15 @@ contrasts <- rbind(bmcont, oucont.ind, ebcont)
 saveRDS(contrasts, file="output/sim-res/cont-height.rds")
 
 ## Calculate the disparity through time for half of the simulated datasets.
-bmdtt <- foreach(i=1:half) %dopar% get.dtt(bmdat[i], "BM") 
+bmdtt <- foreach(i=1:half) %dopar% get.dtt(bmdat[i], "BM")
 ebdtt <- foreach(i=1:half) %dopar% get.dtt(ebdat[i], "EB")
 oudtt.ind <- foreach(i=1:half) %dopar% get.dtt(oudat.ind[i], "OU")
 oudtt.cor <- foreach(i=1:half) %dopar% get.dtt(oudat.cor[i], "OU")
 
-dispdat <- do.call(rbind, list(bmdtt, ebdtt, oudtt.ind, oudtt.cor))
-saveRDS(dispdat, file="output/sim-res/disp-time.rds")
+dispdat.ou.ind <- do.call(rbind, list(bmdtt, ebdtt, oudtt.ind))
+saveRDS(dispdat.ou.ind, file="output/sim-res/disp-time-ou.ind.rds")
+dispdat.ou.cor <- do.call(rbind, list(bmdtt, ebdtt, oudtt.cor))
+saveRDS(dispdat.ou.cor, file="output/sim-res/disp-time-ou.cor.rds")
 
 ## Fit models and calculate AICweights and compare parameter estimates.
 ## Note: 'fitPCs' and 'fitPCOU' use parallel processing internally.
