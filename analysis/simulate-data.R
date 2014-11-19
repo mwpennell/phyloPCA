@@ -41,24 +41,22 @@ half <- round(nsims / 2)
 bmcont <- foreach(i=1:half) %dopar% get.contrasts(bmdat[i], "BM")
 ebcont <- foreach(i=1:half) %dopar% get.contrasts(ebdat[i], "EB")
 oucont.ind <- foreach(i=1:half) %dopar% get.contrasts(oudat.ind[i], "OU")
-oucont.cor <- foreach(i=1:half) %dopar% get.contrasts(oudat.cor[i], "OU")
 
 ## Combine all simulations and save (for uncor and cor OU):
-contrasts.ou.ind <- rbind(bmcont, oucont.ind, ebcont)
-saveRDS(contrasts.ou.ind, file="output/sim-res/cont-height-ou.ind.rds")
-contrasts.ou.cor <- rbind(bmcont, oucont.cor, ebcont)
-saveRDS(contrasts.ou.cor, file="output/sim-res/cont-height-ou.cor.rds")
+contrasts <- rbind(bmcont, oucont.ind, ebcont)
+saveRDS(contrasts, file="output/sim-res/cont-height.rds")
 
 ## Calculate the disparity through time for half of the simulated datasets.
 bmdtt <- foreach(i=1:half) %dopar% get.dtt(bmdat[i], "BM")
 ebdtt <- foreach(i=1:half) %dopar% get.dtt(ebdat[i], "EB")
-oudtt.ind <- foreach(i=1:half) %dopar% get.dtt(oudat.ind[i], "OU")
-oudtt.cor <- foreach(i=1:half) %dopar% get.dtt(oudat.cor[i], "OU")
+oudtt <- foreach(i=1:half) %dopar% get.dtt(oudat.ind[i], "OU")
 
-dispdat.ou.ind <- do.call(rbind, list(bmdtt, ebdtt, oudtt.ind))
-saveRDS(dispdat.ou.ind, file="output/sim-res/disp-time-ou.ind.rds")
-dispdat.ou.cor <- do.call(rbind, list(bmdtt, ebdtt, oudtt.cor))
-saveRDS(dispdat.ou.cor, file="output/sim-res/disp-time-ou.cor.rds")
+bmdtt <- do.call(rbind, bmdtt)
+ebdtt <- do.call(rbind, ebdtt)
+oudtt <- do.call(rbind, oudtt)
+
+dispdat <- do.call(rbind, list(bmdtt, ebdtt, oudtt))
+saveRDS(dispdat, file="output/sim-res/disp-time.rds")
 
 ## Fit models and calculate AICweights and compare parameter estimates.
 ## Note: 'fitPCs' and 'fitPCOU' use parallel processing internally.
