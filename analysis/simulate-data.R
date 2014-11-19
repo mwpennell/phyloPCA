@@ -78,8 +78,8 @@ bmres <- do.call(rbind, bmfits)
 ## Save output
 saveRDS(bmres, "output/sim-res/bm-uncor.rds")
 saveRDS(ebres, "output/sim-res/eb-uncor.rds")
-saveRDS(oudat.ind, "output/sim-res/ou-res-ind.rds")
-saveRDS(oudat.cor, "output/sim-res/ou-res-cor.rds")
+saveRDS(oures.ind, "output/sim-res/ou-res-ind.rds")
+saveRDS(oures.cor, "output/sim-res/ou-res-cor.rds")
 
 ## For OU simulations, extract the parameter estimates
 parsdf.ind <- get.parsOU(oufits.ind)
