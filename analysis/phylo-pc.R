@@ -49,18 +49,27 @@ bm.uncor.df <- build.sim.data.step(bm.uncor)
 fig.aicw(bm.uncor.df, cols.aic)
 
 
-## ### Multivariate OU (uncorrelated traits)
-
-## All traits are evolved independently
+## ### Multivariate OU
+## 1) All traits are evolved independently:
 
 ## Read in data
-ou.uncor <- readRDS("output/sim-res/ou-uncor.rds")
+ou.ind <- readRDS("output/sim-res/ou-res-ind.rds")
 
 ## Build matrix for plotting, using the difference in AICw between OU and EB as a summary statistic.
-ou.uncor.df <- build.sim.data.step(ou.uncor)
+ou.ind.df <- build.sim.data.step(ou.ind)
 
 ## Figure 3 -- Model support across PC and pPC axes
-fig.aicw(ou.uncor.df, cols.aic)
+#pdf("Figure3_uncor.pdf", width = 10.5, height = 7)
+fig.aicw(ou.ind.df, cols.aic)
+#dev.off()
+
+## 2) All traits are evolved correlated:
+## Same steps of previous block (1):
+ou.cor <- readRDS("output/sim-res/ou-res-cor.rds")
+ou.cor.df <- build.sim.data.step(ou.cor)
+#pdf("Figure3_corr.pdf", width = 10.5, height = 7)
+fig.aicw(ou.cor.df, cols.aic)
+#dev.off()
 
 
 ## ### Multivariate EB (uncorrelated traits)
@@ -91,23 +100,28 @@ fig.nh.2panel(cont, cols)
 ## ## Disparity through time
 
 ## Read in data containing disparity (sensu Harmon et al. 2003) and time at which it was calculated
+## 1) For the uncorrelated OU traits:
 disp <- readRDS("output/sim-res/disp-time.rds")
-
 ## Figure 5 -- plot average loess function for all PC and pPC axes
+
 fig.dtt.2panel(disp, cols)
 
-
-
 ## ## Parameter esitmation (OU model only)
+## 1) For the uncorrelated OU traits:
 ## For the case of the uncorrelated OU model, we have obtained the estimated alpha parameter for each simulation
-par.ou <- readRDS("output/sim-res/OU-param.rds")
+par.ou.ind <- readRDS("output/sim-res/OU-param-ind.rds")
 
 ## Only looking at the results from the phylogenetic PCA
-ppca.ou <- subset(par.ou, variable == "ppc")
+ppca.ou.ind <- subset(par.ou.ind, variable == "ppc")
 
 ## Plot the estimated alpha values for each of the PCs
-fig.alpha.est(ppca.ou, col.pt=cols.gn[2], col.line=cols.line)
+fig.alpha.est(ppca.ou.ind, col.pt=cols.gn[2], col.line=cols.line)
 
+## 1) For the correlated OU traits:
+## Same steps as above:
+par.ou.cor <- readRDS("output/sim-res/OU-param-cor.rds")
+ppca.ou.cor <- subset(par.ou.cor, variable == "ppc")
+fig.alpha.est(ppca.ou.cor, col.pt=cols.gn[2], col.line=cols.line)
 
 
 ## Effect of mixing different models - ACDC models with parameter drawn from normal distribution
@@ -273,7 +287,11 @@ if (!interactive()){
     dev.off()
 
     pdf("output/figs/uncor-ou-aic.pdf", height=7, width=9)
-    fig.aicw(ou.uncor.df, cols.aic)
+    fig.aicw(ou.ind.df, cols.aic)
+    dev.off()
+    
+    pdf("output/figs/corr-ou-aic.pdf", height=7, width=9)
+    fig.aicw(ou.cor.df, cols.aic)
     dev.off()
 
     pdf("output/figs/uncor-eb-aic.pdf", height=7, width=9)
@@ -288,8 +306,12 @@ if (!interactive()){
     fig.dtt.2panel(disp, cols)
     dev.off()
 
-    pdf("output/figs/alpha-est.pdf", height=7, width=9)
-    fig.alpha.est(ppca.ou, col.pt=cols.gn[2], col.line=cols.line)
+    pdf("output/figs/alpha-est-uncor.pdf", height=7, width=9)
+    fig.alpha.est(ppca.ou.ind, col.pt=cols.gn[2], col.line=cols.line)
+    dev.off()
+
+    pdf("output/figs/alpha-est-corr.pdf", height=7, width=9)
+    fig.alpha.est(ppca.ou.cor, col.pt=cols.gn[2], col.line=cols.line)
     dev.off()
 
     pdf("output/figs/onion.pdf", height=7, width=9)
