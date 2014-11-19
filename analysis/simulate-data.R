@@ -8,60 +8,68 @@ source("R/simulate-helper.R")
 ## Set the number of cores for parallel analysis
 registerDoMC(cores=3)
 
-## Specify the number of tips, traits and a vector specifying which traits to fit models to.
+## Specify the number of tips, traits and simulations for all simulations.
 ntips <- 50
 ntraits <- 20
+nsims <- 100
 
 ## Simulate mv Brownian motion (correlated characters)
 
 ## This function simulates a phylogenetic tree using a birth-death model with extinction = 0. The tree is rescaled to unit height. It then simulates a trait variance-covariance matrix by simulating eigenvalues from an exponential distribution with lambda = 1/100. These are then used to simulate under multivariate Brownian motion on the phylogeny. Note that simulating the data for a large number of tips and traits is computationally intensive (requires a ntraits x ntips covariance matrix).
 
-simdat <- foreach(i=1:100) %dopar% sim.tree.pcs.mv(ntips, ntraits,
+simdat <- foreach(i=1:nsims) %dopar% sim.tree.pcs.mv(ntips, ntraits,
                       sig2dist=rexp, lambda=1/100)
-res <- foreach(i=1:100) %dopar% fitPCs(simdat[[i]], c(1:20),
+res <- foreach(i=1:nsims) %dopar% fitPCs(simdat[[i]], c(1:20),
                    models=c("BM", "OUfixedRoot", "EB"))
 res <- do.call(rbind, res)
 saveRDS(res, "output/sim-res/bm-cor.rds")
 
 
 
-## Simulate uncorrelated data under BM, OU and EB and analyze using model selection, node-height test, and disparity through time.
+## Simulate uncorrelated data under BM, EB and OU and correlated data under OU. Analyze using model selection, node-height test, and disparity through time.
 
-## Simulate the data
-nsims <- 100
-bmdat <- lapply(1:nsims, function(x) sim.tree.pcs.ind(ntips, ntraits,sig2dist=function(x){0.25}))
-oudat <- lapply(1:nsims, function(x) sim.tree.pcs.ind.ou(ntips, ntraits, alpha=2, sig2=1))
-ebdat <- lapply(1:nsims, function(x) sim.tree.pcs.ind.eb(ntips, ntraits, a=log(0.02), sig2=1))
+## Simulate the data.
+bmdat <- foreach(i=1:nsims) %dopar% sim.tree.pcs.ind(ntips, ntraits, sig2dist=function(x){0.25})
+ebdat <- foreach(i=1:nsims) %dopar% sim.tree.pcs.ind.eb(ntips, ntraits, a=log(0.02), sig2=1)
+oudat.ind <- foreach(i=1:nsims) %dopar% sim.tree.pcs.ind.ou(ntips, ntraits, alpha=2, sig2=1)
+R <- Posdef(ntraits, ev=rexp(20, 1)) # R matrix for OU correlated.
+A <- diag(2, nrow = ntraits) # alpha matrix for OU correlated.
+oudat.cor <- foreach(i=1:nsims) %dopar% sim.tree.pcs.mv.ou(ntips, ntraits, alpha=A, sig2=R)
 
-## Calculate the contrasts for each of the first 50 simulated datasets.
-bmcont <- get.contrasts(bmdat[1:50], "BM")
-oucont <- get.contrasts(oudat[1:50], "OU")
-ebcont <- get.contrasts(ebdat[1:50], "EB")
+## Calculate the contrasts for each of the first half simulated datasets.
+half <- round(nsims / 2)
+bmcont <- foreach(i=1:half) %dopar% get.contrasts(bmdat[i], "BM")
+ebcont <- foreach(i=1:half) %dopar% get.contrasts(ebdat[i], "EB")
+oucont.ind <- foreach(i=1:half) %dopar% get.contrasts(oudat.ind[i], "OU")
+oucont.cor <- foreach(i=1:half) %dopar% get.contrasts(oudat.cor[i], "OU")
 
-## Combine all and save
-contrasts <- rbind(bmcont, oucont, ebcont)
+## Combine all uncorrelated simulations and save.
+contrasts <- rbind(bmcont, oucont.ind, ebcont)
 saveRDS(contrasts, file="output/sim-res/cont-height.rds")
 
-## Calculate the disparity through time for each simulated dataset
-bmdtt <- get.dtt(bmdat[1:50], "BM") 
-oudtt <- get.dtt(oudat[1:50], "OU")
-ebdtt <- get.dtt(ebdat[1:50], "EB")
+## Calculate the disparity through time for half of the simulated datasets.
+bmdtt <- foreach(i=1:half) %dopar% get.dtt(bmdat[i], "BM") 
+ebdtt <- foreach(i=1:half) %dopar% get.dtt(ebdat[i], "EB")
+oudtt.ind <- foreach(i=1:half) %dopar% get.dtt(oudat.ind[i], "OU")
+oudtt.cor <- foreach(i=1:half) %dopar% get.dtt(oudat.cor[i], "OU")
 
-dispdat <- do.call(rbind, list(bmdtt, oudtt, ebdtt))
+dispdat <- do.call(rbind, list(bmdtt, ebdtt, oudtt.ind, oudtt.cor))
 saveRDS(dispdat, file="output/sim-res/disp-time.rds")
 
-
-
-
-## Simulate under OU, BM and EB uncorrelated, fit models and calculate AICweights and compare parameter estimates.
-registerDoMC(cores=3)
-oufits <- foreach(i=1:100) %dopar% fitPCOU(oudat[[i]], 1:20, models=c("BM", "OUfixedRoot", "EB"))
-ebfits <- foreach(i=1:100) %dopar% fitPCs(ebdat[[i]], 1:20, models=c("BM", "OUfixedRoot", "EB"))
-bmfits <- foreach(i=1:100) %dopar% fitPCs(bmdat[[i]], 1:20, models=c("BM", "OUfixedRoot", "EB"))
+## Fit models and calculate AICweights and compare parameter estimates.
+## Note: 'fitPCs' and 'fitPCOU' use parallel processing internally.
+bmfits <- lapply(1:nsims, function(x) fitPCs(bmdat[[x]], 1:ntraits, models=c("BM", "OUfixedRoot", "EB")) )
+ebfits <- lapply(1:nsims, function(x) fitPCs(ebdat[[x]], 1:ntraits, models=c("BM", "OUfixedRoot", "EB")) )
+oufits.ind <- lapply(1:nsims, function(x) fitPCOU(oudat.ind[[x]], 1:ntraits, models=c("BM", "OUfixedRoot", "EB")) )
+oufits.cor <- lapply(1:nsims, function(x) fitPCOU(oudat.cor[[x]], 1:ntraits, models=c("BM", "OUfixedRoot", "EB")) )
 
 ## Get just the aicws for the OU results, filtering out the parameter estimates
-ouaicws <- lapply(oufits, function(x) x$aicw.table)
-oures <- do.call(rbind, ouaicws)
+## Uncorrelated OU:
+ouaicws.ind <- lapply(oufits.ind, function(x) x$aicw.table)
+oures.ind <- do.call(rbind, ouaicws.ind)
+## Correlated OU:
+ouaicws.cor <- lapply(oufits.cor, function(x) x$aicw.table)
+oures.cor <- do.call(rbind, ouaicws.cor)
 
 ## Collect other AIC weights for EB and BM
 ebres <- do.call(rbind, ebfits)
@@ -69,19 +77,17 @@ bmres <- do.call(rbind, bmfits)
 
 ## Save output
 saveRDS(bmres, "output/sim-res/bm-uncor.rds")
-saveRDS(oures, "output/sim-res/ou-uncor.rds")
 saveRDS(ebres, "output/sim-res/eb-uncor.rds")
-
-
+saveRDS(oudat.ind, "output/sim-res/ou-res-ind.rds")
+saveRDS(oudat.cor, "output/sim-res/ou-res-cor.rds")
 
 ## For OU simulations, extract the parameter estimates
-parsdf <- get.parsOU(oufits)
-saveRDS(parsdf, "output/sim-res/OU-param.rds")
+parsdf.ind <- get.parsOU(oufits.ind)
+saveRDS(parsdf.ind, "output/sim-res/OU-param-ind.rds")
+parsdf.cor <- get.parsOU(oufits.cor)
+saveRDS(parsdf.cor, "output/sim-res/OU-param-cor.rds")
 
 ## Simulate ACDC model
-nsims=100
-ntraits=20
-ntips=50
 acdcdat <- lapply(1:nsims, function(x) sim.tree.pcs.ind.acdc(ntips, ntraits, asd=5, sig2=1, cor=TRUE))
 acdcres <- prepare.acdc(acdcdat)
 saveRDS(acdcres, "output/sim-res/acdc.rds")
