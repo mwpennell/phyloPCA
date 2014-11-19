@@ -119,18 +119,9 @@ Therefore for any covariance matrix for $Y_i$ and $Y_j$, OU and AC are completel
 
 \begin{figure}[p]
 \centering
-\includegraphics[scale=0.65]{./fig/dtt-2panel.pdf}
-\caption[Disparity through time plots]{Disparity through time plots averaged across the 100 simulated datasets. The datasets were simulated under BM (left), OU (middle) or EB (right). The analyses were then performed on PC scores (top row) and pPC scores (bottom row). The average disparity through time of all 20 original trait variables is indicated by the red line. We fit a loess curve through the relative disparities for each trait/transformation/model combination. The plots are oriented so that the left side of each panel corresponds to the root of the phylogeny, with time increasing tipward to the right. The intensity of the colors are proportional to the ranking of the PC or pPC axes, stronger lines represent the first axes. As in Fig. 3, the first few axes from the PCA show a strong pattern of high disparity early in the clades' histories with the higher components showing seemingly higher disparity towards the present. Phylogenetic PCA corrects the distortion if the generating model is multivariate BM. However, if the generating model was not BM, the first few pPC axes tend to show an exaggerated pattern of disparity relative to the original traits.}
-\label{dttplot}
-\end{figure}
-
-
-%% Figure S1.
-\begin{figure}[p]
-\centering
-\includegraphics[scale=0.65]{./fig/uncor-bm-aic.pdf}
-\caption[Model support when generating model is uncorrelated BM]{Distribution of support for BM, OU and EB models when the generating model is an uncorrelated multivariate BM model. Support for models were transformed into a linear scale by calculating an overall model support statistic: $AICw_{OU} - AICw_{EB}$. Thus high values support OU, low values support EB, and intermediate values near 0 indicate BM-like evolution. Models were fit to each replicated dataset for each of 20 different traits which were taken either from PC scores (blue line) or phylogenetic PC scores (green line). Shaded regions indicate the  25$^{th}$ and 75$^{th}$ quantiles of the model support statistic for  100 replicated datasets. The red  line indicates the average model support statistic averaged over all 20 original trait variables. Note that EB models have higher Akaike weights for the first few PCs of standard PCA, and that later PCs subsequently favor BM and finally, OU models. No such bias is found across traits for either the original data or pPCA axes.}
-\label{aicwbm}
+\includegraphics[scale=0.65]{./fig/uncor-ou-aic.pdf}
+\caption[Model support when generating model is uncorrelated OU]{Distribution of support for BM, OU and EB models when the generating model is a uncorrelated multivariate OU model. Support for models were transformed into a linear scale by calculating an overall model support statistic: $AICw_{OU} - AICw_{EB}$. Thus high values support OU, low values support EB, and intermediate values near 0 indicate BM-like evolution. Models were fit to each replicated dataset for each of 20 different traits which were taken either from PC scores (blue line) or phylogenetic PC scores (green line). Shaded regions indicate the 25$^{th}$ and 75$^{th}$ quantiles of the model support statistic for 100 replicated datasets. The red line indicates the average model support statistic averaged over all 20 original trait variables. Note that standard PCA results in Akaike weights that are skewed toward EB for the first few PCs of standard PCA, while  and that later PCs subsequently favor OU models. By contrast, pPCA results in Akaike weights that are skewed toward stronger support for OU models relative to the original trait variables.}
+\label{oufit}
 \end{figure}
 
 %% Figure S2.
@@ -141,13 +132,40 @@ Therefore for any covariance matrix for $Y_i$ and $Y_j$, OU and AC are completel
 \label{aicweb}
 \end{figure}
 
-%% Figure S3.
 \begin{figure}[p]
 \centering
-\includegraphics[scale=0.65]{fig/alpha-est.pdf}
-\caption[Estimates of the $\alpha$ parameter from phylogenetic PCA]{Estimated values of the $\alpha$ parameter from phylogenetic PCA when data is simulated under an uncorrelated multivariate OU model. The simulating value $\alpha=$ 2 is depicted with the red line. The estimate of $\alpha$ is inflated in the first few pPC axes consistent with an exaggerated support for the OU model. In the last pPC axes, $\alpha$ is estimated to be very close to 0, such that the OU model is statistically indistinguishable from a BM model.}
-\label{alpha}
+\includegraphics[scale=0.65]{fig/alpha-est-uncor.pdf}
+\caption[Estimates of the $\alpha$ parameter from phylogenetic PCA on uncorrelated OU]{Estimated values of the $\alpha$ parameter from phylogenetic PCA when data is simulated under an uncorrelated multivariate OU model. The simulating value $\alpha=$ 2 is depicted with the red line. The estimate of $\alpha$ is inflated in the first few pPC axes consistent with an exaggerated support for the OU model. In the last pPC axes, $\alpha$ is estimated to be very close to 0, such that the OU model is statistically indistinguishable from a BM model.}
+\label{alpha-uncor}
 \end{figure}
+
+\begin{figure}[p]
+\centering
+\includegraphics[scale=0.65]{fig/alpha-est-corr.pdf}
+\caption[Estimates of the $\alpha$ parameter from phylogenetic PCA on correlated OU]{Estimated values of the $\alpha$ parameter from phylogenetic PCA when data is simulated under a correlated multivariate OU model. The simulating value $\alpha=$ 2 is depicted with the red line. The estimate of $\alpha$ is inflated in the first few pPC axes consistent with an exaggerated support for the OU model. In the last pPC axes, $\alpha$ is estimated to be very close to 0, such that the OU model is statistically indistinguishable from a BM model.}
+\label{alpha-cor}
+\end{figure}
+
+\begin{figure}[p]
+\centering
+\includegraphics[scale=0.65]{./fig/dtt-2panel.pdf}
+\caption[Disparity through time plots]{Disparity through time plots averaged across the 100 simulated datasets. The datasets were simulated under BM (left), OU (middle) or EB (right). The analyses were then performed on PC scores (top row) and pPC scores (bottom row). The average disparity through time of all 20 original trait variables is indicated by the red line. We fit a loess curve through the relative disparities for each trait/transformation/model combination. The plots are oriented so that the left side of each panel corresponds to the root of the phylogeny, with time increasing tipward to the right. The intensity of the colors are proportional to the ranking of the PC or pPC axes, stronger lines represent the first axes. As in Fig. 3, the first few axes from the PCA show a strong pattern of high disparity early in the clades' histories with the higher components showing seemingly higher disparity towards the present. Phylogenetic PCA corrects the distortion if the generating model is multivariate BM. However, if the generating model was not BM, the first few pPC axes tend to show an exaggerated pattern of disparity relative to the original traits.}
+\label{dttplot}
+\end{figure}
+
+
+%% Figure S1.
+%\begin{figure}[p]
+%\centering
+%\includegraphics[scale=0.65]{./fig/uncor-bm-aic.pdf}
+%\caption[Model support when generating model is uncorrelated BM]{Distribution of support for BM, OU and EB models when the generating model is an uncorrelated multivariate BM model. Support for models were transformed into a linear scale by calculating an overall model support statistic: $AICw_{OU} - AICw_{EB}$. Thus high values support OU, low values support EB, and intermediate values near 0 indicate BM-like evolution. Models were fit to each replicated dataset for each of 20 different traits which were taken either from PC scores (blue line) or phylogenetic PC scores (green line). Shaded regions indicate the  25$^{th}$ and 75$^{th}$ quantiles of the model support statistic for  100 replicated datasets. The red  line indicates the average model support statistic averaged over all 20 original trait variables. Note that EB models have higher Akaike weights for the first few PCs of standard PCA, and that later PCs subsequently favor BM and finally, OU models. No such bias is found across traits for either the original data or pPCA axes.}
+%\label{aicwbm}
+%\end{figure}
+
+%% Figure 3.
+
+
+
 
 %% Figure S4.
 \begin{figure}[p]

@@ -6,6 +6,7 @@ require(reshape2)
 require(RColorBrewer)
 require(scales)
 require(lattice)
+require(gridExtra)
 
 
 ## Function for building table for AICw figures
