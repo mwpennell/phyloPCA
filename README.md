@@ -1,4 +1,4 @@
-## Statistical and conceptual challenges in the comparative analysis of principal components
+## Comparative analysis of principal components can be misleading
 
 This is the repo for our project investigating the statistical and conceptual issues involved in using PCA and PhyloPCA in phylogenetic comparative analyses. It is a collaborative project between [Josef Uyeda](http://scholar.google.com/citations?user=lo-oG3EAAAAJ&hl=en), [Daniel Caetano](http://caetanods.weebly.com/) and [Matthew Pennell](http://mwpennell.github.io).
 
